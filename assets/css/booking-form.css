@@ -1,0 +1,406 @@
+/* Contenedor principal del formulario */
+.bv-booking-form {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.50);
+    padding: 24px;
+    width: 380px;
+    margin: 40px auto 0;
+}
+
+/* Header y precio base */
+.bv-price-base {
+    font-size: 24px;
+    margin-bottom: 24px;
+}
+
+.bv-price-base span {
+    font-weight: 700;
+}
+
+/* Contenedor de campos */
+.bv-fields-container {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: visible;
+    margin-bottom: 20px;
+}
+
+/* Filas del formulario */
+.bv-form-row {
+    display: grid;
+    width: 100%;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Row específica para fecha y cantidad */
+.bv-datetime-row {
+    grid-template-columns: 1fr 1fr;
+}
+
+/* Cuando quantity no está presente */
+.bv-datetime-row.no-quantity {
+    grid-template-columns: 1fr;
+}
+
+/* Row para extras */
+.bv-extras-row {
+    grid-template-columns: 1fr;
+}
+
+.bv-form-row:last-child {
+    border-bottom: none;
+}
+
+/* Configuraciones específicas de filas */
+.bv-single-date {
+    grid-template-columns: 1fr;
+}
+
+.bv-date-range,
+.bv-options-row {
+    grid-template-columns: 1fr 1fr;
+}
+
+/* Ajustes de bloques de campo */
+.bv-field-block {
+    position: relative;
+    cursor: pointer;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Divisor vertical entre quantity y fecha */
+.bv-datetime-row .bv-field-block:first-child {
+    border-right: 1px solid #e0e0e0;
+}
+
+/* Divisor vertical entre columnas */
+.bv-date-range .bv-field-block:first-child,
+.bv-options-row .bv-field-block:first-child {
+    border-right: 1px solid #e0e0e0;
+}
+
+.bv-field-content {
+    padding: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Ajustes específicos para los campos de fecha */
+.bv-form-row.bv-datetime-row .bv-field-block {
+    height: auto;
+}
+
+.bv-form-row.bv-datetime-row .bv-field-content {
+    min-height: auto;
+    padding: 16px;
+}
+
+
+.bv-field-content:hover {
+    background-color: #f9f9f9;
+}
+
+/* Labels y valores */
+.bv-block-label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.bv-block-value {
+    font-size: 15px;
+    color: #333;
+}
+
+* Ajustes para mantener consistencia en extras */
+.bv-extras-row .bv-field-block {
+    height: auto;
+}
+
+/* Input temporal para quantity */
+.temp-quantity {
+    width: 80% !important;
+    padding: 8px !important;
+    border: 1px solid #cbb881 !important;
+    border-radius: 4px !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+    display: block !important;
+}
+
+/* Dropdown de extras */
+.bv-extras-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: -1px;
+    right: -1px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 4px;
+}
+
+/* Items del dropdown */
+.bv-extra-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.bv-extra-item:last-child {
+    border-bottom: none;
+}
+
+.bv-extra-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+/* Input para extras variables */
+.bv-extra-quantity {
+    width: 60px !important;
+    height: 28px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    text-align: center;
+    padding: 0 8px;
+}
+
+.bv-extra-quantity:focus {
+    border-color: #cbb881;
+    outline: none;
+}
+
+.bv-extra-name {
+    flex: 1;
+    font-size: 14px;
+    color: #333;
+}
+
+.bv-extra-price {
+    font-size: 14px;
+    color: #666;
+    white-space: nowrap;
+}
+
+/* Texto informativo */
+.bv-booking-info {
+    text-align: center;
+    color: #666;
+    margin: 16px 0;
+    font-size: 14px;
+}
+
+/* Botón de reserva */
+.bv-booking-button {
+    width: 100%;
+    background: #cbb881;
+    color: white;
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.bv-booking-button:hover {
+    background: #b5a348;
+}
+
+/* Totales */
+.bv-totals-container {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.bv-total-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    color: #666;
+    font-size: 14px;
+}
+
+.bv-total-final {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 12px;
+    margin-top: 12px;
+    border-top: 1px solid #e0e0e0;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Responsive */
+/* Responsive */
+@media (max-width: 480px) {
+    .bv-datetime-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .bv-datetime-row .bv-field-block:first-child {
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .bv-extras-dropdown {
+        position: fixed;
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        top: auto;
+        max-height: 60vh;
+    }
+}
+
+	
+/* Ajuste específico para campos de fecha */
+.bv-form-row.bv-single-date, 
+.bv-form-row.bv-date-range {
+    & > .bv-field-block {
+        height: auto;
+        
+        & > .bv-field-content {
+            min-height: 72px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+    }
+}
+
+.bv-form-row.bv-single-date .bv-field-block,
+.bv-form-row.bv-date-range .bv-field-block {
+   display: contents;
+}
+
+.variable-quantity-input:not(:focus)[value="0"],
+.bv-extra-quantity:not(:focus)[value="0"] {
+    color: transparent;
+}
+
+.invalid {
+    border-color: #ff0000 !important;
+}
+
+.error-message {
+    color: #ff0000;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+
+/*Event Quote Manager */
+
+.bv-button-separator {
+    height: 12px;
+}
+
+/* Estilo específico para el botón de quote en el booking form */
+.bv-booking-form .eq-quote-button {
+    width: 100%;
+    background: #ffffff;
+    color: #cbb881;
+    padding: 16px;
+    border: 2px solid #cbb881;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 8px;
+}
+
+.bv-booking-form .eq-quote-button:hover {
+    background: #f5f5f5;
+    color: #b5a348;
+    border-color: #b5a348;
+}
+
+/* Estilos para el botón Quote */
+.eq-quote-button {
+    width: 100%;
+    padding: 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 12px;
+}
+
+.eq-quote-button[data-quote-state="add"] {
+    background: #b5a348;
+    color: white;
+    border: none;
+}
+
+.eq-quote-button[data-quote-state="view"] {
+    background: white;
+    color: #b5a348;
+    border: 2px solid #b5a348;
+}
+
+.eq-quote-button[data-quote-state="update"] {
+    background: #f0ead6;
+    color: #b5a348;
+    border: 2px solid #b5a348;
+}
+
+/* Estilos para notificaciones */
+.eq-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    background: white;
+    border-left: 4px solid #b5a348;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+.eq-notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.bv-required-badge {
+    display: inline-block;
+    font-size: 10px;
+    background-color: #ff6b6b;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+.bv-extra-item input[disabled] + .bv-extra-name {
+    opacity: 0.9;
+}
