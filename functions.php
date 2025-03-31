@@ -759,7 +759,6 @@ function kava_child_ajax_filter_vendor_listings() {
         ]);
 
     } catch (Exception $e) {
-        error_log('Error en bv_ajax_filter_vendor_listings: ' . $e->getMessage());
         wp_send_json_error('Error processing request: ' . $e->getMessage());
     }
 }
@@ -827,29 +826,6 @@ add_action('wp', function() {
         }
     }
 }, 5);
-
-// Debugging para la página de detalles de reserva
-add_action('wp', function() {
-    if (hivepress()->router->get_current_route_name() === 'booking_make_details_page') {
-        $booking = hivepress()->request->get_context('booking');
-        if ($booking) {
-            error_log('Booking ID: ' . $booking->get_id());
-            error_log('Booking Data: ' . print_r($booking->serialize(), true));
-            error_log('Variable Extras: ' . print_r(get_post_meta($booking->get_id(), 'variable_quantity_extras', true), true));
-        }
-    }
-}, 20);
-
-// Debugging para actualizaciones AJAX de precios
-add_action('wp_ajax_nopriv_hp_update_booking_price', function() {
-    error_log('=== AJAX Booking Price Update ===');
-    error_log('POST Data: ' . print_r($_POST, true));
-}, 1);
-
-add_action('wp_ajax_hp_update_booking_price', function() {
-    error_log('=== AJAX Booking Price Update (Logged in) ===');
-    error_log('POST Data: ' . print_r($_POST, true));
-}, 1);
 
 // Modificaciones al menú de gestión de listings
 add_filter('hivepress/v1/menus/listing_manage/items', function($items) {
@@ -1046,38 +1022,25 @@ add_filter('hivepress/v1/forms/booking_confirm', function($form_args, $form) {
 }, 20, 2);
 
 function kava_child_load_booking_form_assets() {
-    // Añadir logs para depuración
-    error_log('=== Iniciando kava_child_load_booking_form_assets ===');
     
     global $post;
     $should_load = false;
 
-    error_log('Is front page: ' . (is_front_page() ? 'true' : 'false'));
-    error_log('Is home: ' . (is_home() ? 'true' : 'false'));
     
     if (is_front_page() || is_home()) {
         $should_load = true;
-        error_log('Should load por front/home page');
     }
 
     if (is_singular() && $post) {
         if (has_shortcode($post->post_content, 'cotizador_eventos')) {
             $should_load = true;
-            error_log('Should load por shortcode encontrado');
         }
     }
 
-    error_log('Should load final: ' . ($should_load ? 'true' : 'false'));
-
     if (!$should_load) {
-        error_log('Retornando sin cargar assets');
+
         return;
     }
-
-    error_log('Procediendo a cargar assets');
-    error_log('Theme directory: ' . get_stylesheet_directory_uri());
-    error_log('CSS path: ' . get_stylesheet_directory_uri() . '/assets/css/booking-form.css');
-    error_log('JS path: ' . get_stylesheet_directory_uri() . '/assets/js/booking-form.js');
 
 
     $theme = wp_get_theme();
