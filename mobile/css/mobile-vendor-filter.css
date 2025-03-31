@@ -1,0 +1,23 @@
+@media (max-width: 768px) {
+    .hp-filter-row {
+        flex-direction: column;
+    }
+
+    .hp-filter-field {
+        width: 100%;
+    }
+}
+
+/* Ajustar los media queries para responsive */
+@media (max-width: 768px) {
+    .hp-filter-buttons {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .hp-filter-button,
+    .hp-filter-reset {
+        width: 100%;
+    }
+}
+

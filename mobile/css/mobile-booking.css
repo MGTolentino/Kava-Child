@@ -1,0 +1,604 @@
+/* Ocultar elementos móviles en desktop */
+.bv-mobile-booking-footer,
+.bv-mobile-booking-modal {
+    display: none;
+}
+
+@media (max-width: 768px) {
+	
+	    /* Ajustar espaciado cuando no hay quantity */
+    .bv-mobile-modal-body:not(:has(.bv-mobile-quantity-section)) .bv-mobile-dates-section {
+        border-top: none;
+        padding-top: 0;
+    }
+
+	
+    /* Ocultar elementos del nav y form original en móvil */
+    .bv-nav-booking-actions {
+        display: none !important;
+    }
+
+    .bv-booking-sidebar {
+        display: none !important;
+    }
+
+    /* Ajustar contenido principal */
+    .bv-content-booking-wrapper {
+        display: block;
+        width: 100%;
+        padding: 0;
+    }
+
+    .bv-main-content {
+        width: 100% !important;
+        max-width: 100%;
+        padding: 0 16px;
+    }
+
+    /* Ajustes específicos para la sección de resumen */
+    .bv-resume-section {
+        width: 100%;
+        padding-bottom: 60px; /* Espacio para el footer */
+    }
+
+    .bv-resume-section p,
+    .bv-resume-section .hp-listing__description {
+        width: 100%;
+        max-width: 100%;
+        word-wrap: break-word;
+    }
+
+    /* Footer móvil ajustado */
+    .bv-mobile-booking-footer {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 12px 16px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+        cursor: pointer;
+    }
+    
+    .bv-mobile-booking-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .bv-mobile-price-info {
+        flex: 1;
+        min-width: 0;
+        padding-right: 8px;
+    }
+    
+    .bv-mobile-price {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .bv-mobile-dates {
+        font-size: 14px;
+        color: #666;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .bv-mobile-button-container {
+        flex: 0 0 auto;
+        width: 45%;
+    }
+    
+    .bv-mobile-book-button {
+        width: 100%;
+        background: #cbb881;
+        color: white;
+        padding: 12px 16px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 15px;
+        white-space: nowrap;
+    }
+    
+    /* Modal de reserva */
+    .bv-mobile-booking-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1100;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .bv-mobile-booking-modal.active {
+        display: block;
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .bv-mobile-modal-content {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 16px 16px 0 0;
+        padding: 24px 16px;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .bv-mobile-booking-modal.active .bv-mobile-modal-content {
+        transform: translateY(0);
+    }
+    
+    .bv-mobile-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    
+    .bv-mobile-modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .bv-mobile-modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #666;
+        padding: 4px;
+        cursor: pointer;
+    }
+    
+    .bv-mobile-modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    .bv-mobile-price-details {
+        margin-bottom: 24px;
+    }
+    
+    .bv-mobile-dates-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+        border-top: 1px solid #e0e0e0;
+    }
+    
+    .bv-mobile-dates-info span {
+        display: block;
+    }
+    
+    .bv-mobile-dates-info span:first-child {
+        font-weight: 500;
+        margin-bottom: 4px;
+        color: #333;
+    }
+    
+    .bv-mobile-dates-info span:last-child {
+        font-size: 14px;
+        color: #666;
+    }
+    
+    .bv-mobile-change-dates {
+        padding: 8px 16px;
+        background: none;
+        border: 1px solid #cbb881;
+        color: #cbb881;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    
+    .bv-mobile-modal-book {
+        width: 100%;
+        background: #cbb881;
+        color: white;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 16px;
+        margin-top: 20px;
+        cursor: pointer;
+    }
+
+    /* Estilos para el calendario de flatpickr en móvil */
+    .flatpickr-calendar.open {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        z-index: 2000 !important;
+        margin: 0 !important;
+    }
+
+    /* Añadir padding al contenedor principal para evitar que el footer tape contenido */
+    .hp-page__content {
+        padding-bottom: 80px !important; /* Altura del footer + espacio extra */
+    }
+}
+
+/* INSTRUCCIONES:
+ * En el archivo mobile/css/mobile-booking.css
+ * Agregar estos estilos justo antes del último media query que maneja el scroll horizontal
+ * Es decir, antes de:
+ * @media (max-width: 768px) {
+ *    html, body { ... }
+ * }
+ */
+
+@media (max-width: 768px) {
+	
+	.bv-total-final {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 12px;
+    }
+	
+    /* Ajustes para Price Details con botón eliminar */
+    .bv-total-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        position: relative;
+    }
+	
+	.bv-total-item span:first-child {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .bv-total-item.removable:hover {
+        background-color: rgba(0,0,0,0.02);
+    }
+
+    .bv-remove-extra {
+        border: none;
+        background: none;
+        padding: 0;
+        color: #999;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        opacity: 0.7;
+    }
+
+    .bv-remove-extra:hover {
+        opacity: 1;
+        color: #666;
+    }
+
+    /* Sección de cantidad */
+     .bv-mobile-quantity-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+        border-top: 1px solid #e0e0e0;
+        margin-bottom: 16px;
+    }
+
+   .bv-mobile-quantity-label {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .bv-mobile-quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .bv-mobile-quantity-button {
+        width: 36px;
+        height: 36px;
+        border: 1px solid #cbb881;
+        background: white;
+        color: #cbb881;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 18px;
+        transition: all 0.2s;
+    }
+
+    .bv-mobile-quantity-button:hover {
+        background: #cbb881;
+        color: white;
+    }
+
+    .bv-mobile-quantity-button:disabled {
+        border-color: #ccc;
+        color: #ccc;
+        cursor: not-allowed;
+    }
+
+      .bv-mobile-quantity-input {
+        width: 60px !important; /* Reducido de 80px */
+        height: 32px; /* Altura específica */
+        padding: 4px 8px; /* Padding más pequeño */
+        font-size: 14px; /* Texto más pequeño */
+    }
+
+    .bv-mobile-quantity-input:focus {
+        border-color: #cbb881;
+        outline: none;
+    }
+}
+
+/* Fix scroll horizontal */
+@media (max-width: 768px) {
+    html, body {
+        overflow-x: hidden;
+        position: relative;
+        width: 100%;
+    }
+
+    .bv-content-booking-wrapper,
+    .hp-page__content,
+    .hp-page {
+        overflow-x: hidden;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Ocultar inputs de fecha en el modal */
+    .bv-mobile-date-start,
+    .bv-mobile-date-end {
+        display: none !important;  /* Aseguramos que siempre esté oculto */
+    }
+
+    /* Ocultar cualquier input que flatpickr pueda generar */
+    .flatpickr-input {
+        display: none !important;
+    }
+}
+
+.invalid {
+    border-color: #ff0000 !important;
+}
+
+.error-message {
+    color: #ff0000;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+    /* Ocultar footer cuando el usuario no está loggeado */
+    body:not(.logged-in) .bv-mobile-booking-footer {
+        display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+
+/* Estilos para la sección de extras en móvil */
+.bv-mobile-extras-section {
+    margin: 15px 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+	
+.bv-mobile-extras-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background: #fff;
+    cursor: pointer;
+}
+	
+/* Animaciones */
+.bv-mobile-extras-content {
+    display: none;
+    transition: all 0.2s ease;
+}
+	
+	/* Estilos para cada extra en el dropdown */
+.bv-mobile-extras-content .bv-extra-item {
+    padding: 12px 15px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Alineación del nombre y precio */
+.bv-extra-item .bv-extra-label {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Input de cantidad */
+.bv-mobile-extras-content .bv-extra-quantity {
+    width: 70px;
+    padding: 8px;
+    border: 1px solid #cbb881;
+    border-radius: 4px;
+    text-align: center;
+}
+	.bv-extra-item .bv-extra-price {
+    color: #cbb881;
+    font-weight: 500;
+}
+
+	/* Checkbox personalizado */
+.bv-mobile-extras-content input[type="checkbox"] {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+}
+	
+	/* Estado activo del header */
+.bv-mobile-extras-info.active {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+.bv-mobile-extras-header {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   padding: 12px;
+   cursor: pointer;
+   background: #fff;
+}
+
+.bv-mobile-extras-header.active {
+   border-bottom: 1px solid #e5e7eb;
+}
+
+.bv-mobile-extras-dropdown {
+   padding: 12px;
+   background: #fff;
+   max-height: 300px;
+   overflow-y: auto;
+}
+
+/* Estilos para extras individuales */
+.bv-mobile-extras-dropdown .bv-extra-item {
+   padding: 8px 0;
+   border-bottom: 1px solid #f3f4f6;
+}
+
+.bv-mobile-extras-dropdown .bv-extra-item:last-child {
+   border-bottom: none;
+}
+
+.bv-mobile-extras-dropdown .bv-extra-label {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   width: 100%;
+}
+
+/* Estilos para inputs variables */
+.bv-mobile-extras-dropdown .bv-extra-quantity {
+   width: 60px;
+   padding: 4px;
+   border: 1px solid #cbb881;
+   border-radius: 4px;
+   text-align: center;
+}
+
+/* Estilos para precios */
+.bv-mobile-extras-dropdown .bv-extra-price {
+   margin-left: 8px;
+   color: #cbb881;
+}
+
+/* Animaciones */
+.bv-mobile-extras-dropdown {
+   transition: all 0.2s ease;
+}
+
+	}
+
+@media (max-width: 768px) {
+    /* Solo en la página de listing */
+    .single-hp_listing {
+        /* Ajustar el botón Tools original */
+        .elementor-element-dda0ecf.elementor-sticky--active {
+            width: auto !important;
+            right: 16px !important;
+            left: auto !important;
+            bottom: 90px !important;
+            z-index: 900 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Hacer el botón más compacto y centrar contenido */
+        .elementor-element-dda0ecf .elementor-button {
+            padding: 0 !important;
+            min-height: 44px !important;
+            min-width: 44px !important;
+            width: 44px !important;
+            height: 44px !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        /* Ajustar contenedor del icono */
+        .elementor-element-dda0ecf .elementor-button-content-wrapper {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            height: 100% !important;
+            padding: 10px !important;
+        }
+
+        /* Ocultar el texto "Tools" y ajustar el icono */
+        .elementor-element-dda0ecf .elementor-button-text {
+            display: none !important;
+        }
+
+        .elementor-element-dda0ecf .elementor-button-icon {
+            margin: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Ajustar el SVG */
+        .elementor-element-dda0ecf .elementor-button-icon svg {
+            width: 100% !important;
+            height: 100% !important;
+            display: block !important;
+        }
+
+        /* Ocultar cuando el modal de reserva está activo */
+        .bv-mobile-booking-modal.active ~ .elementor-element-dda0ecf {
+            display: none !important;
+        }
+        
+        /* Ajustar el spacer que Elementor crea */
+        .elementor-element-dda0ecf.elementor-sticky__spacer {
+            display: none !important;
+        }
+		
+		/* Ajustes específicos para el popup */
+        .elementor-popup-modal {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+        }
+    }
+}
