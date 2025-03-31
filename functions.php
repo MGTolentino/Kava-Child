@@ -207,7 +207,7 @@ function kava_child_manage_google_maps_scripts() {
 
     wp_register_script(
         'google-maps-custom',
-        'https://maps.googleapis.com/maps/api/js?key=AIzaSyDbWj1qA26RHzdRwF8ZC2JEt4v9iIm4KkI',
+        'https://maps.googleapis.com/maps/api/js?key=' . GOOGLE_MAPS_API_KEY,
         array('jquery'),
         null,
         true
