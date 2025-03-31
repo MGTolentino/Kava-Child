@@ -108,9 +108,7 @@ const savedDate = localStorage.getItem('eq_selected_date');
     const panelDate = localStorage.getItem('eq_panel_selected_date');
     
    // Si la fecha viene del panel y el usuario tiene acceso, priorizar esta
-    if (isDateFromPanel && canUseContextPanel && panelDate) {
-        console.log('BookingForm: Using date from Context Panel:', panelDate);
-      
+    if (isDateFromPanel && canUseContextPanel && panelDate) {      
         
         // Verificar que realmente sea la fecha del panel y no del filtro
         const filterDate = localStorage.getItem('eq_selected_date');
@@ -296,9 +294,7 @@ if (selectedDates.length > 0) {
             
             // Recalcular totales después de un breve retraso
             setTimeout(() => this.calculateTotals(), 100);
-            
-            console.log('BookingForm: Date forced update from event');
-        }
+                    }
     }
     // Si no tiene flag force, verificar origen y permisos
     else if (options && options.fromPanel) {
@@ -342,7 +338,6 @@ if (selectedDates.length > 0) {
                     // Mostrar indicación
                     this.showNotification('Date updated from Event Context Panel', 'info');
                     
-                    console.log('BookingForm: Date updated from Context Panel');
                 } else {
                     this.showNotification('Date from Context Panel is not available for this listing', 'warning');
                 }
@@ -379,7 +374,7 @@ if (selectedDates.length > 0) {
     
     // Escuchar evento personalizado cuando cambia el contexto
     $(document).on('eqContextChanged', () => {
-        console.log('Context changed, checking item in cart');
+
         this.checkIfItemInCart();
     });
     
@@ -561,7 +556,6 @@ if (validateResponse.data.hasItems) {
                             }
                         });
                     } else {
-						        console.log('Items already have the same date, continuing without confirmation');
 
                         // Cancelar la operación
                         this.showNotification('Operación cancelada', 'info');
@@ -775,7 +769,6 @@ async duplicateEvent(newDate, transferItems) {
 }
 
 openCreateEventPanel(newDate) {
-    console.log('Opening create event panel with date:', newDate);
     
     // Simular clic en el botón "Cambiar Evento" del panel de contexto
     $('.eq-context-panel-button.change-event').click();
@@ -803,18 +796,16 @@ openCreateEventPanel(newDate) {
             if (dateInput.length) {
                 // Verificar si flatpickr está inicializado
                 if (dateInput[0]._flatpickr) {
-                    console.log('Setting date via flatpickr:', newDate);
+
                     dateInput[0]._flatpickr.setDate(newDate);
                 } else {
-                    console.log('Setting date directly:', newDate);
+
                     dateInput.val(newDate);
                 }
                 
                 // Forzar un evento change para asegurar que otros handlers lo capten
                 dateInput.trigger('change');
                 
-                // Log para confirmar que se estableció la fecha
-                console.log('Date input value after setting:', dateInput.val());
             } else {
                 console.error('Date input field not found in event modal');
             }
@@ -1286,7 +1277,7 @@ this.form.find('input[name="price_details"]').val(JSON.stringify(priceDetails));
 
         return maxPrice;
     } catch (error) {
-        console.log('Error getting day price:', error);
+
         return this.basePrice;
     }
 }

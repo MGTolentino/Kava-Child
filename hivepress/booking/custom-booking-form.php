@@ -13,21 +13,6 @@ if (!$listing) {
 $booking_offset = get_post_meta($listing->get_id(), 'hp_booking_offset', true) ?: 0;
 $booking_window = get_post_meta($listing->get_id(), 'hp_booking_window', true) ?: 365;
 $booking_ranges = get_post_meta($listing->get_id(), 'hp_booking_ranges', true) ?: [];
-error_log('Booking Ranges Raw: ' . print_r($booking_ranges, true));
-
-// Log más detallado
-if (!empty($booking_ranges)) {
-    error_log('Booking Ranges Structure:');
-    foreach ($booking_ranges as $index => $range) {
-        error_log("Range {$index}:");
-        if (isset($range['days']) && is_array($range['days'])) {
-            error_log('- Days: ' . print_r($range['days'], true));
-        }
-        if (isset($range['price'])) {
-            error_log('- Price: ' . $range['price']);
-        }
-    }
-}
 
 // Función para obtener fechas bloqueadas
 function get_blocked_dates($listing_id) {
