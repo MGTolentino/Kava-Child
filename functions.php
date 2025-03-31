@@ -782,6 +782,12 @@ add_action('wp', function() {
         }
 
         if (isset($_GET['_dates']) && !empty($_GET['_dates'])) {
+
+            if (!is_array($dates)) {
+                // Si es un string, podría ser un único valor o un valor separado por comas
+                $dates = [$dates]; // Convertir a array con un único elemento
+            }
+
             $dates = $_GET['_dates'];
             if (count($dates) === 1) {
                 $start_time = strtotime($dates[0]);
