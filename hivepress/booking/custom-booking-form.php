@@ -55,13 +55,19 @@ function get_blocked_dates($listing_id) {
         $start_date = date('Y-m-d', $start_timestamp);
         $end_date = date('Y-m-d', $end_timestamp);
         
-        if ($start_date === $end_date) {
+        // Para reservas de tipo 'private', solo bloquear la fecha de inicio
+        if ($booking->post_status === 'private') {
             $blocked_dates[] = $start_date;
         } else {
-            $blocked_dates[] = array(
-                'from' => $start_date,
-                'to' => $end_date
-            );
+            // Mantener la lógica original para otros tipos de reservas
+            if ($start_date === $end_date) {
+                $blocked_dates[] = $start_date;
+            } else {
+                $blocked_dates[] = array(
+                    'from' => $start_date,
+                    'to' => $end_date
+                );
+            }
         }
     }
     
