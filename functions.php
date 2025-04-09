@@ -1185,3 +1185,145 @@ function wp_alp_fix_modal_js() {
     <?php
 }
 add_action('wp_footer', 'wp_alp_fix_modal_js', 99);
+
+/**
+ * Añade esto al archivo functions.php de tu tema
+ */
+
+/**
+ * Corrige la funcionalidad del plugin WP-Advanced-Login-Pro
+ * para proporcionar una experiencia fluida similar a Airbnb
+ */
+function wp_alp_enhanced_login_fix() {
+    // Solo carga los estilos CSS y el script JS si el plugin está activo
+    if (function_exists('run_wp_advanced_login_pro')) {
+        // Desregistrar el script original para evitar conflictos
+        wp_deregister_script('wp-advanced-login-pro');
+        
+        // Registrar y encolar nuestro script mejorado
+        wp_enqueue_script(
+            'wp-alp-enhanced',
+            get_template_directory_uri() . '/assets/js/wp-alp-enhanced.js',
+            array('jquery'),
+            '1.0.0',
+            true  // Cargar en el footer
+        );
+        
+        // Pasar variables al script
+        wp_localize_script('wp-alp-enhanced', 'wp_alp_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('wp_alp_nonce'),
+            'home_url' => home_url(),
+            'translations' => array(
+                'error' => __('Error', 'wp-alp'),
+                'success' => __('Éxito', 'wp-alp'),
+                'loading' => __('Cargando...', 'wp-alp'),
+                'invalid_email' => __('Por favor, introduce un email válido.', 'wp-alp'),
+                'invalid_phone' => __('Por favor, introduce un número de teléfono válido.', 'wp-alp'),
+                'required_field' => __('Este campo es obligatorio.', 'wp-alp'),
+                'password_short' => __('La contraseña debe tener al menos 6 caracteres.', 'wp-alp'),
+                'verify_code' => __('Por favor, introduce el código de verificación completo.', 'wp-alp'),
+            ),
+        ));
+        
+        // Añadir estilos CSS adicionales para mejorar las transiciones
+        wp_add_inline_style('wp-advanced-login-pro', '
+            /* Mejorar estilos del modal para transiciones fluidas */
+            .wp-alp-modal-loader {
+                background-color: rgba(255, 255, 255, 0.7);
+                z-index: 10;
+            }
+            
+            .wp-alp-modal-content {
+                position: relative;
+                z-index: 5;
+                min-height: 300px; /* Evitar saltos de altura */
+            }
+            
+            /* Estilos para las animaciones de fade */
+            .wp-alp-fade {
+                transition: opacity 0.3s ease;
+            }
+            
+            /* Asegurar que el modal permanezca centrado */
+            .wp-alp-modal-container {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+        ');
+    }
+}
+add_action('wp_enqueue_scripts', 'wp_alp_enhanced_login_fix', 99);
+
+/**
+ * Modifica la función validate_user_ajax del plugin para corregir 
+ * la detección de usuarios que necesitan completar su perfil.
+ */
+function wp_alp_fix_user_profile_flow() {
+    if (!class_exists('WP_ALP_Public')) {
+        return;
+    }
+    
+    // Modificar la clase para cambiar la comprobación del perfil
+    add_filter('wp_alp_validate_user_result', 'wp_alp_modify_validate_result', 10, 2);
+}
+add_action('init', 'wp_alp_fix_user_profile_flow');
+
+/**
+ * Modifica el resultado de la validación de usuario
+ * para corregir la comprobación del perfil.
+ */
+function wp_alp_modify_validate_result($data, $result) {
+    if ($result['exists']) {
+        // Obtener el usuario de WordPress
+        $user = get_user_by('ID', $result['user_id']);
+        
+        // Comprobar si es un subscriber con perfil incompleto
+        if ($result['found_by'] === 'email' && 
+            (in_array('subscriber', $user->roles) || $result['user_type'] === 'subscriber') && 
+            $result['profile_status'] === 'incomplete') {
+            // Cambiar flujo: en lugar de mostrar el formulario de perfil de inmediato,
+            // siempre mostrar el formulario de login primero
+            $data['needs_profile'] = false;  // No mostrar perfil hasta después del login
+        }
+    }
+    
+    return $data;
+}
+
+/**
+ * Modifica la función login_user_ajax para mostrar el formulario
+ * de completar perfil después del login si es necesario.
+ */
+function wp_alp_fix_login_ajax() {
+    // Añadir un filtro para modificar el resultado del login
+    add_filter('wp_alp_login_user_result', 'wp_alp_modify_login_result', 10, 2);
+}
+add_action('init', 'wp_alp_fix_login_ajax');
+
+/**
+ * Modifica el resultado del login para mostrar el formulario
+ * de completar perfil después del login si es necesario.
+ */
+function wp_alp_modify_login_result($response, $user_id) {
+    // Verificar si el usuario necesita completar su perfil
+    $user = get_user_by('ID', $user_id);
+    $user_type = get_user_meta($user_id, 'wp_alp_user_type', true);
+    $profile_status = get_user_meta($user_id, 'wp_alp_profile_status', true);
+    
+    if ($user && 
+        in_array('subscriber', $user->roles) && 
+        $profile_status === 'incomplete') {
+        
+        // Usuario necesita completar su perfil
+        $response['needs_profile'] = true;
+        
+        // Usar la clase original del plugin para obtener el HTML del formulario
+        if (class_exists('WP_ALP_Forms')) {
+            $response['html'] = WP_ALP_Forms::get_profile_completion_form($user_id);
+        }
+    }
+    
+    return $response;
+}
