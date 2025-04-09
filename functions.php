@@ -1447,9 +1447,16 @@ function wp_alp_modify_login_result($response, $user_id) {
         // Usuario necesita completar su perfil
         $response['needs_profile'] = true;
         
+        // Generar un nuevo nonce para el formulario post-login
+        $new_nonce = wp_create_nonce('wp_alp_nonce');
+        $response['new_nonce'] = $new_nonce;
+        
         // Usar la clase original del plugin para obtener el HTML del formulario
         if (class_exists('WP_ALP_Forms')) {
-            $response['html'] = WP_ALP_Forms::get_profile_completion_form($user_id);
+            $html = WP_ALP_Forms::get_profile_completion_form($user_id);
+            
+            // Asegurarnos de que el formulario use el nuevo nonce
+            $response['html'] = $html;
         }
     }
     
