@@ -1110,36 +1110,40 @@ function wp_alp_fix_modal_js() {
     ?>
     <script>
     jQuery(document).ready(function($) {
+        // Variable para controlar si se está realizando una transición
+        var isTransitioning = false;
+        
         // Abrir modal con botones o enlaces específicos
         $(document).on('click', '[data-wp-alp-trigger="login"]', function(e) {
             e.preventDefault();
-            $('#wp-alp-modal-overlay').fadeIn(300);
             
-            // Mostrar loader sin ocultar el contenido
-            $('#wp-alp-modal-loader').show();
-            
-            // Intentar cargar el formulario inicial
-            $.ajax({
-                url: wp_alp_ajax.ajax_url,
-                type: 'POST',
-                data: {
-                    action: 'wp_alp_get_form',
-                    form: 'initial',
-                    nonce: wp_alp_ajax.nonce
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Usar fadeOut/fadeIn para una transición suave
-                        $('#wp-alp-modal-content').fadeOut(200, function() {
-                            // Actualizar el contenido mientras está invisible
-                            $(this).html(response.data.html).fadeIn(200);
-                            // Ocultar el loader después de mostrar el contenido
+            // Mostrar overlay con animación
+            $('#wp-alp-modal-overlay').fadeIn(300, function() {
+                // Mostrar loader superpuesto al contenido
+                $('#wp-alp-modal-loader').addClass('wp-alp-loading-overlay').show();
+                
+                // Cargar formulario inicial
+                $.ajax({
+                    url: wp_alp_ajax.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'wp_alp_get_form',
+                        form: 'initial',
+                        nonce: wp_alp_ajax.nonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Transición suave
+                            transitionContent(response.data.html);
+                        } else {
                             $('#wp-alp-modal-loader').hide();
-                        });
-                    } else {
+                        }
+                    },
+                    error: function() {
                         $('#wp-alp-modal-loader').hide();
+                        showErrorMessage('Error de conexión');
                     }
-                }
+                });
             });
         });
 
@@ -1163,14 +1167,16 @@ function wp_alp_fix_modal_js() {
         
         // Manejar el botón "Continuar" en el formulario inicial
         $(document).on('click', '#wp-alp-continue-btn', function() {
+            if (isTransitioning) return;
+            
             var identifier = $('#wp-alp-identifier').val().trim();
             if (!identifier) {
-                // Mostrar error
+                showErrorMessage('Por favor, introduce un email válido.');
                 return;
             }
             
-            // Mostrar loader sin ocultar el contenido
-            $('#wp-alp-modal-loader').show();
+            // Mostrar loader superpuesto al contenido
+            $('#wp-alp-modal-loader').addClass('wp-alp-loading-overlay').show();
             
             $.ajax({
                 url: wp_alp_ajax.ajax_url,
@@ -1181,31 +1187,34 @@ function wp_alp_fix_modal_js() {
                     nonce: wp_alp_ajax.nonce
                 },
                 success: function(response) {
-                    if (response.success && response.data.html) {
-                        // Transición suave
-                        $('#wp-alp-modal-content').fadeOut(200, function() {
-                            $(this).html(response.data.html).fadeIn(200);
-                            $('#wp-alp-modal-loader').hide();
-                        });
+                    if (response.success) {
+                        transitionContent(response.data.html);
                     } else {
                         $('#wp-alp-modal-loader').hide();
+                        showErrorMessage(response.data.message);
                     }
+                },
+                error: function() {
+                    $('#wp-alp-modal-loader').hide();
+                    showErrorMessage('Error de conexión');
                 }
             });
         });
         
         // Botón de iniciar sesión
         $(document).on('click', '#wp-alp-login-btn', function() {
+            if (isTransitioning) return;
+            
             var email = $('#wp-alp-login-email').val().trim();
             var password = $('#wp-alp-login-password').val().trim();
             
             if (!email || !password) {
-                // Mostrar error
+                showErrorMessage('Email y contraseña son obligatorios');
                 return;
             }
             
-            // Mostrar loader sin ocultar el contenido
-            $('#wp-alp-modal-loader').show();
+            // Mostrar loader superpuesto al contenido
+            $('#wp-alp-modal-loader').addClass('wp-alp-loading-overlay').show();
             
             $.ajax({
                 url: wp_alp_ajax.ajax_url,
@@ -1219,107 +1228,63 @@ function wp_alp_fix_modal_js() {
                 success: function(response) {
                     if (response.success) {
                         if (response.data.needs_profile) {
-                            // Transición suave para el formulario de perfil
-                            $('#wp-alp-modal-content').fadeOut(200, function() {
-                                $(this).html(response.data.html).fadeIn(200);
-                                $('#wp-alp-modal-loader').hide();
-                                
-                                // Actualizar el nonce para el formulario de perfil
-                                updateNonceInput();
-                            });
+                            transitionContent(response.data.html);
+                            
+                            // Crear un nuevo nonce fresco después del login
+                            refreshNonce();
                         } else {
-                            // Redirigir o recargar la página
-                            window.location.reload();
+                            showSuccessMessage('Login exitoso, redirigiendo...');
+                            setTimeout(function() {
+                                window.location.href = response.data.redirect || window.location.href;
+                            }, 1000);
                         }
                     } else {
                         $('#wp-alp-modal-loader').hide();
+                        showErrorMessage(response.data.message);
                     }
                 },
                 error: function() {
-                    // Incluso en caso de error, el login podría haber funcionado
                     $('#wp-alp-modal-loader').hide();
-                    window.location.reload();
+                    showErrorMessage('Error de conexión');
                 }
             });
         });
         
         // Botón de completar perfil
         $(document).on('click', '#wp-alp-complete-profile-btn', function() {
+            if (isTransitioning) return;
+            
             var formData = {
-                user_id: $('input[name="user_id"]').val(),
-                event_type: $('#wp-alp-event-type').val(),
-                event_date: $('#wp-alp-event-date').val(),
-                event_address: $('#wp-alp-event-address').val(),
-                guests: $('#wp-alp-event-guests').val(),
-                details: $('#wp-alp-event-details').val()
+                user_id: $('input[name="user_id"]').val().trim(),
+                event_type: $('#wp-alp-event-type').val().trim(),
+                event_date: $('#wp-alp-event-date').val().trim(),
+                event_address: $('#wp-alp-event-address').val().trim(),
+                guests: $('#wp-alp-event-guests').val().trim(),
+                details: $('#wp-alp-event-details').val().trim() || ''
             };
             
-            // Mostrar loader sin ocultar el contenido
-            $('#wp-alp-modal-loader').show();
-            
-            // Obtener un nonce fresco antes de enviar el formulario
-            $.ajax({
-                url: wp_alp_ajax.ajax_url,
-                type: 'POST',
-                data: {
-                    action: 'wp_alp_refresh_nonce'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Usar el nonce fresco para la solicitud de completar perfil
-                        var freshNonce = response.data.nonce;
-                        
-                        $.ajax({
-                            url: wp_alp_ajax.ajax_url,
-                            type: 'POST',
-                            data: {
-                                action: 'wp_alp_complete_profile',
-                                nonce: freshNonce,
-                                user_id: formData.user_id,
-                                event_type: formData.event_type,
-                                event_date: formData.event_date,
-                                event_address: formData.event_address,
-                                guests: formData.guests,
-                                details: formData.details
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    // Mostrar mensaje y redirigir
-                                    showSuccessMessage('Perfil completado con éxito.');
-                                    setTimeout(function() {
-                                        window.location.href = response.data.redirect;
-                                    }, 1500);
-                                } else {
-                                    // Mostrar error
-                                    showErrorMessage(response.data.message || 'Error al completar el perfil.');
-                                    $('#wp-alp-modal-loader').hide();
-                                }
-                            },
-                            error: function() {
-                                showErrorMessage('Error de conexión. Por favor, intenta nuevamente.');
-                                $('#wp-alp-modal-loader').hide();
-                            }
-                        });
-                    } else {
-                        // Usar el nonce antiguo como fallback
-                        completeProfileWithCurrentNonce(formData);
-                    }
-                },
-                error: function() {
-                    // En caso de error, intentar con el nonce actual
-                    completeProfileWithCurrentNonce(formData);
+            // Validar campos requeridos
+            var requiredFields = ['user_id', 'event_type', 'event_date', 'event_address', 'guests'];
+            for (var i = 0; i < requiredFields.length; i++) {
+                if (!formData[requiredFields[i]]) {
+                    showErrorMessage('El campo ' + requiredFields[i] + ' es obligatorio');
+                    return;
                 }
-            });
-        });
-        
-        // Función para completar perfil con el nonce actual
-        function completeProfileWithCurrentNonce(formData) {
+            }
+            
+            // Mostrar loader superpuesto al contenido
+            $('#wp-alp-modal-loader').addClass('wp-alp-loading-overlay').show();
+            
+            // Obtener el nonce actual (que debería ser fresco después del login)
+            var currentNonce = wp_alp_ajax.nonce;
+            
+            // Enviar formulario
             $.ajax({
                 url: wp_alp_ajax.ajax_url,
                 type: 'POST',
                 data: {
                     action: 'wp_alp_complete_profile',
-                    nonce: wp_alp_ajax.nonce,
+                    nonce: currentNonce,
                     user_id: formData.user_id,
                     event_type: formData.event_type,
                     event_date: formData.event_date,
@@ -1329,26 +1294,37 @@ function wp_alp_fix_modal_js() {
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Mostrar mensaje y redirigir
-                        showSuccessMessage('Perfil completado con éxito.');
+                        showSuccessMessage('Perfil completado con éxito');
                         setTimeout(function() {
-                            window.location.href = response.data.redirect;
+                            window.location.href = response.data.redirect || window.location.href;
                         }, 1500);
                     } else {
-                        // Mostrar error
-                        showErrorMessage(response.data.message || 'Error al completar el perfil.');
                         $('#wp-alp-modal-loader').hide();
+                        showErrorMessage(response.data.message || 'Error al completar perfil');
+                        
+                        // Si hay un error, intentar refrescar el nonce y reintentar
+                        refreshNonce(function() {
+                            showErrorMessage('Por favor, intenta nuevamente');
+                        });
                     }
                 },
-                error: function() {
-                    showErrorMessage('Error de conexión. Por favor, intenta nuevamente.');
+                error: function(xhr) {
                     $('#wp-alp-modal-loader').hide();
+                    var errorMsg = 'Error de conexión';
+                    
+                    // Capturar error de respuesta si existe
+                    if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+                        errorMsg = xhr.responseJSON.data.message;
+                    }
+                    
+                    showErrorMessage(errorMsg);
+                    console.error('Error completando perfil:', xhr);
                 }
             });
-        }
+        });
         
-        // Función para actualizar el nonce en cualquier input oculto que lo contenga
-        function updateNonceInput() {
+        // Función para refrescar el nonce
+        function refreshNonce(callback) {
             $.ajax({
                 url: wp_alp_ajax.ajax_url,
                 type: 'POST',
@@ -1357,17 +1333,18 @@ function wp_alp_fix_modal_js() {
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Actualizar la variable global del nonce
+                        // Actualizar nonce global
                         wp_alp_ajax.nonce = response.data.nonce;
                         
-                        // Actualizar cualquier input de nonce que exista
-                        $('input[name="nonce"]').val(response.data.nonce);
+                        if (typeof callback === 'function') {
+                            callback();
+                        }
                     }
                 }
             });
         }
         
-        // Mostrar mensaje de error
+        // Función para mostrar mensaje de error
         function showErrorMessage(message) {
             var errorHtml = '<div class="wp-alp-error-message">' + message + '</div>';
             
@@ -1385,7 +1362,7 @@ function wp_alp_fix_modal_js() {
             }, 5000);
         }
         
-        // Mostrar mensaje de éxito
+        // Función para mostrar mensaje de éxito
         function showSuccessMessage(message) {
             var successHtml = '<div class="wp-alp-success-message">' + message + '</div>';
             
@@ -1394,6 +1371,29 @@ function wp_alp_fix_modal_js() {
             
             // Añadir nuevo mensaje
             $('#wp-alp-modal-content').prepend(successHtml);
+        }
+        
+        // Función para transición suave de contenido
+        function transitionContent(newContent) {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            
+            // Hacer fade out del contenido actual
+            $('#wp-alp-modal-content').css('opacity', '0.5');
+            
+            // Pequeña pausa para la animación (150ms)
+            setTimeout(function() {
+                // Reemplazar el contenido
+                $('#wp-alp-modal-content').html(newContent);
+                
+                // Hacer fade in del nuevo contenido
+                $('#wp-alp-modal-content').css('opacity', '1');
+                
+                // Ocultar loader
+                $('#wp-alp-modal-loader').hide();
+                
+                isTransitioning = false;
+            }, 150);
         }
     });
     </script>
@@ -1465,8 +1465,6 @@ function wp_alp_modify_login_result($response, $user_id) {
 
 // Función para refrescar el nonce
 function wp_alp_refresh_nonce() {
-    check_ajax_referer('wp_alp_nonce', 'nonce', false); // Verificación opcional del nonce actual
-    
     $new_nonce = wp_create_nonce('wp_alp_nonce');
     
     wp_send_json_success(array(
@@ -1475,3 +1473,73 @@ function wp_alp_refresh_nonce() {
 }
 add_action('wp_ajax_wp_alp_refresh_nonce', 'wp_alp_refresh_nonce');
 add_action('wp_ajax_nopriv_wp_alp_refresh_nonce', 'wp_alp_refresh_nonce');
+
+// Añadir logging para debugging
+function wp_alp_log_errors() {
+    ?>
+    <script>
+    jQuery(document).ready(function($) {
+        // Capturar errores de AJAX
+        $(document).ajaxError(function(event, jqxhr, settings, thrownError) {
+            console.error('AJAX Error:', {
+                status: jqxhr.status,
+                statusText: jqxhr.statusText,
+                responseText: jqxhr.responseText,
+                url: settings.url,
+                data: settings.data
+            });
+        });
+    });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'wp_alp_log_errors', 100);
+
+// Añadir estilos personalizados para el modal
+function wp_alp_add_custom_styles() {
+    ?>
+    <style>
+        /* Ajuste para el contenedor modal con transiciones */
+        #wp-alp-modal-content {
+            transition: opacity 0.15s ease-in-out;
+        }
+        
+        /* Estilos para el loader superpuesto */
+        .wp-alp-loading-overlay {
+            position: absolute !important;
+            z-index: 100;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+        }
+        
+        /* Mensajes de éxito y error */
+        .wp-alp-success-message,
+        .wp-alp-error-message {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .wp-alp-success-message {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+        
+        .wp-alp-error-message {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+    </style>
+    <?php
+}
+add_action('wp_head', 'wp_alp_add_custom_styles');
