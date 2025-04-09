@@ -1103,3 +1103,54 @@ function add_login_trigger_attribute($atts, $item, $args) {
     return $atts;
 }
 add_filter('nav_menu_link_attributes', 'add_login_trigger_attribute', 10, 3);
+
+function wp_alp_fix_modal_js() {
+    ?>
+    <script>
+    jQuery(document).ready(function($) {
+        // Abrir modal con botones o enlaces específicos
+        $(document).on('click', '[data-wp-alp-trigger="login"]', function(e) {
+            e.preventDefault();
+            $('#wp-alp-modal-overlay').fadeIn(300);
+            
+            // Intentar cargar el formulario inicial
+            $.ajax({
+                url: wp_alp_ajax.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'wp_alp_get_form',
+                    form: 'initial',
+                    nonce: wp_alp_ajax.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#wp-alp-modal-content').html(response.data.html);
+                    }
+                    $('#wp-alp-modal-loader').hide();
+                    $('#wp-alp-modal-content').show();
+                }
+            });
+        });
+
+        // Cerrar modal con botón de cierre o click fuera
+        $(document).on('click', '#wp-alp-close-modal', function() {
+            $('#wp-alp-modal-overlay').fadeOut(300);
+        });
+        
+        $(document).on('click', '#wp-alp-modal-overlay', function(e) {
+            if (e.target === this) {
+                $('#wp-alp-modal-overlay').fadeOut(300);
+            }
+        });
+
+        // Cerrar modal con tecla Escape
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape' && $('#wp-alp-modal-overlay').is(':visible')) {
+                $('#wp-alp-modal-overlay').fadeOut(300);
+            }
+        });
+    });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'wp_alp_fix_modal_js', 99);
