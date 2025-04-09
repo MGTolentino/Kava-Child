@@ -1092,3 +1092,14 @@ function cargar_fuentes_montserrat() {
   echo '<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">' . "\n";
 }
 add_action( 'wp_head', 'cargar_fuentes_montserrat' );
+
+
+//login plugin
+function add_login_trigger_attribute($atts, $item, $args) {
+    // Verifica si el elemento tiene la clase que usaste
+    if (in_array('wp-alp-login-trigger', $item->classes)) {
+        $atts['data-wp-alp-trigger'] = 'login';
+    }
+    return $atts;
+}
+add_filter('nav_menu_link_attributes', 'add_login_trigger_attribute', 10, 3);
