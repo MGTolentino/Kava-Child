@@ -1496,50 +1496,131 @@ function wp_alp_log_errors() {
 add_action('wp_footer', 'wp_alp_log_errors', 100);
 
 // Añadir estilos personalizados para el modal
-function wp_alp_add_custom_styles() {
+function wp_alp_custom_add_styles() {
     ?>
     <style>
-        /* Ajuste para el contenedor modal con transiciones */
-        #wp-alp-modal-content {
-            transition: opacity 0.15s ease-in-out;
-        }
-        
-        /* Estilos para el loader superpuesto */
-        .wp-alp-loading-overlay {
-            position: absolute !important;
-            z-index: 100;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(255, 255, 255, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 8px;
-        }
-        
-        /* Mensajes de éxito y error */
-        .wp-alp-success-message,
-        .wp-alp-error-message {
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            text-align: center;
-        }
-        
-        .wp-alp-success-message {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #a5d6a7;
-        }
-        
-        .wp-alp-error-message {
-            background-color: #ffebee;
-            color: #c62828;
-            border: 1px solid #ef9a9a;
-        }
+    /* Estilos adicionales para evitar conflictos con el tema */
+    .wp-alp-social-button {
+        background-color: #fff !important;
+        color: #222 !important;
+        border: 1px solid #b0b0b0 !important;
+    }
+    
+    .wp-alp-social-button:hover {
+        background-color: #f7f7f7 !important;
+        border-color: #222 !important;
+    }
+    
+    /* Ocultar botón de email redundante */
+    #wp-alp-email-btn {
+        display: none !important;
+    }
     </style>
     <?php
 }
-add_action('wp_head', 'wp_alp_add_custom_styles');
+add_action('wp_head', 'wp_alp_custom_add_styles', 999);
+
+/**
+ * Añadir script personalizado para inicializar correctamente las APIs sociales.
+ */
+function wp_alp_fix_social_login() {
+    if (!is_admin()) {
+        ?>
+        <script>
+        (function($) {
+            // Función para cargar Google API correctamente
+            function loadGoogleAPI() {
+                if (typeof wp_alp_ajax !== 'undefined' && wp_alp_ajax.google_client_id) {
+                    var googleScript = document.createElement('script');
+                    googleScript.src = 'https://accounts.google.com/gsi/client';
+                    googleScript.async = true;
+                    googleScript.defer = true;
+                    document.head.appendChild(googleScript);
+                    
+                    googleScript.onload = function() {
+                        console.log('Google API cargada correctamente.');
+                        
+                        // Inicializar la API de Google
+                        google.accounts.id.initialize({
+                            client_id: wp_alp_ajax.google_client_id,
+                            callback: function(response) {
+                                if (response.credential) {
+                                    // Procesar login con el token
+                                    processGoogleLogin(response.credential);
+                                }
+                            }
+                        });
+                    };
+                }
+            }
+            
+            // Función para manejar el login de Google
+            function processGoogleLogin(token) {
+                $.ajax({
+                    url: wp_alp_ajax.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'wp_alp_social_login',
+                        provider: 'google',
+                        token: token,
+                        nonce: wp_alp_ajax.nonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Mostrar mensaje de éxito y redirigir
+                            var successHtml = '<div class="wp-alp-success-message">' + (response.data.message || 'Login exitoso') + '</div>';
+                            $('#wp-alp-modal-content').prepend(successHtml);
+                            
+                            setTimeout(function() {
+                                window.location.href = response.data.redirect || window.location.href;
+                            }, 1000);
+                        } else {
+                            // Mostrar error
+                            var errorHtml = '<div class="wp-alp-error-message">' + (response.data.message || 'Error al iniciar sesión') + '</div>';
+                            $('#wp-alp-modal-content').prepend(errorHtml);
+                        }
+                    }
+                });
+            }
+            
+            // Cargar las APIs cuando se abre el modal
+            $(document).on('click', '[data-wp-alp-trigger="login"]', function() {
+                setTimeout(loadGoogleAPI, 500);
+            });
+            
+            // Corregir el evento de clic para Google
+            $(document).on('click', '#wp-alp-google-btn', function(e) {
+                e.preventDefault();
+                if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+                    google.accounts.id.prompt();
+                } else {
+                    console.log('Google API no está lista. Intentando cargar...');
+                    loadGoogleAPI();
+                    setTimeout(function() {
+                        if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+                            google.accounts.id.prompt();
+                        } else {
+                            alert('No se pudo cargar Google Sign-In. Por favor, intenta más tarde.');
+                        }
+                    }, 1000);
+                }
+            });
+        })(jQuery);
+        </script>
+        <?php
+    }
+}
+add_action('wp_footer', 'wp_alp_fix_social_login', 100);
+
+/**
+ * Prevenir que el plugin inicialice el login social de manera estándar.
+ */
+function wp_alp_prevent_original_social_init() {
+    ?>
+    <script>
+    // Sobreescribir la función initSocialLogin para evitar conflictos
+    window.overrideWpAlpSocialInit = true;
+    </script>
+    <?php
+}
+add_action('wp_head', 'wp_alp_prevent_original_social_init', 5);
