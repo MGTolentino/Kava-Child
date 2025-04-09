@@ -1150,7 +1150,41 @@ function wp_alp_fix_modal_js() {
             }
         });
     });
+
+    // Manejar el botón "Continuar" en el formulario inicial
+$(document).on('click', '#wp-alp-continue-btn', function() {
+    var identifier = $('#wp-alp-identifier').val().trim();
+    if (!identifier) {
+        // Mostrar error
+        return;
+    }
+    
+    $('#wp-alp-modal-loader').show();
+    $('#wp-alp-modal-content').hide();
+    
+    $.ajax({
+        url: wp_alp_ajax.ajax_url,
+        type: 'POST',
+        data: {
+            action: 'wp_alp_validate_user',
+            identifier: identifier,
+            nonce: wp_alp_ajax.nonce
+        },
+        success: function(response) {
+            if (response.success && response.data.html) {
+                $('#wp-alp-modal-content').html(response.data.html);
+            } else {
+                // Manejar error
+            }
+            $('#wp-alp-modal-loader').hide();
+            $('#wp-alp-modal-content').show();
+        }
+    });
+});
+
     </script>
     <?php
+
+    
 }
 add_action('wp_footer', 'wp_alp_fix_modal_js', 99);
