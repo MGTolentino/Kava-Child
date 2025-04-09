@@ -1092,3 +1092,234 @@ function cargar_fuentes_montserrat() {
   echo '<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">' . "\n";
 }
 add_action( 'wp_head', 'cargar_fuentes_montserrat' );
+
+//Login Plugin
+
+// Agregar atributo data-wp-alp-trigger="login" a elementos con clase wp-alp-login-trigger
+function add_login_trigger_attribute($atts, $item, $args) {
+    // Verifica si el elemento tiene la clase que usaste
+    if (in_array('wp-alp-login-trigger', $item->classes)) {
+        $atts['data-wp-alp-trigger'] = 'login';
+    }
+    return $atts;
+}
+add_filter('nav_menu_link_attributes', 'add_login_trigger_attribute', 10, 3);
+
+// Código JavaScript para el modal de login
+function wp_alp_fix_modal_js() {
+    ?>
+    <script>
+    jQuery(document).ready(function($) {
+        // Abrir modal con botones o enlaces específicos
+        $(document).on('click', '[data-wp-alp-trigger="login"]', function(e) {
+            e.preventDefault();
+            $('#wp-alp-modal-overlay').fadeIn(300);
+            
+            // Intentar cargar el formulario inicial
+            $.ajax({
+                url: wp_alp_ajax.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'wp_alp_get_form',
+                    form: 'initial',
+                    nonce: wp_alp_ajax.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#wp-alp-modal-content').html(response.data.html);
+                    }
+                    $('#wp-alp-modal-loader').hide();
+                    $('#wp-alp-modal-content').show();
+                }
+            });
+        });
+
+        // Cerrar modal con botón de cierre o click fuera
+        $(document).on('click', '#wp-alp-close-modal', function() {
+            $('#wp-alp-modal-overlay').fadeOut(300);
+        });
+        
+        $(document).on('click', '#wp-alp-modal-overlay', function(e) {
+            if (e.target === this) {
+                $('#wp-alp-modal-overlay').fadeOut(300);
+            }
+        });
+
+        // Cerrar modal con tecla Escape
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape' && $('#wp-alp-modal-overlay').is(':visible')) {
+                $('#wp-alp-modal-overlay').fadeOut(300);
+            }
+        });
+        
+        // Manejar el botón "Continuar" en el formulario inicial
+        $(document).on('click', '#wp-alp-continue-btn', function() {
+            var identifier = $('#wp-alp-identifier').val().trim();
+            if (!identifier) {
+                // Mostrar error
+                return;
+            }
+            
+            $('#wp-alp-modal-loader').show();
+            $('#wp-alp-modal-content').hide();
+            
+            $.ajax({
+                url: wp_alp_ajax.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'wp_alp_validate_user',
+                    identifier: identifier,
+                    nonce: wp_alp_ajax.nonce
+                },
+                success: function(response) {
+                    if (response.success && response.data.html) {
+                        $('#wp-alp-modal-content').html(response.data.html);
+                    } else {
+                        // Manejar error
+                    }
+                    $('#wp-alp-modal-loader').hide();
+                    $('#wp-alp-modal-content').show();
+                }
+            });
+        });
+        
+        // Botón de iniciar sesión
+        $(document).on('click', '#wp-alp-login-btn', function() {
+            var email = $('#wp-alp-login-email').val().trim();
+            var password = $('#wp-alp-login-password').val().trim();
+            
+            if (!email || !password) {
+                // Mostrar error
+                return;
+            }
+            
+            $('#wp-alp-modal-loader').show();
+            $('#wp-alp-modal-content').hide();
+            
+            $.ajax({
+                url: wp_alp_ajax.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'wp_alp_login_user',
+                    email: email,
+                    password: password,
+                    nonce: wp_alp_ajax.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        if (response.data.needs_profile) {
+                            $('#wp-alp-modal-content').html(response.data.html);
+                        } else {
+                            // Redirigir o recargar la página
+                            window.location.reload();
+                        }
+                    }
+                    $('#wp-alp-modal-loader').hide();
+                    $('#wp-alp-modal-content').show();
+                },
+                error: function() {
+                    // Incluso en caso de error, el login podría haber funcionado
+                    window.location.reload();
+                }
+            });
+        });
+        
+        // Botón de completar perfil
+        $(document).on('click', '#wp-alp-complete-profile-btn', function() {
+            var formData = {
+                user_id: $('input[name="user_id"]').val(),
+                event_type: $('#wp-alp-event-type').val(),
+                event_date: $('#wp-alp-event-date').val(),
+                event_address: $('#wp-alp-event-address').val(),
+                guests: $('#wp-alp-event-guests').val(),
+                details: $('#wp-alp-event-details').val()
+            };
+            
+            $('#wp-alp-modal-loader').show();
+            $('#wp-alp-modal-content').hide();
+            
+            $.ajax({
+                url: wp_alp_ajax.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'wp_alp_complete_profile',
+                    nonce: wp_alp_ajax.nonce,
+                    user_id: formData.user_id,
+                    event_type: formData.event_type,
+                    event_date: formData.event_date,
+                    event_address: formData.event_address,
+                    guests: formData.guests,
+                    details: formData.details
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Mostrar mensaje y redirigir
+                        window.location.href = response.data.redirect;
+                    } else {
+                        // Mostrar error
+                    }
+                    $('#wp-alp-modal-loader').hide();
+                    $('#wp-alp-modal-content').show();
+                }
+            });
+        });
+    });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'wp_alp_fix_modal_js', 99);
+
+// Filtros para modificar el flujo de usuario
+function wp_alp_fix_user_profile_flow() {
+    if (!class_exists('WP_ALP_Public')) {
+        return;
+    }
+    
+    // Modificar la clase para cambiar la comprobación del perfil
+    add_filter('wp_alp_validate_user_result', 'wp_alp_modify_validate_result', 10, 2);
+}
+add_action('init', 'wp_alp_fix_user_profile_flow');
+
+function wp_alp_modify_validate_result($data, $result) {
+    if ($result['exists']) {
+        // Obtener el usuario de WordPress
+        $user = get_user_by('ID', $result['user_id']);
+        
+        // Comprobar si es un subscriber con perfil incompleto
+        if ($result['found_by'] === 'email' && 
+            (in_array('subscriber', (array)$user->roles) || $result['user_type'] === 'subscriber') && 
+            $result['profile_status'] === 'incomplete') {
+            // Cambiar flujo: mostrar formulario de login primero
+            $data['needs_profile'] = false;
+        }
+    }
+    
+    return $data;
+}
+
+function wp_alp_fix_login_ajax() {
+    // Añadir un filtro para modificar el resultado del login
+    add_filter('wp_alp_login_user_result', 'wp_alp_modify_login_result', 10, 2);
+}
+add_action('init', 'wp_alp_fix_login_ajax');
+
+function wp_alp_modify_login_result($response, $user_id) {
+    // Verificar si el usuario necesita completar su perfil
+    $user = get_user_by('ID', $user_id);
+    $profile_status = get_user_meta($user_id, 'wp_alp_profile_status', true);
+    
+    if (is_object($user) && 
+        in_array('subscriber', (array)$user->roles) && 
+        $profile_status === 'incomplete') {
+        
+        // Usuario necesita completar su perfil
+        $response['needs_profile'] = true;
+        
+        // Usar la clase original del plugin para obtener el HTML del formulario
+        if (class_exists('WP_ALP_Forms')) {
+            $response['html'] = WP_ALP_Forms::get_profile_completion_form($user_id);
+        }
+    }
+    
+    return $response;
+}
