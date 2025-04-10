@@ -1960,3 +1960,52 @@ function wp_alp_disable_original_social() {
     }, 5);
 }
 add_action('init', 'wp_alp_disable_original_social', 5);
+
+function wp_alp_enhance_styles() {
+    ?>
+    <style>
+    /* Estilos mejorados para el botón de Google */
+    #wp-alp-google-btn {
+        position: relative;
+        overflow: hidden; /* Para el botón personalizado de Google */
+    }
+    
+    /* Estilos para el loader superpuesto */
+    .wp-alp-loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+    
+    /* Mejorar la visibilidad de los mensajes de error/éxito */
+    .wp-alp-error-message, 
+    .wp-alp-success-message {
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+    
+    .wp-alp-error-message {
+        background-color: #ffdddd;
+        border: 1px solid #ff5555;
+        color: #cc0000;
+    }
+    
+    .wp-alp-success-message {
+        background-color: #ddffdd;
+        border: 1px solid #55cc55;
+        color: #007700;
+    }
+    </style>
+    <?php
+}
+add_action('wp_head', 'wp_alp_enhance_styles', 999);
+
