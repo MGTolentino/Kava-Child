@@ -1808,81 +1808,114 @@ function wp_alp_fix_social_login() {
                 $('#wp-alp-modal-loader').addClass('wp-alp-loading-overlay').show();
                 
                 // Solicitar login con permisos de email y perfil público
-                FB.login(function(response) {
-                    console.log('Respuesta de Facebook Login:', response);
+                // Reemplaza la parte del código que maneja la respuesta de Facebook con esto:
+FB.login(function(response) {
+    console.log('Respuesta de Facebook Login:', response);
+    
+    if (response.authResponse) {
+        // Login exitoso, obtener el token
+        var accessToken = response.authResponse.accessToken;
+        
+        // Mostrar loader
+        $('#wp-alp-modal-loader').addClass('wp-alp-loading-overlay').show();
+        
+        // Enviar token al servidor
+        $.ajax({
+            url: wp_alp_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'wp_alp_social_login',
+                provider: 'facebook',
+                token: accessToken,
+                nonce: wp_alp_ajax.nonce
+            },
+            success: function(response) {
+                console.log('Respuesta del servidor para login Facebook:', response);
+                
+                if (response.success) {
+                    // Mostrar mensaje de éxito
+                    showSuccessMessage(response.data.message || 'Login exitoso');
                     
-                    if (response.authResponse) {
-                        // Login exitoso, obtener el token
-                        var accessToken = response.authResponse.accessToken;
-                        
-                        // Enviar token al servidor
-                        $.ajax({
-                            url: wp_alp_ajax.ajax_url,
-                            type: 'POST',
-                            data: {
-                                action: 'wp_alp_social_login',
-                                provider: 'facebook',
-                                token: accessToken,
-                                nonce: wp_alp_ajax.nonce
-                            },
-                            success: function(response) {
-                                console.log('Respuesta del servidor:', response);
-                                
-                                if (response.success) {
-                                    // Mostrar mensaje de éxito
-                                    showSuccessMessage(response.data.message || 'Login exitoso');
-                                    
-                                    // Actualizar el nonce global con el nuevo
-                                    if (response.data.new_nonce) {
-                                        wp_alp_ajax.nonce = response.data.new_nonce;
-                                        console.log('Nonce actualizado después de login');
-                                    }
-                                    
-                                    // Si el usuario necesita completar perfil
-                                    if (response.data.needs_profile) {
-                                        // Verificar si tenemos HTML del formulario directamente
-                                        if (response.data.html) {
-                                            transitionContent(response.data.html);
-                                        } else if (response.data.user_id) {
-                                            // Cargar el formulario de perfil usando el user_id
-                                            console.log('Cargando formulario de perfil para el usuario:', response.data.user_id);
-                                            loadProfileForm(response.data.user_id);
-                                        } else {
-                                            // Redirigir a la URL especificada
-                                            console.log('Redirigiendo a:', response.data.redirect);
-                                            window.location.href = response.data.redirect;
-                                        }
-                                    } else {
-                                        // Usuario completo, redirigir después de una breve pausa
-                                        setTimeout(function() {
-                                            window.location.href = response.data.redirect || window.location.href;
-                                        }, 1500);
-                                    }
-                                } else {
-                                    // Ocultar loader y mostrar error
-                                    $('#wp-alp-modal-loader').hide();
-                                    showErrorMessage(response.data.message || 'Error en el inicio de sesión con Facebook');
-                                }
-                            },
-                            error: function(xhr, status, error) {
-                                console.error('Error en Facebook login:', { xhr: xhr, status: status, error: error });
-                                $('#wp-alp-modal-loader').hide();
-                                showErrorMessage('Error de conexión. Por favor, intenta nuevamente.');
-                                
-                                // Si es un error 403, probablemente es un problema de nonce
-                                if (xhr.status === 403) {
-                                    refreshNonce(function() {
-                                        showErrorMessage('Sesión actualizada. Por favor, intenta nuevamente.');
-                                    });
-                                }
-                            }
-                        });
-                    } else {
-                        // Usuario canceló o hubo un error
-                        $('#wp-alp-modal-loader').hide();
-                        showErrorMessage('Login cancelado o error en Facebook');
+                    // IMPORTANTE: Actualizar el nonce global con el nuevo
+                    if (response.data.new_nonce) {
+                        console.log('Actualizando nonce después de login Facebook: ' + response.data.new_nonce);
+                        wp_alp_ajax.nonce = response.data.new_nonce;
                     }
-                }, { scope: 'public_profile,email' });
+                    
+                    // Si el usuario necesita completar perfil
+                    if (response.data.needs_profile) {
+                        var userId = response.data.user_id || 0;
+                        console.log('Usuario necesita completar perfil, ID:', userId);
+                        
+                        // Verificar si tenemos HTML del formulario directamente
+                        if (response.data.html) {
+                            transitionContent(response.data.html);
+                        } else if (userId > 0) {
+                            // Pequeña pausa para asegurar que el nonce se actualizó
+                            setTimeout(function() {
+                                // Cargar el formulario con el nonce actualizado
+                                $.ajax({
+                                    url: wp_alp_ajax.ajax_url,
+                                    type: 'POST',
+                                    data: {
+                                        action: 'wp_alp_get_form',
+                                        form: 'profile',
+                                        user_id: userId,
+                                        nonce: wp_alp_ajax.nonce  // Usar el nonce actualizado
+                                    },
+                                    success: function(formResponse) {
+                                        console.log('Respuesta formulario perfil:', formResponse);
+                                        if (formResponse.success) {
+                                            transitionContent(formResponse.data.html);
+                                        } else {
+                                            $('#wp-alp-modal-loader').hide();
+                                            showErrorMessage(formResponse.data.message || 'Error al cargar formulario de perfil');
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        console.error('Error cargando formulario de perfil:', xhr);
+                                        $('#wp-alp-modal-loader').hide();
+                                        
+                                        // Si sigue fallando, intentar refrescar el nonce
+                                        if (xhr.status === 403) {
+                                            refreshNonce(function() {
+                                                showErrorMessage('Hubo un problema con la sesión. Por favor, intenta nuevamente.');
+                                            });
+                                        } else {
+                                            showErrorMessage('Error de conexión al cargar el formulario de perfil.');
+                                        }
+                                    }
+                                });
+                            }, 500);
+                        } else {
+                            // Redirigir a la URL especificada
+                            console.log('Redirigiendo a:', response.data.redirect);
+                            window.location.href = response.data.redirect;
+                        }
+                    } else {
+                        // Usuario completo, redirigir después de una breve pausa
+                        setTimeout(function() {
+                            window.location.href = response.data.redirect || window.location.href;
+                        }, 1500);
+                    }
+                } else {
+                    // Ocultar loader y mostrar error
+                    $('#wp-alp-modal-loader').hide();
+                    showErrorMessage(response.data.message || 'Error en el inicio de sesión con Facebook');
+                }
+            },
+            error: function(xhr) {
+                console.error('Error en solicitud AJAX para Facebook login:', xhr);
+                $('#wp-alp-modal-loader').hide();
+                showErrorMessage('Error de conexión. Por favor, intenta nuevamente.');
+            }
+        });
+    } else {
+        // Usuario canceló o hubo un error
+        $('#wp-alp-modal-loader').hide();
+        showErrorMessage('Login cancelado o error en Facebook');
+    }
+}, { scope: 'public_profile,email' });
             }
             
             // Inicializar las APIs cuando se abre el modal
