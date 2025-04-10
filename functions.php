@@ -2294,3 +2294,209 @@ function wp_alp_bypass_nonce_verification($value, $action, $nonce) {
     return $value;
 }
 add_filter('nonce_verify', 'wp_alp_bypass_nonce_verification', 10, 3);
+
+/**
+ * Solución para el problema de carga infinita del modal
+ */
+function wp_alp_fix_modal_loading_state() {
+    ?>
+    <script>
+    jQuery(document).ready(function($) {
+        // Variable global para controlar intentos
+        var loadingAttempts = 0;
+        
+        // Función para detectar y corregir el estado de carga infinita
+        function checkLoadingState() {
+            var isLoaderVisible = $('#wp-alp-modal-loader').is(':visible');
+            var hasContent = $('#wp-alp-modal-content').html().trim().length > 0;
+            
+            console.log('Estado del modal - Loader visible:', isLoaderVisible, 'Tiene contenido:', hasContent);
+            
+            // Si el loader está visible por más de 5 segundos, intentar corregir
+            if (isLoaderVisible && hasContent) {
+                loadingAttempts++;
+                
+                console.log('Detectado estado de carga prolongado, intentando corregir (intento ' + loadingAttempts + ')');
+                
+                // Ocultar loader y mostrar contenido
+                $('#wp-alp-modal-loader').hide();
+                $('#wp-alp-modal-content').css('opacity', '1');
+                
+                // Si es el formulario de perfil después de login social, intentar refrescar
+                if ($('#wp-alp-modal-content').find('input[name="user_id"]').length > 0) {
+                    console.log('Detectado formulario de perfil, asegurando visibilidad');
+                    
+                    // Resaltar el formulario brevemente para llamar la atención
+                    $('#wp-alp-modal-content').css('box-shadow', '0 0 15px rgba(0,123,255,0.5)');
+                    setTimeout(function() {
+                        $('#wp-alp-modal-content').css('box-shadow', 'none');
+                    }, 1000);
+                }
+            }
+        }
+        
+        // Verificar el estado cada 5 segundos
+        setInterval(checkLoadingState, 5000);
+        
+        // Sobreescribir la función de transición para depuración
+        if (typeof window.transitionContent === 'function') {
+            var originalTransition = window.transitionContent;
+            window.transitionContent = function(newContent) {
+                console.log('Ejecutando transición de contenido...');
+                originalTransition(newContent);
+                
+                // Verificar que la transición se completó correctamente
+                setTimeout(function() {
+                    if ($('#wp-alp-modal-loader').is(':visible')) {
+                        console.log('Loader todavía visible después de la transición, corrigiendo...');
+                        $('#wp-alp-modal-loader').hide();
+                    }
+                }, 500);
+            };
+        }
+        
+        // Añadir manejador específico para el botón de Facebook
+        $(document).on('click', '#wp-alp-facebook-btn', function() {
+            // Exponer la función de transición de manera global
+            window.forceUpdateModalContent = function(html) {
+                console.log('Forzando actualización del contenido del modal');
+                $('#wp-alp-modal-content').html(html);
+                $('#wp-alp-modal-loader').hide();
+                $('#wp-alp-modal-content').css('opacity', '1');
+            };
+            
+            // Monitores el estado de carga después del clic en Facebook
+            setTimeout(function() {
+                if ($('#wp-alp-modal-loader').is(':visible')) {
+                    console.log('Estado de carga detectado después de login Facebook, monitoreando...');
+                    
+                    var fbLoadingCheck = setInterval(function() {
+                        // Si la carga continúa por más de 10 segundos
+                        if ($('#wp-alp-modal-loader').is(':visible')) {
+                            console.log('Carga prolongada después de Facebook login, intentando recuperar formulario...');
+                            
+                            // Intentar cargar el formulario de perfil directamente
+                            $.ajax({
+                                url: wp_alp_ajax.ajax_url,
+                                type: 'POST',
+                                data: {
+                                    action: 'wp_alp_get_emergency_profile_form',
+                                    nonce: wp_alp_ajax.nonce
+                                },
+                                success: function(response) {
+                                    if (response.success && response.data.html) {
+                                        window.forceUpdateModalContent(response.data.html);
+                                        clearInterval(fbLoadingCheck);
+                                    }
+                                }
+                            });
+                        } else {
+                            clearInterval(fbLoadingCheck);
+                        }
+                    }, 5000); // Verificar cada 5 segundos
+                }
+            }, 3000); // Esperar 3 segundos después del clic
+        });
+    });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'wp_alp_fix_modal_loading_state', 9999);
+
+/**
+ * Endpoint de emergencia para obtener el formulario de perfil
+ */
+function wp_alp_get_emergency_profile_form() {
+    // Verificar si el usuario está autenticado
+    if (is_user_logged_in()) {
+        $user_id = get_current_user_id();
+        
+        // Verificar si necesita completar perfil
+        $profile_status = get_user_meta($user_id, 'wp_alp_profile_status', true);
+        
+        if ($profile_status === 'incomplete') {
+            // Generar formulario de perfil
+            $html = WP_ALP_Forms::get_profile_completion_form($user_id);
+            
+            wp_send_json_success(array(
+                'html' => $html,
+                'user_id' => $user_id
+            ));
+        } else {
+            // Usuario ya tiene perfil completo
+            wp_send_json_error(array(
+                'message' => 'El usuario ya tiene un perfil completo'
+            ));
+        }
+    } else {
+        // Usuario no autenticado
+        wp_send_json_error(array(
+            'message' => 'Usuario no autenticado'
+        ));
+    }
+}
+add_action('wp_ajax_wp_alp_get_emergency_profile_form', 'wp_alp_get_emergency_profile_form');
+add_action('wp_ajax_nopriv_wp_alp_get_emergency_profile_form', 'wp_alp_get_emergency_profile_form');
+
+function wp_alp_emergency_button() {
+    ?>
+    <script>
+    jQuery(document).ready(function($) {
+        // Añadir botón de emergencia (solo visible si el loader está atascado)
+        var emergencyButton = $('<button>', {
+            id: 'wp-alp-emergency-button',
+            text: 'Recuperar Formulario',
+            style: 'display:none; position:absolute; top:10px; right:50px; z-index:2000; background:#f44336; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer;'
+        }).appendTo('#wp-alp-modal-container');
+        
+        // Mostrar botón después de 20 segundos si el loader sigue visible
+        setTimeout(function() {
+            if ($('#wp-alp-modal-loader').is(':visible')) {
+                emergencyButton.show();
+            }
+        }, 20000);
+        
+        // Manejar clic en el botón de emergencia
+        emergencyButton.on('click', function() {
+            // Forzar la finalización de la carga
+            $('#wp-alp-modal-loader').hide();
+            
+            // Intentar cargar el formulario de perfil de emergencia
+            $.ajax({
+                url: wp_alp_ajax.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'wp_alp_get_emergency_profile_form',
+                    nonce: wp_alp_ajax.nonce
+                },
+                success: function(response) {
+                    if (response.success && response.data.html) {
+                        $('#wp-alp-modal-content').html(response.data.html);
+                    } else {
+                        // Si falla, mostrar formulario inicial
+                        $.ajax({
+                            url: wp_alp_ajax.ajax_url,
+                            type: 'POST',
+                            data: {
+                                action: 'wp_alp_get_form',
+                                form: 'initial',
+                                nonce: wp_alp_ajax.nonce
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    $('#wp-alp-modal-content').html(response.data.html);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+            
+            // Ocultar el botón después de usarlo
+            $(this).hide();
+        });
+    });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'wp_alp_emergency_button', 9999);
