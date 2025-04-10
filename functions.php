@@ -1937,3 +1937,26 @@ function wp_alp_prevent_original_social_init() {
     <?php
 }
 add_action('wp_head', 'wp_alp_prevent_original_social_init', 5);
+
+// Desactivar inicialización original del plugin
+function wp_alp_disable_original_social() {
+    // Eliminar la acción que inicializa los scripts sociales originales
+    remove_action('wp_footer', array('WP_ALP_Public', 'initialize_social_scripts'), 20);
+    
+    // Establecer una variable global para indicar que estamos usando nuestra propia implementación
+    global $wp_alp_custom_social;
+    $wp_alp_custom_social = true;
+    
+    // Prevenir la inicialización mediante JavaScript
+    add_action('wp_head', function() {
+        echo '<script>
+            // Sobreescribir la inicialización original de social login
+            window.socialLoginInitialized = true;
+            window.overrideWpAlpSocialInit = true;
+            
+            // Prevenir que se cargue el script original
+            window.wpAlpOriginalSocialInit = function() { return false; };
+        </script>';
+    }, 5);
+}
+add_action('init', 'wp_alp_disable_original_social', 5);
