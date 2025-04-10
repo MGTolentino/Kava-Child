@@ -1528,9 +1528,14 @@ function wp_alp_fix_social_login() {
         ?>
         <script>
         (function($) {
+            // Flag para rastrear si ya inicializamos las APIs
+            var apisInitialized = false;
+            
             // Función para cargar Google API correctamente
             function loadGoogleAPI() {
                 if (typeof wp_alp_ajax !== 'undefined' && wp_alp_ajax.google_client_id) {
+                    console.log('Inicializando Google API...');
+                    
                     var googleScript = document.createElement('script');
                     googleScript.src = 'https://accounts.google.com/gsi/client';
                     googleScript.async = true;
@@ -1543,68 +1548,376 @@ function wp_alp_fix_social_login() {
                         // Inicializar la API de Google
                         google.accounts.id.initialize({
                             client_id: wp_alp_ajax.google_client_id,
-                            callback: function(response) {
-                                if (response.credential) {
-                                    // Procesar login con el token
-                                    processGoogleLogin(response.credential);
-                                }
-                            }
+                            callback: handleGoogleCredentialResponse,
+                            auto_select: false, // Desactivar selección automática
+                            cancel_on_tap_outside: true
                         });
+                        
+                        // Personalizar botón si existe
+                        if (document.getElementById('wp-alp-google-btn')) {
+                            google.accounts.id.renderButton(
+                                document.getElementById('wp-alp-google-btn'),
+                                { 
+                                    type: 'standard',
+                                    theme: 'outline',
+                                    size: 'large',
+                                    text: 'continue_with',
+                                    logo_alignment: 'center',
+                                    width: '100%'
+                                }
+                            );
+                        }
                     };
                 }
             }
             
-            // Función para manejar el login de Google
-            function processGoogleLogin(token) {
+            // Procesamiento de respuesta de Google
+            function handleGoogleCredentialResponse(response) {
+                console.log('Google credential response recibida:', response);
+                
+                // Mostrar indicador de carga
+                $('#wp-alp-modal-loader').addClass('wp-alp-loading-overlay').show();
+                
+                // Enviar el token a nuestro servidor
                 $.ajax({
                     url: wp_alp_ajax.ajax_url,
                     type: 'POST',
                     data: {
                         action: 'wp_alp_social_login',
                         provider: 'google',
-                        token: token,
+                        token: response.credential,
                         nonce: wp_alp_ajax.nonce
                     },
                     success: function(response) {
+                        console.log('Respuesta del servidor:', response);
+                        
                         if (response.success) {
-                            // Mostrar mensaje de éxito y redirigir
-                            var successHtml = '<div class="wp-alp-success-message">' + (response.data.message || 'Login exitoso') + '</div>';
-                            $('#wp-alp-modal-content').prepend(successHtml);
+                            // Mostrar mensaje de éxito
+                            showSuccessMessage(response.data.message || 'Login exitoso');
                             
-                            setTimeout(function() {
-                                window.location.href = response.data.redirect || window.location.href;
-                            }, 1000);
+                            // Actualizar el nonce global con el nuevo
+                            if (response.data.new_nonce) {
+                                wp_alp_ajax.nonce = response.data.new_nonce;
+                                console.log('Nonce actualizado después de login');
+                            }
+                            
+                            // Si el usuario necesita completar perfil
+                            if (response.data.needs_profile) {
+                                // Verificar si tenemos HTML del formulario directamente
+                                if (response.data.html) {
+                                    transitionContent(response.data.html);
+                                } else if (response.data.user_id) {
+                                    // Cargar el formulario de perfil usando el user_id
+                                    console.log('Cargando formulario de perfil para el usuario:', response.data.user_id);
+                                    loadProfileForm(response.data.user_id);
+                                } else {
+                                    // Redirigir a la URL especificada
+                                    console.log('Redirigiendo a:', response.data.redirect);
+                                    window.location.href = response.data.redirect;
+                                }
+                            } else {
+                                // Usuario completo, redirigir después de una breve pausa
+                                setTimeout(function() {
+                                    window.location.href = response.data.redirect || window.location.href;
+                                }, 1500);
+                            }
                         } else {
-                            // Mostrar error
-                            var errorHtml = '<div class="wp-alp-error-message">' + (response.data.message || 'Error al iniciar sesión') + '</div>';
-                            $('#wp-alp-modal-content').prepend(errorHtml);
+                            // Ocultar loader y mostrar error
+                            $('#wp-alp-modal-loader').hide();
+                            showErrorMessage(response.data.message || 'Error en el inicio de sesión');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error en social login:', { xhr: xhr, status: status, error: error });
+                        $('#wp-alp-modal-loader').hide();
+                        showErrorMessage('Error de conexión. Por favor, intenta nuevamente.');
+                        
+                        // Si es un error 403, probablemente es un problema de nonce
+                        if (xhr.status === 403) {
+                            // Intentar refrescar el nonce y reintentar
+                            refreshNonce(function() {
+                                showErrorMessage('Sesión actualizada. Por favor, intenta nuevamente.');
+                            });
                         }
                     }
                 });
             }
             
-            // Cargar las APIs cuando se abre el modal
-            $(document).on('click', '[data-wp-alp-trigger="login"]', function() {
-                setTimeout(loadGoogleAPI, 500);
+            // Función para cargar el formulario de perfil
+            function loadProfileForm(userId) {
+                $.ajax({
+                    url: wp_alp_ajax.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'wp_alp_get_form',
+                        form: 'profile',
+                        user_id: userId,
+                        nonce: wp_alp_ajax.nonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            transitionContent(response.data.html);
+                        } else {
+                            $('#wp-alp-modal-loader').hide();
+                            showErrorMessage(response.data.message || 'Error al cargar formulario de perfil');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error cargando formulario:', { xhr: xhr, status: status, error: error });
+                        $('#wp-alp-modal-loader').hide();
+                        showErrorMessage('Error de conexión. Por favor, intenta nuevamente.');
+                        
+                        // Si es un error 403, probablemente es un problema de nonce
+                        if (xhr.status === 403) {
+                            refreshNonce(function() {
+                                // Reintentar cargar el formulario con el nuevo nonce
+                                loadProfileForm(userId);
+                            });
+                        }
+                    }
+                });
+            }
+            
+            // Función para mostrar mensaje de error
+            function showErrorMessage(message) {
+                var errorHtml = '<div class="wp-alp-error-message">' + message + '</div>';
+                
+                // Remover mensajes de error anteriores
+                $('.wp-alp-error-message').remove();
+                
+                // Añadir nuevo mensaje de error al inicio del contenido
+                $('#wp-alp-modal-content').prepend(errorHtml);
+                
+                // Auto-ocultar después de 5 segundos
+                setTimeout(function() {
+                    $('.wp-alp-error-message').fadeOut(500, function() {
+                        $(this).remove();
+                    });
+                }, 5000);
+            }
+            
+            // Función para mostrar mensaje de éxito
+            function showSuccessMessage(message) {
+                var successHtml = '<div class="wp-alp-success-message">' + message + '</div>';
+                
+                // Remover mensajes anteriores
+                $('.wp-alp-success-message, .wp-alp-error-message').remove();
+                
+                // Añadir nuevo mensaje
+                $('#wp-alp-modal-content').prepend(successHtml);
+            }
+            
+            // Función para transición suave de contenido
+            function transitionContent(newContent) {
+                // Hacer fade out del contenido actual
+                $('#wp-alp-modal-content').css('opacity', '0.5');
+                
+                // Pequeña pausa para la animación (150ms)
+                setTimeout(function() {
+                    // Reemplazar el contenido
+                    $('#wp-alp-modal-content').html(newContent);
+                    
+                    // Hacer fade in del nuevo contenido
+                    $('#wp-alp-modal-content').css('opacity', '1');
+                    
+                    // Ocultar loader
+                    $('#wp-alp-modal-loader').hide();
+                }, 150);
+            }
+            
+            // Función para refrescar el nonce
+            function refreshNonce(callback) {
+                $.ajax({
+                    url: wp_alp_ajax.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'wp_alp_refresh_nonce'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Actualizar nonce global
+                            wp_alp_ajax.nonce = response.data.nonce;
+                            console.log('Nonce refrescado exitosamente');
+                            
+                            if (typeof callback === 'function') {
+                                callback();
+                            }
+                        }
+                    },
+                    error: function() {
+                        console.error('Error al refrescar el nonce');
+                    }
+                });
+            }
+            
+            // Función para inicializar Facebook Login
+            function initFacebookLogin() {
+                if (typeof FB !== 'undefined') {
+                    console.log('Facebook SDK ya está inicializado');
+                    return;
+                }
+                
+                if (typeof wp_alp_ajax !== 'undefined' && wp_alp_ajax.facebook_app_id) {
+                    console.log('Inicializando Facebook SDK...');
+                    
+                    // Inicializar Facebook SDK
+                    window.fbAsyncInit = function() {
+                        FB.init({
+                            appId: wp_alp_ajax.facebook_app_id,
+                            cookie: true,
+                            xfbml: true,
+                            version: 'v18.0'
+                        });
+                        
+                        console.log('Facebook SDK inicializado correctamente');
+                    };
+                    
+                    // Cargar el SDK de Facebook
+                    (function(d, s, id) {
+                        var js, fjs = d.getElementsByTagName(s)[0];
+                        if (d.getElementById(id)) return;
+                        js = d.createElement(s); js.id = id;
+                        js.src = "https://connect.facebook.net/es_LA/sdk.js";
+                        fjs.parentNode.insertBefore(js, fjs);
+                    }(document, 'script', 'facebook-jssdk'));
+                }
+            }
+            
+            // Función para manejar el login de Facebook
+            function handleFacebookLogin() {
+                if (typeof FB === 'undefined') {
+                    console.log('Facebook SDK no está listo. Cargando...');
+                    initFacebookLogin();
+                    
+                    // Mostrar mensaje de carga
+                    showErrorMessage('Cargando Facebook Login...');
+                    
+                    // Reintentar después de un breve período
+                    setTimeout(function() {
+                        if (typeof FB !== 'undefined') {
+                            handleFacebookLogin();
+                        } else {
+                            showErrorMessage('No se pudo cargar Facebook Login. Por favor, intenta más tarde.');
+                        }
+                    }, 2000);
+                    
+                    return;
+                }
+                
+                // Mostrar loader
+                $('#wp-alp-modal-loader').addClass('wp-alp-loading-overlay').show();
+                
+                // Solicitar login con permisos de email y perfil público
+                FB.login(function(response) {
+                    console.log('Respuesta de Facebook Login:', response);
+                    
+                    if (response.authResponse) {
+                        // Login exitoso, obtener el token
+                        var accessToken = response.authResponse.accessToken;
+                        
+                        // Enviar token al servidor
+                        $.ajax({
+                            url: wp_alp_ajax.ajax_url,
+                            type: 'POST',
+                            data: {
+                                action: 'wp_alp_social_login',
+                                provider: 'facebook',
+                                token: accessToken,
+                                nonce: wp_alp_ajax.nonce
+                            },
+                            success: function(response) {
+                                console.log('Respuesta del servidor:', response);
+                                
+                                if (response.success) {
+                                    // Mostrar mensaje de éxito
+                                    showSuccessMessage(response.data.message || 'Login exitoso');
+                                    
+                                    // Actualizar el nonce global con el nuevo
+                                    if (response.data.new_nonce) {
+                                        wp_alp_ajax.nonce = response.data.new_nonce;
+                                        console.log('Nonce actualizado después de login');
+                                    }
+                                    
+                                    // Si el usuario necesita completar perfil
+                                    if (response.data.needs_profile) {
+                                        // Verificar si tenemos HTML del formulario directamente
+                                        if (response.data.html) {
+                                            transitionContent(response.data.html);
+                                        } else if (response.data.user_id) {
+                                            // Cargar el formulario de perfil usando el user_id
+                                            console.log('Cargando formulario de perfil para el usuario:', response.data.user_id);
+                                            loadProfileForm(response.data.user_id);
+                                        } else {
+                                            // Redirigir a la URL especificada
+                                            console.log('Redirigiendo a:', response.data.redirect);
+                                            window.location.href = response.data.redirect;
+                                        }
+                                    } else {
+                                        // Usuario completo, redirigir después de una breve pausa
+                                        setTimeout(function() {
+                                            window.location.href = response.data.redirect || window.location.href;
+                                        }, 1500);
+                                    }
+                                } else {
+                                    // Ocultar loader y mostrar error
+                                    $('#wp-alp-modal-loader').hide();
+                                    showErrorMessage(response.data.message || 'Error en el inicio de sesión con Facebook');
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Error en Facebook login:', { xhr: xhr, status: status, error: error });
+                                $('#wp-alp-modal-loader').hide();
+                                showErrorMessage('Error de conexión. Por favor, intenta nuevamente.');
+                                
+                                // Si es un error 403, probablemente es un problema de nonce
+                                if (xhr.status === 403) {
+                                    refreshNonce(function() {
+                                        showErrorMessage('Sesión actualizada. Por favor, intenta nuevamente.');
+                                    });
+                                }
+                            }
+                        });
+                    } else {
+                        // Usuario canceló o hubo un error
+                        $('#wp-alp-modal-loader').hide();
+                        showErrorMessage('Login cancelado o error en Facebook');
+                    }
+                }, { scope: 'public_profile,email' });
+            }
+            
+            // Inicializar las APIs cuando se abre el modal
+            function initSocialAPIs() {
+                if (!apisInitialized) {
+                    loadGoogleAPI();
+                    initFacebookLogin();
+                    apisInitialized = true;
+                }
+            }
+            
+            // Modificar eventos para botones de login social
+            function setupSocialButtons() {
+                // Cuando se abra el modal, inicializar las APIs
+                $(document).on('click', '[data-wp-alp-trigger="login"]', function() {
+                    // Inicializar las APIs de login social
+                    setTimeout(initSocialAPIs, 500);
+                });
+                
+                // Manejar clic en botón de Facebook
+                $(document).on('click', '#wp-alp-facebook-btn:not(.customized)', function(e) {
+                    e.preventDefault();
+                    console.log('Botón de Facebook clickeado');
+                    $(this).addClass('customized');
+                    handleFacebookLogin();
+                });
+                
+                // El botón de Google será manejado por la API de Google
+            }
+            
+            // Inicializar cuando el documento esté listo
+            $(document).ready(function() {
+                setupSocialButtons();
             });
             
-            // Corregir el evento de clic para Google
-            $(document).on('click', '#wp-alp-google-btn', function(e) {
-                e.preventDefault();
-                if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
-                    google.accounts.id.prompt();
-                } else {
-                    console.log('Google API no está lista. Intentando cargar...');
-                    loadGoogleAPI();
-                    setTimeout(function() {
-                        if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
-                            google.accounts.id.prompt();
-                        } else {
-                            alert('No se pudo cargar Google Sign-In. Por favor, intenta más tarde.');
-                        }
-                    }, 1000);
-                }
-            });
         })(jQuery);
         </script>
         <?php
