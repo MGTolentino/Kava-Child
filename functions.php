@@ -2042,3 +2042,105 @@ function wp_alp_enhance_styles() {
 }
 add_action('wp_head', 'wp_alp_enhance_styles', 999);
 
+function wp_alp_nonce_debug_script() {
+    ?>
+    <script>
+    jQuery(document).ready(function($) {
+        // Monitor de nonce - Para debugging
+        var originalNonce = wp_alp_ajax.nonce;
+        
+        // Función para comprobar estado del nonce
+        function checkNonceStatus() {
+            console.log('Nonce actual:', wp_alp_ajax.nonce);
+            console.log('¿Nonce modificado desde el original?', wp_alp_ajax.nonce !== originalNonce);
+            
+            // Verificar si el nonce es válido con una prueba AJAX
+            $.ajax({
+                url: wp_alp_ajax.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'wp_alp_validate_nonce',
+                    nonce: wp_alp_ajax.nonce
+                },
+                success: function(response) {
+                    console.log('Validación de nonce:', response);
+                },
+                error: function() {
+                    console.error('Error validando nonce');
+                }
+            });
+        }
+        
+        // Exponer función para uso manual en consola
+        window.debugNonce = checkNonceStatus;
+        
+        // Sobreescribir jQuery.ajax para monitorear nonces en las solicitudes
+        var originalAjax = $.ajax;
+        $.ajax = function(settings) {
+            // Solo para solicitudes a admin-ajax.php
+            if (settings.url && settings.url.indexOf('admin-ajax.php') > -1) {
+                console.log('Solicitud AJAX a admin-ajax:', settings);
+                
+                // Si hay un error 403, intentar refrescar el nonce automáticamente
+                var originalError = settings.error;
+                settings.error = function(xhr, status, error) {
+                    if (xhr.status === 403 && xhr.responseText === '-1') {
+                        console.warn('Error 403 detectado - Posible problema de nonce. Intentando refrescar...');
+                        
+                        // Intentar refrescar el nonce
+                        originalAjax({
+                            url: wp_alp_ajax.ajax_url,
+                            type: 'POST',
+                            data: {
+                                action: 'wp_alp_refresh_nonce'
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    console.log('Nonce refrescado automáticamente:', response.data.nonce);
+                                    wp_alp_ajax.nonce = response.data.nonce;
+                                    
+                                    // Actualizar el nonce en la solicitud original
+                                    if (settings.data && typeof settings.data === 'string') {
+                                        settings.data = settings.data.replace(
+                                            /nonce=[^&]+/,
+                                            'nonce=' + response.data.nonce
+                                        );
+                                    } else if (settings.data && typeof settings.data === 'object') {
+                                        settings.data.nonce = response.data.nonce;
+                                    }
+                                    
+                                    // Reintentar la solicitud original
+                                    console.log('Reintentando solicitud con nuevo nonce:', settings);
+                                    originalAjax(settings);
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Llamar al manejador de error original
+                    if (originalError) {
+                        originalError(xhr, status, error);
+                    }
+                };
+            }
+            
+            return originalAjax.apply(this, arguments);
+        };
+    });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'wp_alp_nonce_debug_script', 101);
+
+// Añadir endpoint para validar nonce (solo para debugging)
+function wp_alp_validate_nonce() {
+    $nonce = $_POST['nonce'] ?? '';
+    $is_valid = wp_verify_nonce($nonce, 'wp_alp_nonce');
+    
+    wp_send_json_success(array(
+        'nonce' => $nonce,
+        'is_valid' => $is_valid ? true : false
+    ));
+}
+add_action('wp_ajax_wp_alp_validate_nonce', 'wp_alp_validate_nonce');
+add_action('wp_ajax_nopriv_wp_alp_validate_nonce', 'wp_alp_validate_nonce');
