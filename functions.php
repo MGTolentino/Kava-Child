@@ -196,23 +196,18 @@ if (!function_exists('kava_child_enqueue_favorites_scripts')) {
     add_action('wp_enqueue_scripts', 'kava_child_enqueue_favorites_scripts');
 }
 
-/**
- * Google Maps management
- */
 function kava_child_manage_google_maps_scripts() {
     wp_deregister_script('google-maps');
     wp_deregister_script('google-maps-custom');
     wp_deregister_script('hivepress-geolocation');
     wp_deregister_script('geocomplete');
-
     wp_register_script(
         'google-maps-custom',
-        'https://maps.googleapis.com/maps/api/js?key=' . GOOGLE_MAPS_API_KEY,
+        'https://maps.googleapis.com/maps/api/js?key=' . GOOGLE_MAPS_API_KEY . '&libraries=places&callback=googleMapsCallback',
         array('jquery'),
         null,
         true
     );
-
     wp_register_script(
         'venue-map',
         get_stylesheet_directory_uri() . '/assets/js/venue-map.js',
@@ -220,7 +215,6 @@ function kava_child_manage_google_maps_scripts() {
         '1.0',
         true
     );
-
     wp_enqueue_script('google-maps-custom');
     wp_enqueue_script('venue-map');
 }
