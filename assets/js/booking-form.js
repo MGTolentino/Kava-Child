@@ -48,7 +48,6 @@
             this.initQuantity();
             this.initExtras();
             this.calculateTotals();
-            this.initDateChangeListener();
  
             this.form.on('submit', (e) => {
                 if (!this.isQuantityValid || !this.validateForm()) {
@@ -57,6 +56,7 @@
                 }
             });
         }
+<<<<<<< HEAD
         
         // Nuevo método para inicializar el listener de cambio de fecha
         initDateChangeListener() {
@@ -98,6 +98,9 @@
             }
         }
 			
+=======
+		
+>>>>>>> parent of a5a6126 (mejorar fecha)
 		updateBookButtonState() {
             if (!this.isQuantityValid) {
                 this.bookButton.prop('disabled', true);
@@ -126,6 +129,7 @@ const savedDate = localStorage.getItem('eq_selected_date');
             blockedDates = typeof rawData === 'string' ? JSON.parse(rawData) : (rawData || []);
 
         } catch (e) {
+            console.error('Error parsing blocked dates:', e);
         }
 
         const config = {
@@ -256,6 +260,7 @@ const savedDate = localStorage.getItem('eq_selected_date');
     });
 },
             // En la configuración del flatpickr, modificar el onChange
+<<<<<<< HEAD
             onChange: function(selectedDates, dateStr, instance) {
                 const bookingForm = window._bookingFormInstance;
                 
@@ -305,6 +310,132 @@ const savedDate = localStorage.getItem('eq_selected_date');
                     localStorage.setItem('eq_selected_date', newDate);
                 }
             }
+=======
+onChange: (selectedDates, dateStr, instance) => {
+    if (selectedDates.length > 0) {
+        if (maxLength === 1) {
+            const date = selectedDates[0].toLocaleDateString('en-US', {
+                month: 'numeric',
+                day: 'numeric',
+                year: 'numeric'
+            });
+            $value.text(date);
+            // La primera fecha ya se actualiza automáticamente
+        } 
+        else if (selectedDates.length === 2) {
+            const start = new Date(selectedDates[0]);
+            const end = new Date(selectedDates[1]);
+            start.setHours(0, 0, 0, 0);
+            end.setHours(0, 0, 0, 0);
+            
+            // Calcular días incluyendo el día final
+            const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+            
+            if (days < minLength || days > maxLength) {
+                instance.clear();
+                $value.text('Select');
+                alert(`Please select a period between ${minLength} and ${maxLength} days`);
+                return;
+            }
+
+            // Formatear fechas para mostrar
+            const startDate = start.toLocaleDateString('en-US', {
+                month: 'numeric',
+                day: 'numeric'
+            });
+            const endDate = end.toLocaleDateString('en-US', {
+                month: 'numeric',
+                day: 'numeric',
+                year: 'numeric'
+            });
+            $value.text(`${startDate} - ${endDate}`);
+
+            // Actualizar los inputs hidden con formato YYYY-MM-DD
+            this.dateInputs.eq(0).val(start.toISOString().split('T')[0]);
+            this.dateInputs.eq(1).val(end.toISOString().split('T')[0]);
+        }
+        this.calculateTotals();
+    }
+	// Propagar cambio de fecha a otros componentes
+if (selectedDates.length > 0) {
+    const newDate = selectedDates[0].toISOString().split('T')[0];
+    // Guardar en localStorage
+    localStorage.setItem('eq_selected_date', newDate);
+	
+ $(document).on('eqDateChanged', (e, newDate, options) => {
+    // Si tiene flag de forzar, actualizar sin importar el usuario
+    if (options && options.force) {
+        const dateInput = this.dateInputs.first();
+        if (dateInput.length && dateInput[0]._flatpickr) {
+            // Actualizar flatpickr
+            dateInput[0]._flatpickr.setDate(newDate);
+            
+            // Actualizar también el display de texto
+            const dateObj = new Date(newDate + 'T12:00:00');
+            const formattedDate = dateObj.toLocaleDateString('en-US', {
+                month: 'numeric',
+                day: 'numeric',
+                year: 'numeric'
+            });
+            this.dateBlock.find('.bv-block-value').text(formattedDate);
+            
+            // Recalcular totales después de un breve retraso
+            setTimeout(() => this.calculateTotals(), 100);
+                    }
+    }
+    // Si no tiene flag force, verificar origen y permisos
+    else if (options && options.fromPanel) {
+        const canUseContextPanel = typeof eqContextData !== 'undefined' && eqContextData.canUseContextPanel;
+        if (canUseContextPanel) {
+            const dateInput = this.dateInputs.first();
+            if (dateInput.length && dateInput[0]._flatpickr) {
+                // Verificar si la fecha está bloqueada
+                const isBlocked = dateInput[0]._flatpickr.config.disable.some(blocked => {
+                    if (typeof blocked === 'string') {
+                        return blocked === newDate;
+                    }
+                    return false;
+                });
+                
+                if (!isBlocked) {
+                    // Actualizar flatpickr
+                    dateInput[0]._flatpickr.setDate(newDate);
+					
+					const parts = newDate.split('-');
+                if (parts.length === 3) {
+                    const year = parseInt(parts[0]);
+                    const month = parseInt(parts[1]) - 1; // Los meses en JS son 0-11
+                    const day = parseInt(parts[2]);
+                    
+                    // Crear fecha con hora fija a mediodía para evitar problemas de zonas horarias
+                    const dateObj = new Date(year, month, day, 12, 0, 0);
+                    
+                    const formattedDate = dateObj.toLocaleDateString('en-US', {
+                        month: 'numeric',
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
+                    
+                    this.dateBlock.find('.bv-block-value').text(formattedDate);
+                }
+                    
+                    // Recalcular totales después de un breve retraso
+                    setTimeout(() => this.calculateTotals(), 100);
+                    
+                    // Mostrar indicación
+                    this.showNotification('Date updated from Event Context Panel', 'info');
+                    
+                } else {
+                    this.showNotification('Date from Context Panel is not available for this listing', 'warning');
+                }
+            }
+        }
+    }
+});
+	
+}
+}
+>>>>>>> parent of a5a6126 (mejorar fecha)
         };
 
         const picker = flatpickr(input, config);
@@ -380,7 +511,11 @@ checkIfItemInCart() {
             }
         },
         error: () => {
+<<<<<<< HEAD
             // Error silencioso
+=======
+            console.error('Error checking if item is in cart');
+>>>>>>> parent of a5a6126 (mejorar fecha)
         }
     });
 }
@@ -759,9 +894,15 @@ openCreateEventPanel(newDate) {
                 // Forzar un evento change para asegurar que otros handlers lo capten
                 dateInput.trigger('change');
                 
+<<<<<<< HEAD
+=======
+            } else {
+                console.error('Date input field not found in event modal');
+>>>>>>> parent of a5a6126 (mejorar fecha)
             }
         } else if (attemptCount >= maxAttempts) {
             clearInterval(checkInterval);
+            console.error('Event modal did not appear after maximum attempts');
         }
     }, 200); // Incrementado el intervalo para dar más tiempo
 }
@@ -955,13 +1096,39 @@ tryUseStoredDate(instance, $block) {
     if (isDateFromPanel && canUseContextPanel) {
         const panelDate = localStorage.getItem('eq_panel_selected_date');
         if (panelDate) {
-            // Verificar si la fecha está bloqueada
-            const isBlocked = this.isDateBlocked(instance, panelDate);
+            const isBlocked = instance.config.disable.some(blocked => {
+                if (typeof blocked === 'string') {
+                    return blocked === panelDate;
+                }
+                return false;
+            });
             
             if (!isBlocked) {
                 // Fecha disponible, usarla
-                this.applyDateToBookingForm(instance, $block, panelDate, 'Context Panel');
-                return;
+                instance.setDate(panelDate, false);
+                
+                // CORRECCIÓN: Crear la fecha correctamente con la zona horaria local
+                const parts = panelDate.split('-');
+                if (parts.length === 3) {
+                    const year = parseInt(parts[0]);
+                    const month = parseInt(parts[1]) - 1; // Los meses en JS son 0-11
+                    const day = parseInt(parts[2]);
+                    
+                    // Crear fecha con hora fija a mediodía para evitar problemas de zonas horarias
+                    const panelDateObj = new Date(year, month, day, 12, 0, 0);
+                    
+                    const formattedDate = panelDateObj.toLocaleDateString('en-US', {
+                        month: 'numeric',
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
+                    
+                    $block.find('.bv-block-value').text(formattedDate);
+                    setTimeout(() => this.calculateTotals(), 100);
+                    
+                    this.showNotification('Using date from Context Panel', 'info');
+                    return;
+                }
             }
         }
     }
@@ -970,98 +1137,66 @@ tryUseStoredDate(instance, $block) {
     const savedDate = localStorage.getItem('eq_selected_date');
     if (savedDate) {
         // Intentar usar la fecha guardada en localStorage
-        const isBlocked = this.isDateBlocked(instance, savedDate);
-        
-        if (!isBlocked) {
-            this.applyDateToBookingForm(instance, $block, savedDate);
+        const parts = savedDate.split('-');
+        if (parts.length === 3) {
+            const year = parseInt(parts[0]);
+            const month = parseInt(parts[1]) - 1;
+            const day = parseInt(parts[2]);
+            
+            const savedDateObj = new Date(year, month, day);
+            
+            const isBlocked = instance.config.disable.some(blocked => {
+                if (typeof blocked === 'string') {
+                    return blocked === savedDate;
+                }
+                return false;
+            });
+            
+            if (!isBlocked) {
+                instance.setDate(savedDate, false);
+                
+                const formattedDate = savedDateObj.toLocaleDateString('en-US', {
+                    month: 'numeric',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                $block.find('.bv-block-value').text(formattedDate);
+                setTimeout(() => this.calculateTotals(), 100);
+            }
         }
-    }
-}
-
-// Métodos auxiliares para mejorar la legibilidad y mantenibilidad
-isDateBlocked(instance, date) {
-    return instance.config.disable.some(blocked => {
-        if (typeof blocked === 'string') {
-            return blocked === date;
-        }
-        return false;
-    });
-}
-
-applyDateToBookingForm(instance, $block, dateStr, source = null) {
-    // Establecer la fecha en el flatpickr
-    instance.setDate(dateStr, false);
-    
-    // Crear objeto de fecha estandarizado
-    const parts = dateStr.split('-');
-    if (parts.length === 3) {
-        const year = parseInt(parts[0]);
-        const month = parseInt(parts[1]) - 1; // Los meses en JS son 0-11
-        const day = parseInt(parts[2]);
-        
-        // Crear fecha con hora fija a mediodía para evitar problemas de zonas horarias
-        const dateObj = new Date(Date.UTC(year, month, day, 12, 0, 0));
-        
-        // Formatear para mostrar en interfaz en formato amigable (español)
-        const formattedDate = this.formatFriendlyDate(dateStr);
-        
-        // Actualizar el texto visible
-        $block.find('.bv-block-value').text(formattedDate);
-        
-        // Recalcular totales después de un breve retraso
-        setTimeout(() => this.calculateTotals(), 100);
-        
-        // Mostrar notificación si proviene de una fuente específica
-        if (source) {
-            this.showNotification(`Usando fecha desde ${source}`, 'info');
-        }
-    }
-}
-
-// Método para formatear fechas en formato amigable como en Context Panel
-formatFriendlyDate(date) {
-    if (!date) return '';
-    
-    let dateObj;
-    
-    // Si es una cadena en formato YYYY-MM-DD
-    if (typeof date === 'string' && date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        // Dividir la fecha en partes
-        const parts = date.split('-');
-        // Crear objeto Date con UTC para evitar problemas de zona horaria
-        dateObj = new Date(Date.UTC(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]), 12, 0, 0));
-    } else {
-        // Cualquier otro formato
-        dateObj = new Date(date);
-    }
-    
-    if (isNaN(dateObj.getTime())) {
-        return date;
-    }
-    
-    try {
-        // Opciones para formato español (día de mes de año)
-        const options = { 
-            day: 'numeric', 
-            month: 'long', 
-            year: 'numeric',
-            timeZone: 'UTC' // Forzar interpretación en UTC
-        };
-        
-        // Formato español para consistencia con Context Panel
-        return dateObj.toLocaleDateString('es-ES', options);
-    } catch (e) {
-        return date;
     }
 }
 		
+<<<<<<< HEAD
 useDateFromPanel(instance, $block, panelDate) {
     // Usar el método reutilizable para verificar si la fecha está bloqueada
     const isBlocked = this.isDateBlocked(instance, panelDate);
+=======
+		useDateFromPanel(instance, $block, panelDate) {
+    // Verificar si la fecha está bloqueada
+    const isBlocked = instance.config.disable.some(blocked => {
+        if (typeof blocked === 'string') {
+            return blocked === panelDate;
+        }
+        return false;
+    });
+>>>>>>> parent of a5a6126 (mejorar fecha)
     
     if (!isBlocked) {
-        // Usar el método reutilizable para aplicar la fecha
-        this.applyDateToBookingForm(instance, $block, panelDate, 'Event Context Panel');
+        instance.setDate(panelDate, false);
+        
+        // Actualizar el display
+        const dateObj = new Date(panelDate + 'T12:00:00'); // Agregar mediodía para evitar problemas de zona horaria
+        const formattedDate = dateObj.toLocaleDateString('en-US', {
+            month: 'numeric',
+            day: 'numeric',
+            year: 'numeric'
+        });
+        $block.find('.bv-block-value').text(formattedDate);
+        setTimeout(() => this.calculateTotals(), 100);
+        
+        // Mostrar mensaje informativo
+        this.showNotification('Using date from Event Context Panel', 'info');
     }
 }
 
