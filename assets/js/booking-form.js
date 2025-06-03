@@ -310,7 +310,7 @@ if (selectedDates.length > 0) {
     const newDate = selectedDates[0].toISOString().split('T')[0];
     // Guardar en localStorage
     localStorage.setItem('eq_selected_date', newDate);
-};
+}
 	
 }
 }
