@@ -97,7 +97,7 @@
                 this.showNotification('Date from Context Panel is not available for this listing', 'warning');
             }
         }
-		
+			
 		updateBookButtonState() {
             if (!this.isQuantityValid) {
                 this.bookButton.prop('disabled', true);
@@ -264,56 +264,55 @@ const savedDate = localStorage.getItem('eq_selected_date');
     });
 },
             // En la configuración del flatpickr, modificar el onChange
-onChange: (selectedDates, dateStr, instance) => {
-    if (selectedDates.length > 0) {
-        if (maxLength === 1) {
-            // Usar el formato amigable para fechas únicas
-            const isoDate = selectedDates[0].toISOString().split('T')[0];
-            const formattedDate = this.formatFriendlyDate(isoDate);
-            $value.text(formattedDate);
-            // La primera fecha ya se actualiza automáticamente
-        } 
-        else if (selectedDates.length === 2) {
-            const start = new Date(selectedDates[0]);
-            const end = new Date(selectedDates[1]);
-            start.setHours(0, 0, 0, 0);
-            end.setHours(0, 0, 0, 0);
-            
-            // Calcular días incluyendo el día final
-            const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-            
-            if (days < minLength || days > maxLength) {
-                instance.clear();
-                $value.text('Seleccionar');
-                alert(`Por favor selecciona un período entre ${minLength} y ${maxLength} días`);
-                return;
+            onChange: function(selectedDates, dateStr, instance) {
+                const bookingForm = window._bookingFormInstance;
+                
+                if (selectedDates.length > 0) {
+                    if (maxLength === 1) {
+                        // Usar el formato amigable para fechas únicas
+                        const isoDate = selectedDates[0].toISOString().split('T')[0];
+                        const formattedDate = bookingForm.formatFriendlyDate(isoDate);
+                        $value.text(formattedDate);
+                        // La primera fecha ya se actualiza automáticamente
+                    } 
+                    else if (selectedDates.length === 2) {
+                        const start = new Date(selectedDates[0]);
+                        const end = new Date(selectedDates[1]);
+                        start.setHours(0, 0, 0, 0);
+                        end.setHours(0, 0, 0, 0);
+                        
+                        // Calcular días incluyendo el día final
+                        const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+                        
+                        if (days < minLength || days > maxLength) {
+                            instance.clear();
+                            $value.text('Seleccionar');
+                            alert(`Por favor selecciona un período entre ${minLength} y ${maxLength} días`);
+                            return;
+                        }
+
+                        // Obtener fechas en formato ISO
+                        const startIso = start.toISOString().split('T')[0];
+                        const endIso = end.toISOString().split('T')[0];
+                        
+                        // Formatear fechas para mostrar en formato amigable
+                        const startDate = bookingForm.formatFriendlyDate(startIso).split(' de ')[0]; // Solo día y mes, sin año
+                        const endDate = bookingForm.formatFriendlyDate(endIso); // Fecha completa
+                        
+                        $value.text(`${startDate} - ${endDate}`);
+
+                        // Actualizar los inputs hidden con formato YYYY-MM-DD
+                        bookingForm.dateInputs.eq(0).val(startIso);
+                        bookingForm.dateInputs.eq(1).val(endIso);
+                    }
+                    bookingForm.calculateTotals();
+                    
+                    // Propagar cambio de fecha a otros componentes
+                    const newDate = selectedDates[0].toISOString().split('T')[0];
+                    // Guardar en localStorage
+                    localStorage.setItem('eq_selected_date', newDate);
+                }
             }
-
-            // Obtener fechas en formato ISO
-            const startIso = start.toISOString().split('T')[0];
-            const endIso = end.toISOString().split('T')[0];
-            
-            // Formatear fechas para mostrar en formato amigable
-            const startDate = this.formatFriendlyDate(startIso).split(' de ')[0]; // Solo día y mes, sin año
-            const endDate = this.formatFriendlyDate(endIso); // Fecha completa
-            
-            $value.text(`${startDate} - ${endDate}`);
-
-            // Actualizar los inputs hidden con formato YYYY-MM-DD
-            this.dateInputs.eq(0).val(startIso);
-            this.dateInputs.eq(1).val(endIso);
-        }
-        this.calculateTotals();
-    }
-	// Propagar cambio de fecha a otros componentes
-if (selectedDates.length > 0) {
-    const newDate = selectedDates[0].toISOString().split('T')[0];
-    // Guardar en localStorage
-    localStorage.setItem('eq_selected_date', newDate);
-}
-	
-}
-}
         };
 
         const picker = flatpickr(input, config);
@@ -389,6 +388,7 @@ checkIfItemInCart() {
             }
         },
         error: () => {
+            // Error silencioso
         }
     });
 }
@@ -552,7 +552,6 @@ if (validateResponse.data.hasItems) {
             this.showNotification(validateResponse.data || 'Error validating date', 'error');
         }
     } catch (error) {
-        console.error('Error:', error);
         this.showNotification('Error adding to quote', 'error');
     }
 }
@@ -639,11 +638,9 @@ showEventDateOptions(newDate) {
                 });
             });
         } else {
-            console.error('Error checking for existing events:', response.data);
             return this.showDefaultOptions(newDate);
         }
     }).catch(error => {
-        console.error('AJAX error:', error);
         return this.showDefaultOptions(newDate);
     });
 }
@@ -659,7 +656,7 @@ getContextLeadId() {
             }
         }
     } catch (e) {
-        console.error('Error reading context from sessionStorage', e);
+        // Silenciar error
     }
     return null;
 }
@@ -692,7 +689,6 @@ async updateEventDate(newDate) {
         
         return response.success;
     } catch (error) {
-        console.error('Error updating event date:', error);
         this.showNotification('Error de conexión', 'error');
         return false;
     }
@@ -727,7 +723,6 @@ async duplicateEvent(newDate, transferItems) {
         
         return response.success;
     } catch (error) {
-        console.error('Error duplicating event:', error);
         this.showNotification('Error de conexión', 'error');
         return false;
     }
@@ -771,7 +766,6 @@ openCreateEventPanel(newDate) {
                 // Forzar un evento change para asegurar que otros handlers lo capten
                 dateInput.trigger('change');
                 
-            } else {
             }
         } else if (attemptCount >= maxAttempts) {
             clearInterval(checkInterval);
@@ -959,7 +953,7 @@ openCreateEventPanel(newDate) {
             this.extrasValue.text(totalCount > 0 ? `${totalCount} selected` : 'Select');
         }
 		
-		tryUseStoredDate(instance, $block) {
+tryUseStoredDate(instance, $block) {
     // Verificar si debemos priorizar la fecha del panel
     const isDateFromPanel = localStorage.getItem('eq_date_source') === 'panel';
     const canUseContextPanel = typeof eqContextData !== 'undefined' && eqContextData.canUseContextPanel;
@@ -1068,7 +1062,7 @@ formatFriendlyDate(date) {
     }
 }
 		
-		useDateFromPanel(instance, $block, panelDate) {
+useDateFromPanel(instance, $block, panelDate) {
     // Usar el método reutilizable para verificar si la fecha está bloqueada
     const isBlocked = this.isDateBlocked(instance, panelDate);
     
@@ -1289,7 +1283,6 @@ this.form.find('input[name="price_details"]').val(JSON.stringify(priceDetails));
 
         renderTotals(items, total) {
     if (!this.totalsContainer.length) {
-        console.error('Totals container not found');
         return;
     }
 
