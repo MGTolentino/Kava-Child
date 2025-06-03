@@ -1083,6 +1083,15 @@ function kava_child_load_booking_form_assets() {
         'num_decimals' => wc_get_price_decimals(),
         'tax_rate' => floatval($tax_rate)
     ));
+    
+    // Añadir traducciones para los botones de cotización
+    wp_localize_script('kava-child-booking-form', 'eqCartData', array(
+        'i18n' => array(
+            'add_quote' => substr(get_locale(), 0, 2) === 'es' ? '+ Cotizar' : '+ Quote',
+            'view_quote' => substr(get_locale(), 0, 2) === 'es' ? 'Ver Cotización' : 'View Quote',
+            'update_quote' => substr(get_locale(), 0, 2) === 'es' ? 'Actualizar Cotización' : 'Update Quote'
+        )
+    ));
 }
 
 add_action('wp_enqueue_scripts', 'kava_child_load_booking_form_assets', 20);
