@@ -412,11 +412,10 @@ checkIfItemInCart() {
     }
 
     updateQuoteButtonState(state) {
-        // Usar traducciones si están disponibles, de lo contrario usar texto en inglés por defecto
         const states = {
-            'add': typeof eqCartData !== 'undefined' && eqCartData.i18n && eqCartData.i18n.add_quote ? eqCartData.i18n.add_quote : '+ Quote',
-            'view': typeof eqCartData !== 'undefined' && eqCartData.i18n && eqCartData.i18n.view_quote ? eqCartData.i18n.view_quote : 'View Quote',
-            'update': typeof eqCartData !== 'undefined' && eqCartData.i18n && eqCartData.i18n.update_quote ? eqCartData.i18n.update_quote : 'Update Quote'
+            'add': '+ Quote',
+            'view': 'View Quote',
+            'update': 'Update Quote'
         };
 
         this.quoteButton
