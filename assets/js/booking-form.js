@@ -178,11 +178,8 @@ const savedDate = localStorage.getItem('eq_selected_date');
                 // Crear fecha con hora fija a mediodía para evitar problemas de zonas horarias
                 const panelDateObj = new Date(year, month, day, 12, 0, 0);
                 
-                const formattedDate = panelDateObj.toLocaleDateString('en-US', {
-                    month: 'numeric',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
+                // Usar el método de formato español para mantener consistencia
+                const formattedDate = this.formatFriendlyDate(panelDate);
                 
                 $block.find('.bv-block-value').text(formattedDate);
                 setTimeout(() => this.calculateTotals(), 100);
@@ -236,13 +233,8 @@ const savedDate = localStorage.getItem('eq_selected_date');
                     // Fecha disponible, usarla
                     instance.setDate(masterDate, false);
                     
-                    // Actualizar el display
-                    const masterDateObj = new Date(masterDate);
-                    const formattedDate = masterDateObj.toLocaleDateString('en-US', {
-                        month: 'numeric',
-                        day: 'numeric',
-                        year: 'numeric'
-                    });
+                    // Actualizar el display usando formato español para consistencia
+                    const formattedDate = this.formatFriendlyDate(masterDate);
                     $block.find('.bv-block-value').text(formattedDate);
                     setTimeout(() => this.calculateTotals(), 100);
                     
@@ -273,7 +265,7 @@ const savedDate = localStorage.getItem('eq_selected_date');
                         const isoDate = selectedDates[0].toISOString().split('T')[0];
                         const formattedDate = bookingForm.formatFriendlyDate(isoDate);
                         $value.text(formattedDate);
-                        // La primera fecha ya se actualiza automáticamente
+                        // Aquí ya usamos formatFriendlyDate, así que se aplica correctamente
                     } 
                     else if (selectedDates.length === 2) {
                         const start = new Date(selectedDates[0]);
