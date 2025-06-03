@@ -58,6 +58,7 @@
         }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         
         // Nuevo método para inicializar el listener de cambio de fecha
         initDateChangeListener() {
@@ -100,6 +101,8 @@
         }
 			
 =======
+=======
+>>>>>>> parent of a5a6126 (mejorar fecha)
 =======
 >>>>>>> parent of a5a6126 (mejorar fecha)
 		
@@ -516,7 +519,11 @@ checkIfItemInCart() {
         error: () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             // Error silencioso
+=======
+            console.error('Error checking if item is in cart');
+>>>>>>> parent of a5a6126 (mejorar fecha)
 =======
             console.error('Error checking if item is in cart');
 >>>>>>> parent of a5a6126 (mejorar fecha)
@@ -906,6 +913,9 @@ openCreateEventPanel(newDate) {
             } else {
                 console.error('Date input field not found in event modal');
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of a5a6126 (mejorar fecha)
+=======
 >>>>>>> parent of a5a6126 (mejorar fecha)
 =======
 >>>>>>> parent of a5a6126 (mejorar fecha)
@@ -1179,10 +1189,13 @@ tryUseStoredDate(instance, $block) {
 		
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 useDateFromPanel(instance, $block, panelDate) {
     // Usar el método reutilizable para verificar si la fecha está bloqueada
     const isBlocked = this.isDateBlocked(instance, panelDate);
 =======
+=======
+>>>>>>> parent of a5a6126 (mejorar fecha)
 =======
 >>>>>>> parent of a5a6126 (mejorar fecha)
 		useDateFromPanel(instance, $block, panelDate) {
@@ -1194,6 +1207,9 @@ useDateFromPanel(instance, $block, panelDate) {
         return false;
     });
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of a5a6126 (mejorar fecha)
+=======
 >>>>>>> parent of a5a6126 (mejorar fecha)
 =======
 >>>>>>> parent of a5a6126 (mejorar fecha)
