@@ -104,12 +104,44 @@ const savedDate = localStorage.getItem('eq_selected_date');
         let blockedDates = [];
         try {
             const rawData = $input.data('blocked-dates');
-            blockedDates = typeof rawData === 'string' ? JSON.parse(rawData) : (rawData || []);
-
+            console.log('Raw blocked dates data:', rawData);
+            console.log('Data type:', typeof rawData);
+            
+            // Si es string, intentar parsear
+            if (typeof rawData === 'string') {
+                console.log('Attempting to parse JSON string');
+                blockedDates = JSON.parse(rawData);
+            } else {
+                // Si no es string, usar directamente (o array vacío)
+                console.log('Using raw data directly');
+                blockedDates = rawData || [];
+            }
+            
+            // Verificar la estructura después del parsing
+            console.log('Processed blocked dates:', blockedDates);
+            if (Array.isArray(blockedDates)) {
+                console.log('Blocked dates count:', blockedDates.length);
+                // Inspeccionar primeros 3 elementos para ver su estructura
+                if (blockedDates.length > 0) {
+                    console.log('First few elements:', blockedDates.slice(0, 3));
+                }
+            } else {
+                console.log('WARNING: blockedDates is not an array!', blockedDates);
+            }
         } catch (e) {
             console.error('Error parsing blocked dates:', e);
         }
 
+        // Inspeccionar flatpickr antes de la configuración
+        console.log('Flatpickr available:', typeof flatpickr);
+        
+        // Asegurar que blockedDates sea un array válido
+        if (!Array.isArray(blockedDates)) {
+            console.warn('Converting blockedDates to empty array because it is not an array!');
+            blockedDates = [];
+        }
+        
+        // Crear la configuración con información detallada de depuración
         const config = {
             dateFormat: "Y-m-d",
             minDate: new Date().fp_incr(bookingOffset),
@@ -345,12 +377,54 @@ if (selectedDates.length > 0) {
 }
         };
 
-        const picker = flatpickr(input, config);
+        console.log('Input element to initialize:', input);
+        console.log('Is input a DOM element:', input instanceof Element);
+        console.log('Input ID:', input.id);
+        console.log('Input type:', input.type);
+        
+        try {
+            const picker = flatpickr(input, config);
+            console.log('Flatpickr initialized successfully');
+        } catch (error) {
+            console.error('Error initializing flatpickr:', error);
+            // Si falla, intentamos con jQuery para obtener el elemento DOM directamente
+            try {
+                console.log('Trying alternative initialization with DOM element');
+                const domElement = $input.get(0);
+                console.log('DOM element:', domElement);
+                const picker = flatpickr(domElement, config);
+                console.log('Alternative initialization successful');
+            } catch (fallbackError) {
+                console.error('Alternative initialization also failed:', fallbackError);
+            }
+        }
+        
+        // Store the picker in a variable that's accessible outside the try-catch block
+        let pickerInstance;
+        
+        try {
+            // Try the normal initialization first
+            pickerInstance = flatpickr(input, config);
+            console.log('Flatpickr initialized successfully');
+        } catch (error) {
+            console.error('Error initializing flatpickr:', error);
+            // Fall back to trying with jQuery to get the DOM element
+            try {
+                console.log('Trying alternative initialization with DOM element');
+                const domElement = $input.get(0);
+                pickerInstance = flatpickr(domElement, config);
+                console.log('Alternative initialization successful');
+            } catch (fallbackError) {
+                console.error('Alternative initialization also failed:', fallbackError);
+            }
+        }
         
         if (index === 0) {
             $block.find('.bv-field-content').on('click', () => {
-                if (picker && typeof picker.open === 'function') {
-                    picker.open();
+                if (pickerInstance && typeof pickerInstance.open === 'function') {
+                    pickerInstance.open();
+                } else {
+                    console.error('Cannot open date picker: picker not properly initialized');
                 }
             });
         }
