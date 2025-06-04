@@ -1,0 +1,230 @@
+.hp-vendor-filter-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.hp-filter-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.hp-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.hp-filter-field {
+    flex: 1;
+    min-width: 200px;
+}
+
+.hp-filter-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.hp-date-input,
+.hp-search-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.hp-filter-button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.hp-filter-submit {
+    display: flex;
+    align-items: flex-end;
+}
+
+/* Estilos para los resultados */
+.hp-listings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.hp-listing-item {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.hp-listing-item:hover {
+    transform: translateY(-3px);
+}
+
+.hp-listing-thumbnail {
+    position: relative;
+    padding-top: 66%;
+    overflow: hidden;
+}
+
+.hp-listing-thumbnail img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hp-listing-content {
+    padding: 15px;
+}
+
+.hp-listing-title {
+    margin: 0 0 10px 0;
+    font-size: 1.1em;
+}
+
+.hp-listing-title a {
+    color: #333;
+    text-decoration: none;
+}
+
+.hp-listing-price {
+    font-size: 1.2em;
+    color: #0073aa;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.hp-listing-capacity {
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* Paginación */
+.hp-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.hp-page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: 4px;
+    background: white;
+    color: #333;
+    text-decoration: none;
+    border: 1px solid #ddd;
+}
+
+.hp-page-link:hover {
+    background: #f5f5f5;
+}
+
+.hp-page-link.hp-current {
+    background: #0073aa;
+    color: white;
+    border-color: #0073aa;
+}
+
+.hp-pagination-dots {
+    color: #666;
+}
+
+/* Mensajes */
+.hp-loading,
+.hp-error,
+.hp-no-results {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.hp-error {
+    color: #dc3232;
+}
+
+.hp-filter-reset {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--hp-primary-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-left: 10px;
+}
+
+.hp-filter-buttons {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.hp-filter-button,
+.hp-filter-reset {
+    flex: 1; /* Esto hará que cada botón tome el mismo espacio */
+}
+
+.hp-listing__image {
+    position: relative;
+    padding-top: 75%; /* Esto mantiene una relación de aspecto 4:3 */
+    width: 100%;
+    overflow: hidden;
+}
+
+.hp-listing__image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Color de categorías */
+.hp-listing__category a {
+    color: #cbb881 !important;
+}
+
+.hp-listing__category a:hover {
+    color: #b19b61 !important; /* Un tono más oscuro para hover */
+}
+
+/* Color de modales */
+.hp-modal .button-primary,
+.hp-modal .button-primary.alt {
+    background-color: #cbb881 !important;
+    border-color: #cbb881 !important;
+}
+
+.hp-modal .button-primary:hover,
+.hp-modal .button-primary.alt:hover {
+    background-color: #b19b61 !important;
+    border-color: #b19b61 !important;
+}
+
+/* Color de íconos en los modales */
+.hp-modal .hp-icon {
+    color: #cbb881;
+}

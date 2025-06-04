@@ -1,0 +1,348 @@
+/* Contenedor principal - MANTENER */
+.hp-booking-details {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hp-booking-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+/* Header con fechas y places - MANTENER */
+.hp-booking-header {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.hp-dates-places {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hp-dates, .hp-places {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: #333;
+    font-size: 15px;
+}
+
+/* Sección de precios - MANTENER */
+.hp-price-details h3 {
+    margin: 0 0 16px;
+    font-size: 18px;
+    color: #333;
+    font-weight: 600;
+}
+
+.hp-booking-price {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.hp-price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.hp-price-total {
+    border-top: 1px solid #e0e0e0;
+    margin-top: 8px;
+    padding-top: 16px;
+    font-weight: bold;
+    color: #333;
+    font-size: 16px;
+}
+
+/* Ocultar campos originales - MANTENER */
+.hp-form__field.hp-form__field--text,
+.hp-form__field.hp-form__field--date,
+.hp-form__field.hp-form__field--number {
+    display: none !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Mantener visible el textarea de notes - MANTENER */
+.hp-form__field.hp-form__field--textarea {
+    display: block !important;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto 1.5rem;
+}
+
+/* Label de notas */
+.hp-form__field--textarea .hp-field__label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    color: #333;
+    font-weight: 500;
+}
+
+/* Texto "optional" */
+.hp-form__field--textarea .hp-field__label small {
+    color: #666;
+    font-weight: normal;
+}
+
+/* Textarea */
+.hp-form__field--textarea textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    resize: vertical;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.hp-form__field--textarea textarea:focus {
+    outline: none;
+    border-color: #c0c0c0;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+}
+
+/* NUEVO - Estilos para el listing block */
+.hp-page__sidebar .hp-listing {
+    max-width: 450px;
+    margin: 56px auto 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.hp-page__sidebar .hp-listing__image {
+    position: relative;
+    overflow: hidden;
+}
+
+.hp-page__sidebar .hp-listing__image img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.hp-page__sidebar .hp-listing__content {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.hp-page__sidebar .hp-listing__title {
+    font-size: 1.3rem;
+    margin: 0;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.hp-page__sidebar .hp-listing__title a {
+    color: #333;
+    text-decoration: none;
+}
+
+/* NUEVO - Detalles primarios */
+.hp-page__sidebar .hp-listing__details--primary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* NUEVO - Atributos secundarios */
+.hp-page__sidebar .hp-listing__attributes--secondary {
+    margin: 0;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.hp-page__sidebar .hp-listing__attributes--secondary .hp-row {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* NUEVO - Atributos individuales */
+.hp-page__sidebar .hp-listing__attribute {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #333;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+    padding: 0.25rem 0;
+}
+
+/* Estilo específico para texto de atributos */
+.hp-page__sidebar .hp-listing__attribute--service-features-even {
+    font-weight: 500;
+}
+
+.hp-page__sidebar .hp-listing__attribute--max-capacity,
+.hp-page__sidebar .hp-listing__attribute--min-capacity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hp-page__sidebar .hp-listing__attribute strong {
+    font-weight: 500;
+    margin-right: 0.25rem;
+}
+
+.hp-page__sidebar .hp-listing__attribute i {
+    color: #999;
+    width: 16px;
+    text-align: center;
+}
+
+/* NUEVO - Footer */
+.hp-page__sidebar .hp-listing__footer {
+    padding: 0.75rem;
+    text-align: center;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+/* Ajustar el precio en el footer */
+.hp-page__sidebar .hp-listing__attribute--price {
+    font-weight: 500;
+    color: #333;
+}
+
+/* Responsive - MODIFICADO */
+@media (max-width: 768px) {
+    .hp-booking-section {
+        padding: 16px;
+        margin: 16px;
+    }
+    
+    .hp-dates-places {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .hp-page__sidebar {
+        margin-bottom: 1.5rem;
+    }
+
+    .hp-page__sidebar .hp-listing {
+        max-width: 100%;
+    }
+}
+
+/* Sobrescribir columnas de atributos */
+.hp-page__sidebar .hp-listing__attributes--secondary .hp-col-lg-6 {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+}
+
+.hp-page__sidebar .hp-listing__categories,
+.hp-page__sidebar .hp-listing__created-date {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.hp-page__sidebar .hp-listing__created-date {
+    margin-left: auto;
+}
+
+/* Sobrescribir los márgenes por defecto */
+.hp-page__sidebar .hp-listing--view-block .hp-listing__content:not(:last-child),
+.hp-page__sidebar .hp-listing--view-block .hp-listing__footer:not(:last-child),
+.hp-page__sidebar .hp-listing--view-block .hp-listing__header:not(:last-child) {
+    margin-bottom: 0;
+}
+
+/* CSS Título */
+.hp-row {
+    position: relative;  
+}
+
+.hp-page__title {
+    position: absolute;
+    top: -70px;
+    max-width: 800px;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+}
+
+/* Botones y Footer */
+.hp-form__footer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: 800px;
+    margin: 2rem auto;
+}
+
+/* Botón principal (Proceed to Payment) */
+.hp-form__button {
+    flex: 1;
+    color: white !important;
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 8px !important;
+    border: none !important;
+    font-weight: 500 !important;
+    text-align: center;
+    transition: opacity 0.2s ease;
+    order: 1;
+}
+
+/* Botón Change Dates */
+.hp-form__footer .hp-form__actions {
+    order: 2;
+}
+
+.hp-form__action--booking-dates-change {
+    color: #666 !important;
+    padding: 0.75rem 1.5rem !important;
+    border: 1px solid #ddd !important;
+    border-radius: 8px !important;
+    background: white !important;
+    text-decoration: none !important;
+    display: inline-block;
+    transition: all 0.2s ease;
+}
+
+.hp-form__action--booking-dates-change:hover {
+    background: #f5f5f5 !important;
+    border-color: #ccc !important;
+    color: #333 !important;
+}

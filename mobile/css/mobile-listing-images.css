@@ -1,0 +1,73 @@
+@media (max-width: 768px) {
+    /* Ocultar lightbox en móvil */
+    .bv-lightbox {
+        display: none !important;
+    }
+
+    /* Resto del código que ya teníamos */
+    .bv-listing-gallery {
+        width: 100%;
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .bv-gallery-grid {
+        display: block;
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: 75%; /* Ratio de aspecto 4:3 */
+        overflow: hidden;
+    }
+
+    /* Estilos para todos los items del carrusel */
+    .bv-gallery-item {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        border-radius: 12px;
+    }
+
+    /* Item activo */
+    .bv-gallery-item.active {
+        opacity: 1;
+        z-index: 1;
+    }
+
+    /* Ajustar imágenes para llenar el contenedor */
+    .bv-gallery-item img,
+    .bv-gallery-item video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Indicador de imagen */
+    .bv-gallery-indicator {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 16px;
+        font-size: 14px;
+        z-index: 2;
+        backdrop-filter: blur(4px);
+    }
+
+    /* Eliminar estilos específicos de desktop */
+    .bv-gallery-main,
+    .bv-gallery-secondary {
+        height: auto;
+    }
+
+    /* Ajustar el botón de Ver Galería */
+    .bv-gallery-view-all {
+        display: none; /* Ocultamos el botón en móvil ya que usaremos carrusel */
+    }
+}

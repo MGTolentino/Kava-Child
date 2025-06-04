@@ -1,0 +1,432 @@
+/* ==========================================================================
+   Estilos Responsive
+   ========================================================================== */
+@media (max-width: 992px) {
+    /* Grid principal */
+    .bv-content-booking-wrapper {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+
+    /* Sidebar de Booking */
+    .bv-booking-sidebar {
+        position: static;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .bv-resume-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .bv-resume-booking {
+        position: static;
+    }
+
+    /* Navegación */
+    .bv-nav-container {
+        padding: 0 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Menu de gestión - Mantener estética desktop pero optimizado */
+    .hp-menu--listing-manage {
+        border-bottom: 1px solid #e0e0e0;
+        width: 100%;
+        margin: 0 0 24px;
+        position: relative;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .hp-menu--listing-manage ul {
+        display: flex;
+        flex-direction: row; /* Forzar dirección horizontal */
+        gap: 48px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        flex-wrap: nowrap; /* Prevenir wrapping */
+        width: max-content; /* Permitir que el contenido determine el ancho */
+        padding-bottom: 8px; /* Espacio para el scroll */
+    }
+
+   .hp-menu--listing-manage li {
+        flex: 0 0 auto; /* No crecer, no encoger, tamaño automático */
+        white-space: nowrap; /* Prevenir wrap del texto */
+    }
+
+    .hp-menu--listing-manage a {
+        display: inline-block;
+        padding: 12px 0;
+        color: #666;
+        text-decoration: none;
+        position: relative;
+        font-weight: 500;
+        font-size: 16px;
+        transition: color 0.3s ease;
+    }
+	
+	.hp-menu--listing-manage a:hover {
+        color: #cbb881;
+    }
+	
+	.hp-menu--listing-manage a.active {
+        color: #cbb881;
+    }
+	
+	.hp-menu--listing-manage a.active::after {
+        content: '';
+        position: absolute;
+        bottom: -9px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #cbb881;
+    }
+	
+	/* Ocultar scrollbar pero mantener funcionalidad */
+    .hp-menu--listing-manage::-webkit-scrollbar {
+        display: none;
+    }
+	
+	.hp-menu--listing-manage {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    /* Separator */
+    .bv-separator {
+        height: 1px;
+        background-color: #e0e0e0;
+        margin: 24px 0;
+        width: 100%;
+        display: block;
+    }
+
+    /* Details Section */
+    .bv-vendor {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        text-align: center;
+        padding: 0;
+    }
+    
+    .bv-vendor-col-1 {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;  /* Añadir esta línea */
+        gap: 16px;
+        text-align: center;
+    }
+
+    .bv-vendor-col-1 .hp-vendor__image {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 0;
+    }
+
+    .bv-vendor-col-2 {
+        align-items: center;
+    }
+
+    .bv-vendor .hp-vendor__name {
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+
+    .bv-vendor-details {
+        align-items: center;
+        gap: 8px;
+    }
+
+    .bv-vendor-attributes {
+        align-items: center;
+        margin: 12px 0;
+    }
+	
+	 .bv-vendor-location,
+    .bv-vendor-attribute {
+        justify-content: center;
+    }
+
+    .bv-vendor-footer {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 16px;
+    }
+
+    .bv-vendor-footer .hp-vendor__action {
+        flex: 1;
+        min-width: 140px;
+        text-align: center;
+    }
+
+    /* Navegación */
+     .bv-sections-nav {
+        width: 100vw;
+        position: fixed;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        z-index: 100;
+        padding-top: 16px;
+        border-bottom: 1px solid #e0e0e0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        visibility: hidden; /* Oculto por defecto */
+        opacity: 0;
+        transition: visibility 0.3s, opacity 0.3s;
+		 height: 64px; /* Fijar altura */
+		overflow-y: hidden; /* Prevenir scroll vertical */
+    }
+
+    /* Clase que controla la visibilidad */
+    .bv-sections-nav.nav-visible {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    /* Resto de los estilos del nav... */
+    .bv-nav-container {
+        width: 100%;
+        padding: 0;
+    }
+
+    .bv-sections-list {
+        display: flex;
+        flex-direction: row;
+        gap: 48px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        flex-wrap: nowrap;
+        width: max-content;
+        padding-bottom: 8px;
+    }
+
+    .bv-sections-list li {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    .bv-section-link {
+        display: inline-block;
+        padding: 12px 0;
+        color: #333;
+        text-decoration: none;
+        position: relative;
+        font-weight: 500;
+        font-size: 16px;
+        transition: color 0.3s ease;
+    }
+
+    .bv-section-link:hover {
+        color: #cbb881;
+    }
+
+    .bv-section-link.active {
+        color: #cbb881;
+    }
+
+    .bv-section-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -9px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #cbb881;
+    }
+
+    /* Ocultar scrollbar pero mantener funcionalidad */
+    .bv-sections-nav::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .bv-sections-nav {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    /* Reviews Grid */
+    .reviews-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+    
+    /* Atributos */
+    .bv-attributes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bv-nav-booking-actions {
+        gap: 10px;
+    }
+
+
+    /* Booking Form */
+    .hp-booking-form {
+        padding: 16px;
+        margin: 16px 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .bv-section-title {
+        font-size: 20px;
+    }
+
+    .bv-nav-container {
+        flex-direction: column;
+        gap: 12px;
+        padding: 0 16px;
+    }
+
+    .bv-nav-booking-actions {
+        width: 100%;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    /* Contenedores principales */
+    .bv-resume-section,
+    .bv-details-section,
+    .bv-location-section,
+    .bv-reviews-section {
+        margin: 24px auto;
+        padding: 0 12px;
+    }
+
+    .hp-menu--listing-manage {
+        margin: 0 0 20px;
+    }
+
+    .hp-menu--listing-manage a {
+        font-size: 14px;
+    }
+
+    .bv-vendor-col-1 .hp-vendor__image {
+        width: 64px;
+        height: 64px;
+    }
+
+    .bv-vendor-footer {
+        flex-direction: column;
+    }
+
+    .bv-vendor-footer .hp-vendor__action {
+        width: 100%;
+    }
+
+    .bv-separator {
+        margin: 20px 0;
+    }
+}
+
+/* Contenedor de círculos */
+.bv-location-circles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: flex-start;
+    padding: 16px 0;
+}
+
+/* Círculo individual */
+.bv-location-circle {
+    width: 140px;
+    height: 140px;
+    background: linear-gradient(145deg, #cbb881, #d4c496);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 16px;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(203, 184, 129, 0.2);
+    position: relative;
+    cursor: pointer;
+}
+
+/* Icono de ubicación */
+.bv-location-circle::before {
+    content: '\f3c5'; /* Código del ícono de Font Awesome para ubicación */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 20px;
+    margin-bottom: 8px;
+    opacity: 0.9;
+}
+
+/* Efecto hover */
+.bv-location-circle:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(203, 184, 129, 0.3);
+    background: linear-gradient(145deg, #d4c496, #cbb881);
+}
+
+/* Ajuste para textos largos */
+.bv-location-circle span {
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+    line-height: 1.3;
+}
+
+/* Media query para tablets */
+@media (max-width: 992px) {
+    .bv-location-circle {
+        width: 120px;
+        height: 120px;
+        font-size: 15px;
+    }
+}
+
+/* Media query para móviles */
+@media (max-width: 768px) {
+    .bv-location-circles {
+        padding: 12px 0;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 16px; /* Espacio para el scroll */
+    }
+
+    .bv-location-circle {
+        width: 100px;
+        height: 100px;
+        flex: 0 0 auto;
+        font-size: 14px;
+        padding: 16px 12px;
+    }
+
+    .bv-location-circle::before {
+        font-size: 18px;
+        margin-bottom: 6px;
+    }
+    
+    /* Ocultar scrollbar pero mantener funcionalidad */
+    .bv-location-circles::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .bv-location-circles {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}
