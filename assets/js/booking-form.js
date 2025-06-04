@@ -3,10 +3,32 @@
 	
 	 const hp = window.hp; 
 
+    // Función para detectar el idioma y configurar formatos de fecha
+    function getDateFormatConfig() {
+        // Detectar idioma - primero por etiqueta html, luego por navegador
+        const htmlLang = document.documentElement.lang || '';
+        const userLang = htmlLang || navigator.language || navigator.userLanguage;
+        const isSpanish = userLang.startsWith('es');
+        
+        return {
+            locale: isSpanish ? 'es-ES' : 'en-US',
+            singleDateOptions: isSpanish 
+                ? { day: 'numeric', month: 'long', year: 'numeric' } // formato español
+                : { month: 'numeric', day: 'numeric', year: 'numeric' }, // formato inglés
+            startDateOptions: isSpanish
+                ? { day: 'numeric', month: 'long' }
+                : { month: 'numeric', day: 'numeric' },
+            endDateOptions: isSpanish
+                ? { day: 'numeric', month: 'long', year: 'numeric' }
+                : { month: 'numeric', day: 'numeric', year: 'numeric' }
+        };
+    }
+
     class BookingForm {
         constructor() {
             this.form = $('.bv-booking-form');
             this.isQuantityValid = true; // Nueva propiedad para tracking
+            this.dateFormat = getDateFormatConfig(); // Configuración de formato de fecha
             
             // Guardar la instancia en el elemento del form
             if (this.form.length) {
@@ -138,11 +160,7 @@ const savedDate = localStorage.getItem('eq_selected_date');
                 // Crear fecha con hora fija a mediodía para evitar problemas de zonas horarias
                 const panelDateObj = new Date(year, month, day, 12, 0, 0);
                 
-                const formattedDate = panelDateObj.toLocaleDateString('en-US', {
-                    month: 'numeric',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
+                const formattedDate = panelDateObj.toLocaleDateString(this.dateFormat.locale, this.dateFormat.singleDateOptions);
                 
                 $block.find('.bv-block-value').text(formattedDate);
                 setTimeout(() => this.calculateTotals(), 100);
@@ -198,11 +216,7 @@ const savedDate = localStorage.getItem('eq_selected_date');
                     
                     // Actualizar el display
                     const masterDateObj = new Date(masterDate);
-                    const formattedDate = masterDateObj.toLocaleDateString('en-US', {
-                        month: 'numeric',
-                        day: 'numeric',
-                        year: 'numeric'
-                    });
+                    const formattedDate = masterDateObj.toLocaleDateString(this.dateFormat.locale, this.dateFormat.singleDateOptions);
                     $block.find('.bv-block-value').text(formattedDate);
                     setTimeout(() => this.calculateTotals(), 100);
                     
@@ -227,11 +241,7 @@ const savedDate = localStorage.getItem('eq_selected_date');
 onChange: (selectedDates, dateStr, instance) => {
     if (selectedDates.length > 0) {
         if (maxLength === 1) {
-            const date = selectedDates[0].toLocaleDateString('en-US', {
-                month: 'numeric',
-                day: 'numeric',
-                year: 'numeric'
-            });
+            const date = selectedDates[0].toLocaleDateString(this.dateFormat.locale, this.dateFormat.singleDateOptions);
             $value.text(date);
             // La primera fecha ya se actualiza automáticamente
         } 
@@ -252,15 +262,8 @@ onChange: (selectedDates, dateStr, instance) => {
             }
 
             // Formatear fechas para mostrar
-            const startDate = start.toLocaleDateString('en-US', {
-                month: 'numeric',
-                day: 'numeric'
-            });
-            const endDate = end.toLocaleDateString('en-US', {
-                month: 'numeric',
-                day: 'numeric',
-                year: 'numeric'
-            });
+            const startDate = start.toLocaleDateString(this.dateFormat.locale, this.dateFormat.startDateOptions);
+            const endDate = end.toLocaleDateString(this.dateFormat.locale, this.dateFormat.endDateOptions);
             $value.text(`${startDate} - ${endDate}`);
 
             // Actualizar los inputs hidden con formato YYYY-MM-DD
@@ -285,11 +288,7 @@ if (selectedDates.length > 0) {
             
             // Actualizar también el display de texto
             const dateObj = new Date(newDate + 'T12:00:00');
-            const formattedDate = dateObj.toLocaleDateString('en-US', {
-                month: 'numeric',
-                day: 'numeric',
-                year: 'numeric'
-            });
+            const formattedDate = dateObj.toLocaleDateString(this.dateFormat.locale, this.dateFormat.singleDateOptions);
             this.dateBlock.find('.bv-block-value').text(formattedDate);
             
             // Recalcular totales después de un breve retraso
@@ -323,11 +322,7 @@ if (selectedDates.length > 0) {
                     // Crear fecha con hora fija a mediodía para evitar problemas de zonas horarias
                     const dateObj = new Date(year, month, day, 12, 0, 0);
                     
-                    const formattedDate = dateObj.toLocaleDateString('en-US', {
-                        month: 'numeric',
-                        day: 'numeric',
-                        year: 'numeric'
-                    });
+                    const formattedDate = dateObj.toLocaleDateString(this.dateFormat.locale, this.dateFormat.singleDateOptions);
                     
                     this.dateBlock.find('.bv-block-value').text(formattedDate);
                 }
@@ -1064,11 +1059,7 @@ openCreateEventPanel(newDate) {
             if (!isBlocked) {
                 instance.setDate(savedDate, false);
                 
-                const formattedDate = savedDateObj.toLocaleDateString('en-US', {
-                    month: 'numeric',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
+                const formattedDate = savedDateObj.toLocaleDateString(this.dateFormat.locale, this.dateFormat.singleDateOptions);
                 $block.find('.bv-block-value').text(formattedDate);
                 setTimeout(() => this.calculateTotals(), 100);
             }
@@ -1090,11 +1081,7 @@ openCreateEventPanel(newDate) {
         
         // Actualizar el display
         const dateObj = new Date(panelDate + 'T12:00:00'); // Agregar mediodía para evitar problemas de zona horaria
-        const formattedDate = dateObj.toLocaleDateString('en-US', {
-            month: 'numeric',
-            day: 'numeric',
-            year: 'numeric'
-        });
+        const formattedDate = dateObj.toLocaleDateString(this.dateFormat.locale, this.dateFormat.singleDateOptions);
         $block.find('.bv-block-value').text(formattedDate);
         setTimeout(() => this.calculateTotals(), 100);
         
