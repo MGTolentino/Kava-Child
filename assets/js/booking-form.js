@@ -137,8 +137,28 @@ const savedDate = localStorage.getItem('eq_selected_date');
         
         // Asegurar que blockedDates sea un array válido
         if (!Array.isArray(blockedDates)) {
-            console.warn('Converting blockedDates to empty array because it is not an array!');
-            blockedDates = [];
+            // Verificar si es un objeto similar a array (con claves numéricas)
+            if (typeof blockedDates === 'object' && blockedDates !== null) {
+                // Comprobar si parece un objeto con índices numéricos
+                const hasNumericKeys = Object.keys(blockedDates).some(key => !isNaN(parseInt(key)));
+                
+                if (hasNumericKeys) {
+                    console.warn('Converting object-like array to proper array');
+                    // Usar Object.values para extraer todas las fechas del objeto
+                    blockedDates = Object.values(blockedDates);
+                    console.log('Converted to array with length:', blockedDates.length);
+                    // Log primeros elementos para verificar
+                    if (blockedDates.length > 0) {
+                        console.log('First few elements after conversion:', blockedDates.slice(0, 3));
+                    }
+                } else {
+                    console.warn('blockedDates is an object but not array-like, using empty array');
+                    blockedDates = [];
+                }
+            } else {
+                console.warn('blockedDates is not an array or object, using empty array');
+                blockedDates = [];
+            }
         }
         
         // Crear la configuración con información detallada de depuración
