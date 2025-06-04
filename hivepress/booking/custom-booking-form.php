@@ -208,7 +208,7 @@ $min_length = $listing->get_booking_min_length();
     <?php echo $listing->is_booking_moderated() ? 'Solicitar Reserva' : 'Reservar Ahora'; ?>
 </button>
 		
-   <?php if ( current_user_can( 'administrator' ) ) : ?>
+   <?php if ( function_exists('eq_can_view_quote_button') && eq_can_view_quote_button() ) : ?>
     <button type="button" 
             class="eq-quote-button booking-quote" 
             data-listing-id="<?php echo esc_attr($listing->get_id()); ?>"
