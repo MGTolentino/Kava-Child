@@ -197,40 +197,26 @@ if (!function_exists('kava_child_enqueue_favorites_scripts')) {
 }
 
 /**
- * Versión modificada de la función para Google Maps
+ * Versión mejorada de la función para Google Maps
  * Reemplaza esta función en tu archivo functions.php del tema
  */
 function kava_child_manage_google_maps_scripts() {
-    // Desregistrar scripts en todas las páginas
+    // Desregistrar scripts existentes para evitar conflictos
     wp_deregister_script('google-maps');
     wp_deregister_script('google-maps-custom');
+    wp_deregister_script('hivepress-geolocation');
+    wp_deregister_script('geocomplete');
     
-    // Solo desregistrar estos scripts si NO estamos en la página de vendedor
-    if (!is_page_template('templates/vendor-steps-template.php')) {
-        wp_deregister_script('hivepress-geolocation');
-        wp_deregister_script('geocomplete');
-    }
-
-    // En la página de vendedor, carga Google Maps con Places
-    if (is_page_template('templates/vendor-steps-template.php')) {
-        wp_register_script(
-            'google-maps-custom',
-            'https://maps.googleapis.com/maps/api/js?key=' . GOOGLE_MAPS_API_KEY . '&libraries=places',
-            array('jquery'),
-            null,
-            true
-        );
-    } else {
-        // En el resto de páginas, carga la versión normal
-        wp_register_script(
-            'google-maps-custom',
-            'https://maps.googleapis.com/maps/api/js?key=' . GOOGLE_MAPS_API_KEY,
-            array('jquery'),
-            null,
-            true
-        );
-    }
-
+    // Usar una sola versión de Google Maps con todas las bibliotecas necesarias
+    wp_register_script(
+        'google-maps-custom',
+        'https://maps.googleapis.com/maps/api/js?key=' . GOOGLE_MAPS_API_KEY . '&libraries=places', // Incluir places para todas las páginas
+        array('jquery'),
+        null,
+        true
+    );
+    
+    // Registrar script personalizado para venue map
     wp_register_script(
         'venue-map',
         get_stylesheet_directory_uri() . '/assets/js/venue-map.js',
@@ -238,9 +224,25 @@ function kava_child_manage_google_maps_scripts() {
         '1.0',
         true
     );
-
+    
+    // Registrar script para el formulario de vendor específicamente
+    if (is_page_template('templates/vendor-steps-template.php')) {
+        wp_register_script(
+            'vendor-location-map',
+            plugin_dir_url(__FILE__) . 'public/js/vendor-location.js',
+            array('jquery', 'google-maps-custom'),
+            '1.0',
+            true
+        );
+        wp_enqueue_script('vendor-location-map');
+    }
+    
+    // Cargar scripts principales
     wp_enqueue_script('google-maps-custom');
     wp_enqueue_script('venue-map');
+    
+    // Añadir una variable para evitar cargas duplicadas
+    wp_add_inline_script('google-maps-custom', 'window.googleMapsLoaded = true;', 'before');
 }
 add_action('wp_enqueue_scripts', 'kava_child_manage_google_maps_scripts', 1);
 
