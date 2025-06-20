@@ -227,9 +227,12 @@ function kava_child_manage_google_maps_scripts() {
     
     // Registrar script para el formulario de vendor específicamente
     if (is_page_template('templates/vendor-steps-template.php')) {
+        // Ruta correcta al archivo JS dentro del plugin
+        $plugin_url = WP_ALP_PLUGIN_URL; // Usa la constante definida en el plugin
+        
         wp_register_script(
             'vendor-location-map',
-            plugin_dir_url(__FILE__) . 'public/js/vendor-location.js',
+            $plugin_url . 'public/js/vendor-location.js',
             array('jquery', 'google-maps-custom'),
             '1.0',
             true
