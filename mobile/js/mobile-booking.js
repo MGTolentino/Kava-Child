@@ -597,19 +597,12 @@ this.priceDetails.find('.bv-remove-extra').on('click', (e) => {
    const $item = $button.closest('.bv-total-item');
    const extraName = $button.data('extra-name');
    
-   console.log('Removing extra:', extraName); // Debug
    
    this.extrasContainer.find('input[type="checkbox"], .bv-extra-quantity').each((_, input) => {
        const $input = $(input);
        const inputName = $input.data('name');
-       console.log('Comparing with input:', {
-           extraName: String(extraName),
-           inputName: String(inputName),
-           inputType: $input.attr('type') || 'quantity'
-       });
        
        if (String(inputName) === String(extraName)) {
-           console.log('Match found!');
            if ($input.is('input[type="checkbox"]')) {
                $input.prop('checked', false).trigger('change');
            } else {

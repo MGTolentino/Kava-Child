@@ -8,7 +8,6 @@ use HivePress\Blocks;
 use HivePress\Models;
 use HivePress\Forms;
 
-// Exit if accessed directly
 defined('ABSPATH') || exit;
 
 /**
@@ -31,8 +30,6 @@ function kava_child_styles_depends($deps) {
     return $deps;
 }
 
- /* Enqueue child theme scripts and styles
- */
 function kava_child_scripts() {
 	
 		if (!is_singular('hp_listing')) {
@@ -41,7 +38,6 @@ function kava_child_scripts() {
 	
     $theme = wp_get_theme();
     $theme_version = $theme->get('Version');
-    // Desktop Styles
     if (!wp_is_mobile()) {
         wp_enqueue_style(
             'kava-child-listing-images',
@@ -67,9 +63,7 @@ function kava_child_scripts() {
             array(),
             $theme_version
         );
-    }
-    // Mobile Styles
-    else {
+    } else {
         wp_enqueue_style(
             'kava-child-mobile-booking',
             get_stylesheet_directory_uri() . '/mobile/css/mobile-booking.css',

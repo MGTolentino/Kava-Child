@@ -14,12 +14,6 @@ jQuery(document).ready(function($) {
     formData.append('vendor_id', vendorId);
     formData.append('paged', paged);
 		
-		// Dentro de la función loadResults, antes del $.ajax
-console.log('Form data debug:', {
-    form_exists: $form.length > 0,
-    vendor_id: vendorId,
-    form_data_array: Array.from(formData.entries())
-});
 
     $.ajax({
         url: bvVendorFilter.ajax_url,
@@ -28,13 +22,10 @@ console.log('Form data debug:', {
         processData: false,
         contentType: false,
         beforeSend: function() {
-            console.log('Enviando petición AJAX...');
             $results.html('<p class="hp-loading">Loading...</p>');
         },
         success: function(response) {
-            console.log('Respuesta recibida:', response);
             if (response.success && response.data) {
-                console.log('Longitud del HTML:', response.data.html.length);
                 $results.html(response.data.html);
                 updatePagination(response.data.pagination);
             } else {

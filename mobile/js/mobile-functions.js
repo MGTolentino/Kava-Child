@@ -1,14 +1,11 @@
 jQuery(document).ready(function($) {
-    // Clase para manejar el carrusel
     class MobileGallery {
         constructor() {
-            // Elementos del DOM - específicamente de la galería principal
             this.gallery = $('.bv-gallery-grid');
-            this.items = $('.bv-gallery-grid .bv-gallery-item'); // Más específico
+            this.items = $('.bv-gallery-grid .bv-gallery-item');
             this.totalItems = this.items.length;
             this.currentIndex = 0;
 
-            // Crear indicador si no existe
             if (!$('.bv-gallery-indicator').length) {
                 this.gallery.append(`
                     <div class="bv-gallery-indicator">
@@ -17,7 +14,6 @@ jQuery(document).ready(function($) {
                 `);
             }
 
-            // Variables para el swipe
             this.touchStartX = 0;
             this.touchEndX = 0;
 
@@ -25,17 +21,14 @@ jQuery(document).ready(function($) {
         }
 
         init() {
-            // Mostrar primera imagen
             $(this.items[0]).addClass('active');
             
-            // Eventos touch
             this.gallery
                 .on('touchstart', (e) => this.handleTouchStart(e))
                 .on('touchmove', (e) => this.handleTouchMove(e))
                 .on('touchend', (e) => this.handleTouchEnd(e));
         }
 
-        // Manejo de eventos táctiles
         handleTouchStart(e) {
             this.touchStartX = e.originalEvent.touches[0].clientX;
         }

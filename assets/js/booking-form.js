@@ -59,8 +59,7 @@
 			this.updateExtrasText(); // Actualizar texto de extras seleccionados
 
 			
-			/*Event Quote Manager*/
-			this.quoteButton = this.form.find('.eq-quote-button');
+				this.quoteButton = this.form.find('.eq-quote-button');
 			this.listingId = this.quoteButton.data('listing-id');
 			this.initQuoteButton();
         }
@@ -93,7 +92,6 @@
     const bookingOffset = parseInt(this.dateInputs.first().data('booking-offset')) || 0;
     const bookingWindow = parseInt(this.dateInputs.first().data('booking-window')) || 365;
 			
-			// Cargar fecha desde localStorage si existe
 const savedDate = localStorage.getItem('eq_selected_date');
     
     this.dateInputs.each((index, input) => {
