@@ -29,12 +29,10 @@ jQuery(document).ready(function($) {
                 $results.html(response.data.html);
                 updatePagination(response.data.pagination);
             } else {
-                console.error('Respuesta no válida:', response);
                 $results.html('<p class="hp-error">Error loading results.</p>');
             }
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            console.error('Error AJAX:', textStatus, errorThrown);
             $results.html('<p class="hp-error">Error connecting to server.</p>');
         }
     });

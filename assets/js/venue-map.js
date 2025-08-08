@@ -55,7 +55,6 @@
 						title: location
 					});
             } else {
-                console.error('Geocoding failed:', status);
                 mapContainer.innerHTML = '<div class="bv-map-error">No se pudo cargar la ubicación en el mapa.</div>';
             }
         });

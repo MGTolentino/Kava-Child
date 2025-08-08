@@ -111,7 +111,7 @@ const savedDate = localStorage.getItem('eq_selected_date');
                 blockedDates = rawData || [];
             }
         } catch (e) {
-            console.error('Error parsing blocked dates:', e);
+            blockedDates = [];
         }
         
         // Asegurar que blockedDates sea un array válido
@@ -375,13 +375,11 @@ if (selectedDates.length > 0) {
             // Intentar inicialización normal
             pickerInstance = flatpickr(input, config);
         } catch (error) {
-            console.error('Error initializing flatpickr:', error);
             // Si falla, intentar con jQuery para obtener el elemento DOM directamente
             try {
                 const domElement = $input.get(0);
                 pickerInstance = flatpickr(domElement, config);
             } catch (fallbackError) {
-                console.error('Alternative initialization also failed:', fallbackError);
             }
         }
         
@@ -389,8 +387,6 @@ if (selectedDates.length > 0) {
             $block.find('.bv-field-content').on('click', () => {
                 if (pickerInstance && typeof pickerInstance.open === 'function') {
                     pickerInstance.open();
-                } else {
-                    console.error('Cannot open date picker: picker not properly initialized');
                 }
             });
         }
@@ -458,7 +454,6 @@ checkIfItemInCart() {
             }
         },
         error: () => {
-            console.error('Error checking if item is in cart');
         }
     });
 }
@@ -622,7 +617,6 @@ if (validateResponse.data.hasItems) {
             this.showNotification(validateResponse.data || 'Error validating date', 'error');
         }
     } catch (error) {
-        console.error('Error:', error);
         this.showNotification('Error adding to quote', 'error');
     }
 }
@@ -708,13 +702,7 @@ showEventDateOptions(newDate) {
                     resolve('cancel');
                 });
             });
-        } else {
-            console.error('Error checking for existing events:', response.data);
-            return this.showDefaultOptions(newDate);
         }
-    }).catch(error => {
-        console.error('AJAX error:', error);
-        return this.showDefaultOptions(newDate);
     });
 }
 		
@@ -729,7 +717,6 @@ getContextLeadId() {
             }
         }
     } catch (e) {
-        console.error('Error reading context from sessionStorage', e);
     }
     return null;
 }
@@ -762,7 +749,6 @@ async updateEventDate(newDate) {
         
         return response.success;
     } catch (error) {
-        console.error('Error updating event date:', error);
         this.showNotification('Error de conexión', 'error');
         return false;
     }
@@ -797,7 +783,6 @@ async duplicateEvent(newDate, transferItems) {
         
         return response.success;
     } catch (error) {
-        console.error('Error duplicating event:', error);
         this.showNotification('Error de conexión', 'error');
         return false;
     }
@@ -841,12 +826,9 @@ openCreateEventPanel(newDate) {
                 // Forzar un evento change para asegurar que otros handlers lo capten
                 dateInput.trigger('change');
                 
-            } else {
-                console.error('Date input field not found in event modal');
             }
         } else if (attemptCount >= maxAttempts) {
             clearInterval(checkInterval);
-            console.error('Event modal did not appear after maximum attempts');
         }
     }, 200); // Incrementado el intervalo para dar más tiempo
 }
@@ -1297,14 +1279,12 @@ this.form.find('input[name="price_details"]').val(JSON.stringify(priceDetails));
                 const rangePrice = parseFloat(range.price);
                 if (!isNaN(rangePrice)) {
                     maxPrice = rangePrice;
-
                 }
             }
         });
 
         return maxPrice;
     } catch (error) {
-
         return this.basePrice;
     }
 }
@@ -1341,7 +1321,6 @@ this.form.find('input[name="price_details"]').val(JSON.stringify(priceDetails));
 
         renderTotals(items, total) {
     if (!this.totalsContainer.length) {
-        console.error('Totals container not found');
         return;
     }
 
