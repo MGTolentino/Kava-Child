@@ -835,6 +835,8 @@ openCreateEventPanel(newDate) {
 
     collectFormData() {
     const extras = [];
+    const days = this.calculateDays();
+    const dates = this.dateInputs.map((_, input) => input.value).get();
     
     // Obtener extras variables
     this.extrasDropdown.find('.bv-extra-quantity').each((_, input) => {
@@ -852,24 +854,42 @@ openCreateEventPanel(newDate) {
         }
     });
 
-    // Obtener extras normales
+    // Obtener extras normales - CONEXION CON EVENT QUOTE CART: Agregar info de multiplicacion por dias
     this.extrasDropdown.find('input[type="checkbox"]:checked').each((_, checkbox) => {
         const $checkbox = $(checkbox);
+        const rawType = checkbox.getAttribute('data-type');
+        
+        // Determinar si se multiplico por dias en el frontend
+        const wasMultipliedByDays = (rawType === 'per_item') || (!rawType || rawType === '');
+        
         extras.push({
             id: $checkbox.val(),
             type: $checkbox.data('type'),
             name: $checkbox.data('name'),
             price: $checkbox.data('price'),
-            quantity: 1
+            quantity: 1,
+            // CONEXION CON EVENT QUOTE CART: Info adicional para extras que se multiplicaron por dias
+            multiplied_by_days: wasMultipliedByDays,
+            original_days: wasMultipliedByDays ? days : 1
         });
     });
 
-    return {
+    // CONEXION CON EVENT QUOTE CART: Enviar info de rango de fechas
+    const formData = {
         date: this.dateInputs.first().val(),
         quantity: this.quantityInput.val(),
         extras: extras,
         calculated_price: this.form.find('input[name="_calculated_price"]').val()
     };
+
+    // CONEXION CON EVENT QUOTE CART: Agregar info de rango si hay multiples fechas
+    if (days > 1 && dates[1]) {
+        formData.end_date = dates[1];
+        formData.days_count = days;
+        formData.is_date_range = true;
+    }
+
+    return formData;
 }
 
     showNotification(message, type = 'success') {
