@@ -1119,12 +1119,12 @@ add_action('wp_enqueue_scripts', 'mrb_enqueue_custom_home_assets');
 function mrb_enqueue_custom_home_assets() {
     // Solo cargar en la página con el template personalizado
     if (is_page_template('page-inicio-custom.php')) {
-        // Estilos MRB
+        // Estilos MRB Airbnb
         wp_enqueue_style(
-            'mrb-styles', 
-            get_stylesheet_directory_uri() . '/assets/css/mrb-styles.css',
+            'mrb-airbnb-styles', 
+            get_stylesheet_directory_uri() . '/assets/css/mrb-airbnb-styles.css',
             array(),
-            '1.0.0'
+            '1.0.1'
         );
         
         // JavaScript MRB

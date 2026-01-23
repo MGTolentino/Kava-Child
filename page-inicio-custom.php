@@ -1,22 +1,23 @@
 <?php
 /**
  * Template Name: Inicio Modern Booking
- * Description: Página de inicio personalizada estilo moderno para reservas de eventos
+ * Description: Página de inicio personalizada estilo Airbnb para reservas de eventos
  */
 
 get_header(); 
 
-// Obtener categorías de HivePress
+// Obtener categorías reales de HivePress
 $listing_categories = get_terms(array(
     'taxonomy' => 'hp_listing_category',
-    'hide_empty' => false,
-    'parent' => 0
+    'hide_empty' => true,
+    'parent' => 0,
+    'number' => 12
 ));
 
-// Obtener ubicaciones
+// Obtener ubicaciones reales
 $locations = get_terms(array(
     'taxonomy' => 'hp_listing_ubicacion',
-    'hide_empty' => false,
+    'hide_empty' => true,
 ));
 
 // Verificar si el usuario está logueado
@@ -25,12 +26,10 @@ $current_user = wp_get_current_user();
 ?>
 
 <div class="mrb-wrapper">
-    <!-- Hero Section con Búsqueda -->
+    <!-- Hero Section Minimalista estilo Airbnb -->
     <section class="mrb-hero">
-        <div class="mrb-hero-bg"></div>
-        <div class="mrb-hero-content">
-            <h1 class="mrb-hero-title">Encuentra el servicio perfecto para tu evento</h1>
-            <p class="mrb-hero-subtitle">Más de 1,000 proveedores de confianza para hacer tu evento inolvidable</p>
+        <div class="mrb-container">
+            <div class="mrb-hero-content">
             
             <!-- Barra de búsqueda moderna -->
             <div class="mrb-search-container">
@@ -83,59 +82,10 @@ $current_user = wp_get_current_user();
                         <span class="mrb-search-text">Buscar</span>
                     </button>
                 </div>
-                
-                <!-- Búsquedas rápidas -->
-                <div class="mrb-quick-searches">
-                    <span class="mrb-quick-label">Búsquedas populares:</span>
-                    <button class="mrb-quick-tag" onclick="quickSearch('salones')">Salones</button>
-                    <button class="mrb-quick-tag" onclick="quickSearch('fotografos')">Fotógrafos</button>
-                    <button class="mrb-quick-tag" onclick="quickSearch('mariachi')">Mariachi</button>
-                    <button class="mrb-quick-tag" onclick="quickSearch('jardin')">Jardines</button>
-                    <button class="mrb-quick-tag" onclick="quickSearch('dj')">DJ</button>
-                </div>
             </div>
         </div>
     </section>
 
-    <!-- Sección de Promotores y Tiendas Oficiales -->
-    <section class="mrb-featured-section">
-        <div class="mrb-container">
-            <div class="mrb-featured-badges">
-                <div class="mrb-badge mrb-badge-official">
-                    <svg class="mrb-badge-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
-                    </svg>
-                    <div class="mrb-badge-content">
-                        <h3>Tiendas Oficiales</h3>
-                        <p>Proveedores verificados y certificados</p>
-                    </div>
-                    <button class="mrb-badge-button" onclick="filterByOfficial()">Ver todas</button>
-                </div>
-                
-                <div class="mrb-badge mrb-badge-promoter">
-                    <svg class="mrb-badge-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                    <div class="mrb-badge-content">
-                        <h3>Promotores Premium</h3>
-                        <p>Los mejores calificados por clientes</p>
-                    </div>
-                    <button class="mrb-badge-button" onclick="filterByPromoters()">Explorar</button>
-                </div>
-                
-                <div class="mrb-badge mrb-badge-new">
-                    <svg class="mrb-badge-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
-                    </svg>
-                    <div class="mrb-badge-content">
-                        <h3>Ofertas Especiales</h3>
-                        <p>Descuentos y promociones activas</p>
-                    </div>
-                    <button class="mrb-badge-button" onclick="filterByOffers()">Ver ofertas</button>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Categorías con Iconos -->
     <section class="mrb-categories">
@@ -149,61 +99,32 @@ $current_user = wp_get_current_user();
                 <button class="mrb-slider-arrow mrb-slider-prev" onclick="slideCategories('prev')">‹</button>
                 
                 <div class="mrb-categories-track" id="categories-track">
-                    <div class="mrb-category-item" onclick="filterByCategory('lugares')">
-                        <div class="mrb-category-icon">
-                            <img src="https://a0.muscache.com/pictures/732edad8-3ae0-49a8-a451-29a8010dcc0c.jpg" alt="Lugares">
-                        </div>
-                        <span>Lugares para Eventos</span>
-                    </div>
+                    <?php
+                    // Iconos SVG para categorías
+                    $category_icons = array(
+                        'default' => '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 24px; width: 24px; fill: currentcolor;"><path d="M16 1c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-8.284 0-15-6.716-15-15C1 7.716 7.716 1 16 1zm0 2C8.82 3 3 8.82 3 16s5.82 13 13 13 13-5.82 13-13S23.18 3 16 3z"></path></svg>',
+                        'lugares' => '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 24px; width: 24px; fill: currentcolor;"><path d="M28 4a2 2 0 0 1 1.995 1.85L30 6v14a2 2 0 0 1-1.85 1.995L28 22h-6v4h2a2 2 0 0 1 1.995 1.85L26 28a2 2 0 0 1-1.85 1.995L24 30H8a2 2 0 0 1-1.995-1.85L6 28a2 2 0 0 1 1.85-1.995L8 26h2v-4H4a2 2 0 0 1-1.995-1.85L2 20V6a2 2 0 0 1 1.85-1.995L4 4zm0 2H4v14h24V6zm-6 20h-8v2h8v-2zm-5-14a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"></path></svg>',
+                        'musica' => '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 24px; width: 24px; fill: currentcolor;"><path d="M26 3a5 5 0 0 1 5 5v11a5 5 0 0 1-5 5h-1.15a5 5 0 0 1-3.519 3.457l-.331.052V28a2 2 0 0 1-1.85 1.995L19 30H7a2 2 0 0 1-1.995-1.85L5 28V8a5 5 0 0 1 4.995-5L10 3h16z"></path></svg>',
+                        'fotografia' => '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 24px; width: 24px; fill: currentcolor;"><path d="M16 4a2 2 0 0 1 1.744 1.018l.156.282 2.1 4.2H28a2 2 0 0 1 1.995 1.85L30 11.5V26a2 2 0 0 1-1.85 1.995L28 28H4a2 2 0 0 1-1.995-1.85L2 26V11.5a2 2 0 0 1 1.85-1.995L4 9.5h8l2.1-4.2A2 2 0 0 1 15.894 4H16zm0 2h-.472l-2.1 4.2a1 1 0 0 1-.77.794L12.5 11h-8v15h23V11h-8.5a1 1 0 0 1-.928-1.006l2.1-4.2L16.472 6H16zm0 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"></path></svg>',
+                        'decoracion' => '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 24px; width: 24px; fill: currentcolor;"><path d="M16 1l.324.001a16.5 16.5 0 0 1 11.27 5.454l.2.206A16.501 16.501 0 0 1 31 16.5V31h-2V16.5a14.5 14.5 0 0 0-2.821-8.605l-.179-.257A14.5 14.5 0 0 0 16.5 3L16 3zm0 5a11 11 0 0 1 11 10.988V31h-2V17c0-4.89-3.579-8.945-8.258-9.724L16.5 7.17 16 7.083z"></path></svg>',
+                        'catering' => '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 24px; width: 24px; fill: currentcolor;"><path d="M26 1a3 3 0 0 1 3 3c0 .28 0 .55-.01.82A208.62 208.62 0 0 1 26.98 29l-.02.23V30h-2V29a206.63 206.63 0 0 0 2-24c.01-.24.01-.48.01-.73a1 1 0 0 0-2-.27 194.14 194.14 0 0 1-2 23l-.02.23V30h-2V27.1a192.15 192.15 0 0 0 2-22.9V3a1 1 0 0 0-1.75-.66A218.13 218.13 0 0 1 18.98 28l-.02.23V30h-2V28.2A216.13 216.13 0 0 0 19 2.33 3 3 0 0 1 21.82.07c.06-.01.12-.02.18-.02L22.1.04a3 3 0 0 1 2.73-.97zM16 1v7a4 4 0 0 1-3 3.86V30h-2V11.86a4 4 0 0 1-3-3.6L8 8V1h2v7a2 2 0 0 0 1 1.73V1h2v8.73A2 2 0 0 0 14 8V1h2zM5 1v10a4 4 0 0 1-3 3.86V30h2V14.86a4 4 0 0 0 3-3.6L7 11V1H5z"></path></svg>'
+                    );
                     
-                    <div class="mrb-category-item" onclick="filterByCategory('fotografia')">
-                        <div class="mrb-category-icon">
-                            <img src="https://a0.muscache.com/pictures/8e507f16-4943-4be9-b707-59bd38d56309.jpg" alt="Fotografía">
-                        </div>
-                        <span>Fotografía y Video</span>
-                    </div>
-                    
-                    <div class="mrb-category-item" onclick="filterByCategory('musica')">
-                        <div class="mrb-category-icon">
-                            <img src="https://a0.muscache.com/pictures/3726d94b-534a-42b8-bca0-a0304d912260.jpg" alt="Música">
-                        </div>
-                        <span>Música y DJ</span>
-                    </div>
-                    
-                    <div class="mrb-category-item" onclick="filterByCategory('catering')">
-                        <div class="mrb-category-icon">
-                            <img src="https://a0.muscache.com/pictures/c5a4f6fc-c92c-4ae8-87dd-57f1ff1b89a6.jpg" alt="Catering">
-                        </div>
-                        <span>Alimentos y Bebidas</span>
-                    </div>
-                    
-                    <div class="mrb-category-item" onclick="filterByCategory('decoracion')">
-                        <div class="mrb-category-icon">
-                            <img src="https://a0.muscache.com/pictures/89faf9ae-bbbc-4bc4-aecd-cc15bf36cbca.jpg" alt="Decoración">
-                        </div>
-                        <span>Decoración</span>
-                    </div>
-                    
-                    <div class="mrb-category-item" onclick="filterByCategory('entretenimiento')">
-                        <div class="mrb-category-icon">
-                            <img src="https://a0.muscache.com/pictures/f60700bc-8ab5-424c-912b-6ef17abc479a.jpg" alt="Entretenimiento">
-                        </div>
-                        <span>Entretenimiento</span>
-                    </div>
-                    
-                    <div class="mrb-category-item" onclick="filterByCategory('mobiliario')">
-                        <div class="mrb-category-icon">
-                            <img src="https://a0.muscache.com/pictures/4d4a4eba-c7e4-43eb-9ce2-95e1d200d10e.jpg" alt="Mobiliario">
-                        </div>
-                        <span>Mobiliario</span>
-                    </div>
-                    
-                    <div class="mrb-category-item" onclick="filterByCategory('paquetes')">
-                        <div class="mrb-category-icon">
-                            <img src="https://a0.muscache.com/pictures/677a041d-7264-4c45-bb72-52bff21eb6e8.jpg" alt="Paquetes">
-                        </div>
-                        <span>Paquetes Todo Incluido</span>
-                    </div>
+                    if (!empty($listing_categories)) :
+                        foreach ($listing_categories as $category) :
+                            $slug = $category->slug;
+                            $icon = isset($category_icons[$slug]) ? $category_icons[$slug] : $category_icons['default'];
+                            ?>
+                            <div class="mrb-category-item" onclick="filterByCategory('<?php echo esc_attr($slug); ?>')">
+                                <div class="mrb-category-icon">
+                                    <?php echo $icon; ?>
+                                </div>
+                                <span><?php echo esc_html($category->name); ?></span>
+                            </div>
+                            <?php
+                        endforeach;
+                    endif;
+                    ?>
                 </div>
                 
                 <button class="mrb-slider-arrow mrb-slider-next" onclick="slideCategories('next')">›</button>
@@ -214,25 +135,15 @@ $current_user = wp_get_current_user();
     <!-- Listado de Servicios -->
     <section class="mrb-listings">
         <div class="mrb-container">
-            <div class="mrb-listings-header">
-                <h2>Servicios destacados</h2>
-                <div class="mrb-filter-pills">
-                    <button class="mrb-pill active" onclick="filterListings('all')">Todos</button>
-                    <button class="mrb-pill" onclick="filterListings('popular')">Más populares</button>
-                    <button class="mrb-pill" onclick="filterListings('new')">Nuevos</button>
-                    <button class="mrb-pill" onclick="filterListings('promo')">En promoción</button>
-                </div>
-            </div>
             
             <div class="mrb-listings-grid" id="listings-grid">
                 <?php
-                // Query para obtener listings de HivePress
+                // Query para obtener TODOS los listings reales de HivePress
                 $args = array(
                     'post_type' => 'hp_listing',
-                    'posts_per_page' => 12,
+                    'posts_per_page' => 24,
                     'post_status' => 'publish',
-                    'meta_key' => '_featured',
-                    'orderby' => 'meta_value_num',
+                    'orderby' => 'date',
                     'order' => 'DESC'
                 );
                 
@@ -250,47 +161,50 @@ $current_user = wp_get_current_user();
                         ?>
                         
                         <div class="mrb-listing-card" onclick="window.location.href='<?php echo get_permalink(); ?>'">
-                            <div class="mrb-card-image-container">
-                                <img class="mrb-card-image" src="<?php echo $featured_image ?: '/placeholder.jpg'; ?>" alt="<?php the_title(); ?>">
+                            <div class="mrb-card-slider">
+                                <?php 
+                                // Obtener la imagen destacada o placeholder
+                                if ($featured_image) : ?>
+                                    <img class="mrb-card-image" src="<?php echo esc_url($featured_image); ?>" alt="<?php the_title(); ?>" loading="lazy">
+                                <?php else : ?>
+                                    <img class="mrb-card-image" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/images/placeholder.svg" alt="<?php the_title(); ?>">
+                                <?php endif; ?>
+                                
                                 <button class="mrb-card-favorite" onclick="toggleFavorite(event, <?php echo $listing_id; ?>)">
-                                    <svg viewBox="0 0 32 32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+                                    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; fill: rgba(0, 0, 0, 0.5); height: 24px; width: 24px; stroke: white; stroke-width: 2; overflow: visible;">
                                         <path d="m16 28c7-4.733 14-10 14-17 0-1.792-.683-3.583-2.05-4.95-1.367-1.366-3.158-2.05-4.95-2.05-1.791 0-3.583.684-4.949 2.05l-2.051 2.051-2.05-2.051c-1.367-1.366-3.158-2.05-4.95-2.05-1.791 0-3.583.684-4.949 2.05-1.367 1.367-2.051 3.158-2.051 4.95 0 7 7 12.267 14 17z"></path>
                                     </svg>
                                 </button>
-                                <?php if (get_post_meta($listing_id, 'hp_verified', true)) : ?>
-                                    <div class="mrb-card-badge">Verificado</div>
-                                <?php endif; ?>
                             </div>
                             
                             <div class="mrb-card-content">
-                                <div class="mrb-card-header">
-                                    <h3 class="mrb-card-title"><?php the_title(); ?></h3>
-                                    <?php if ($rating) : ?>
-                                        <div class="mrb-card-rating">
-                                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                <div class="mrb-card-row-1">
+                                    <span class="mrb-card-title"><?php the_title(); ?></span>
+                                    <?php if ($rating && $rating > 0) : ?>
+                                        <span class="mrb-card-rating">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 12px; width: 12px; fill: currentcolor;">
+                                                <path fill-rule="evenodd" d="m15.1 1.58-4.13 8.88-9.86 1.27a1 1 0 0 0-.54 1.74l7.3 6.57-1.97 9.85a1 1 0 0 0 1.48 1.06l8.62-5 8.63 5a1 1 0 0 0 1.48-1.06l-1.97-9.85 7.3-6.57a1 1 0 0 0-.55-1.73l-9.86-1.28-4.12-8.88a1 1 0 0 0-1.82 0z"></path>
                                             </svg>
-                                            <span><?php echo number_format($rating, 1); ?></span>
-                                            <?php if ($reviews_count) : ?>
-                                                <span class="mrb-card-reviews">(<?php echo $reviews_count; ?>)</span>
-                                            <?php endif; ?>
-                                        </div>
+                                            <?php echo number_format($rating, 2); ?>
+                                        </span>
                                     <?php endif; ?>
                                 </div>
                                 
-                                <div class="mrb-card-meta">
+                                <div class="mrb-card-row-2">
                                     <?php if (!empty($category)) : ?>
-                                        <span class="mrb-card-category"><?php echo $category[0]->name; ?></span>
+                                        <span class="mrb-card-subtitle"><?php echo $category[0]->name; ?></span>
                                     <?php endif; ?>
                                     <?php if (!empty($location)) : ?>
-                                        <span class="mrb-card-location"><?php echo $location[0]->name; ?></span>
+                                        <span class="mrb-card-subtitle">• <?php echo $location[0]->name; ?></span>
                                     <?php endif; ?>
                                 </div>
                                 
                                 <?php if ($price) : ?>
-                                    <div class="mrb-card-price">
-                                        <span class="mrb-price-amount">$<?php echo number_format($price); ?></span>
-                                        <span class="mrb-price-unit">MXN</span>
+                                    <div class="mrb-card-row-3">
+                                        <span class="mrb-card-price">
+                                            <span class="mrb-price-amount">$<?php echo number_format($price, 0, '.', ','); ?> MXN</span>
+                                            <span class="mrb-price-unit"> por evento</span>
+                                        </span>
                                     </div>
                                 <?php endif; ?>
                             </div>

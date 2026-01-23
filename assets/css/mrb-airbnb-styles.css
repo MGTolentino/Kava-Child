@@ -1,0 +1,562 @@
+/* MRB Airbnb-Style CSS - Diseño exacto de Airbnb */
+
+/* Reset específico para MRB */
+.mrb-wrapper {
+    font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    color: #222222;
+    line-height: 1.43;
+    background: #FFFFFF;
+}
+
+.mrb-wrapper * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container estilo Airbnb */
+.mrb-container {
+    max-width: 1760px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+@media (max-width: 1439px) {
+    .mrb-container {
+        max-width: 1280px;
+    }
+}
+
+@media (max-width: 1127px) {
+    .mrb-container {
+        padding: 0 40px;
+    }
+}
+
+@media (max-width: 743px) {
+    .mrb-container {
+        padding: 0 24px;
+    }
+}
+
+/* Hero Section Minimalista Airbnb */
+.mrb-hero {
+    padding: 24px 0 0 0;
+    background: #FFFFFF;
+    border-bottom: 1px solid #DDDDDD;
+}
+
+.mrb-hero-content {
+    padding: 0 0 24px 0;
+}
+
+/* Search Container Airbnb Exacto */
+.mrb-search-container {
+    margin: 0 auto;
+    max-width: 850px;
+}
+
+.mrb-search-box {
+    background: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    border-radius: 32px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 8%), 0 4px 12px rgb(0 0 0 / 5%);
+    transition: box-shadow 0.2s ease;
+}
+
+.mrb-search-box:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+}
+
+.mrb-search-field {
+    flex: 1;
+    padding: 14px 24px;
+    position: relative;
+    cursor: pointer;
+}
+
+.mrb-search-field:hover {
+    background: #F7F7F7;
+    border-radius: 32px;
+}
+
+.mrb-search-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    padding-bottom: 4px;
+    color: #222222;
+}
+
+.mrb-search-field input,
+.mrb-search-field select {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 14px;
+    line-height: 18px;
+    color: #6A6A6A;
+    width: 100%;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.mrb-search-field input::placeholder {
+    color: #6A6A6A;
+}
+
+.mrb-search-divider {
+    width: 1px;
+    height: 32px;
+    background: #DDDDDD;
+    flex-shrink: 0;
+}
+
+.mrb-search-button {
+    background: #FF385C;
+    border: none;
+    height: 48px;
+    width: 48px;
+    border-radius: 50%;
+    margin: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.mrb-search-button:hover {
+    background: #E00B41;
+}
+
+.mrb-search-button svg {
+    width: 16px;
+    height: 16px;
+}
+
+.mrb-search-text {
+    display: none;
+}
+
+/* Categories Section Airbnb */
+.mrb-categories {
+    padding: 32px 0 8px 0;
+    background: #FFFFFF;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid #EBEBEB;
+}
+
+.mrb-categories-header {
+    display: none; /* Airbnb no muestra header en categorías */
+}
+
+.mrb-categories-slider {
+    position: relative;
+}
+
+.mrb-categories-track {
+    display: flex;
+    gap: 32px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
+    padding: 4px 0 14px;
+}
+
+.mrb-categories-track::-webkit-scrollbar {
+    display: none;
+}
+
+.mrb-category-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 56px;
+    cursor: pointer;
+    padding-bottom: 2px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    opacity: 0.64;
+    flex-shrink: 0;
+}
+
+.mrb-category-item:hover {
+    opacity: 1;
+    border-bottom-color: #DDDDDD;
+}
+
+.mrb-category-item.active {
+    opacity: 1;
+    border-bottom-color: #222222;
+}
+
+.mrb-category-icon {
+    width: 28px;
+    height: 28px;
+}
+
+.mrb-category-icon svg {
+    width: 28px;
+    height: 28px;
+    display: block;
+}
+
+.mrb-category-item span {
+    font-size: 12px;
+    line-height: 16px;
+    color: #222222;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Slider Arrows Airbnb Style */
+.mrb-slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+}
+
+.mrb-slider-arrow:hover {
+    transform: translateY(-50%) scale(1.04);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+}
+
+.mrb-slider-prev {
+    left: 0;
+}
+
+.mrb-slider-next {
+    right: 0;
+}
+
+/* Listings Section Airbnb Exact */
+.mrb-listings {
+    padding: 24px 0 48px;
+    background: #FFFFFF;
+}
+
+.mrb-listings-grid {
+    display: grid;
+    gap: 40px 24px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+@media (min-width: 550px) {
+    .mrb-listings-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 950px) {
+    .mrb-listings-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1128px) {
+    .mrb-listings-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 1440px) {
+    .mrb-listings-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+@media (min-width: 1640px) {
+    .mrb-listings-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+/* Listing Card - Diseño EXACTO de Airbnb */
+.mrb-listing-card {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    position: relative;
+}
+
+.mrb-card-slider {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 20 / 19;
+    background: #F0F0F0;
+}
+
+.mrb-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.2s;
+}
+
+.mrb-listing-card:hover .mrb-card-image {
+    transform: scale(1.03);
+}
+
+/* Favorite Button Airbnb Style */
+.mrb-card-favorite {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    z-index: 1;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mrb-card-favorite svg {
+    transition: all 0.2s;
+}
+
+.mrb-card-favorite:hover svg {
+    transform: scale(1.1);
+}
+
+.mrb-card-favorite.active svg {
+    fill: #FF385C;
+    stroke: #FF385C;
+}
+
+/* Card Content Airbnb Style */
+.mrb-card-content {
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.mrb-card-row-1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.mrb-card-title {
+    font-size: 15px;
+    line-height: 19px;
+    font-weight: 600;
+    color: #222222;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    padding-right: 8px;
+}
+
+.mrb-card-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    color: #222222;
+    flex-shrink: 0;
+}
+
+.mrb-card-rating svg {
+    width: 12px;
+    height: 12px;
+}
+
+.mrb-card-row-2 {
+    display: flex;
+    gap: 4px;
+    font-size: 14px;
+    line-height: 18px;
+    color: #6A6A6A;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mrb-card-subtitle {
+    color: #6A6A6A;
+}
+
+.mrb-card-row-3 {
+    margin-top: 4px;
+}
+
+.mrb-card-price {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.mrb-price-amount {
+    font-size: 15px;
+    line-height: 19px;
+    font-weight: 600;
+    color: #222222;
+}
+
+.mrb-price-unit {
+    font-size: 14px;
+    font-weight: 400;
+    color: #222222;
+}
+
+/* Load More Button */
+.mrb-load-more-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 48px;
+}
+
+.mrb-load-more {
+    background: #222222;
+    color: #FFFFFF;
+    border: none;
+    padding: 13px 23px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mrb-load-more:hover {
+    background: #000000;
+    transform: scale(1.02);
+}
+
+/* Modal Styles */
+.mrb-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.mrb-modal.active {
+    display: flex;
+}
+
+.mrb-modal-content {
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 568px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.mrb-modal-close {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: transparent;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    color: #222222;
+}
+
+.mrb-modal-close:hover {
+    background: #F7F7F7;
+}
+
+/* No Results */
+.mrb-no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.mrb-no-results h3 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #222222;
+    margin-bottom: 8px;
+}
+
+.mrb-no-results p {
+    font-size: 16px;
+    color: #6A6A6A;
+}
+
+/* Mobile Responsive */
+@media (max-width: 743px) {
+    .mrb-search-box {
+        flex-direction: column;
+        border-radius: 24px;
+        padding: 16px;
+    }
+    
+    .mrb-search-field {
+        width: 100%;
+        padding: 12px 0;
+    }
+    
+    .mrb-search-divider {
+        width: 100%;
+        height: 1px;
+        margin: 8px 0;
+    }
+    
+    .mrb-search-button {
+        width: 100%;
+        border-radius: 8px;
+        height: 48px;
+        margin: 8px 0 0 0;
+    }
+    
+    .mrb-search-text {
+        display: inline;
+        margin-left: 8px;
+        font-weight: 600;
+        font-size: 16px;
+    }
+    
+    .mrb-listings-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+}
