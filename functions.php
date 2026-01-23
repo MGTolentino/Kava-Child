@@ -1110,3 +1110,180 @@ function cargar_fuentes_montserrat() {
   echo '<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">' . "\n";
 }
 add_action( 'wp_head', 'cargar_fuentes_montserrat' );
+
+/**
+ * MRB - Modern Reservations Booking Integration
+ * Registro de estilos y scripts para la página de inicio personalizada
+ */
+add_action('wp_enqueue_scripts', 'mrb_enqueue_custom_home_assets');
+function mrb_enqueue_custom_home_assets() {
+    // Solo cargar en la página con el template personalizado
+    if (is_page_template('page-inicio-custom.php')) {
+        // Estilos MRB
+        wp_enqueue_style(
+            'mrb-styles', 
+            get_stylesheet_directory_uri() . '/assets/css/mrb-styles.css',
+            array(),
+            '1.0.0'
+        );
+        
+        // JavaScript MRB
+        wp_enqueue_script(
+            'mrb-functions',
+            get_stylesheet_directory_uri() . '/assets/js/mrb-functions.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
+        
+        // Localizar script para AJAX y REST API
+        wp_localize_script('mrb-functions', 'mrb_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('mrb_nonce'),
+            'rest_url' => rest_url('mrb/v1/'),
+            'is_logged_in' => is_user_logged_in()
+        ));
+    }
+}
+
+/**
+ * MRB REST API Endpoints
+ */
+add_action('rest_api_init', 'mrb_register_rest_routes');
+function mrb_register_rest_routes() {
+    // Endpoint para obtener listings filtrados
+    register_rest_route('mrb/v1', '/listings', array(
+        'methods' => 'GET',
+        'callback' => 'mrb_get_filtered_listings',
+        'permission_callback' => '__return_true'
+    ));
+}
+
+/**
+ * MRB Callback para obtener listings filtrados
+ */
+function mrb_get_filtered_listings($request) {
+    $params = $request->get_query_params();
+    
+    $args = array(
+        'post_type' => 'hp_listing',
+        'post_status' => 'publish',
+        'posts_per_page' => 12,
+        'paged' => isset($params['page']) ? intval($params['page']) : 1
+    );
+    
+    // Aplicar filtros según parámetros
+    if (!empty($params['category'])) {
+        $args['tax_query'] = array(
+            array(
+                'taxonomy' => 'hp_listing_category',
+                'field' => 'slug',
+                'terms' => sanitize_text_field($params['category'])
+            )
+        );
+    }
+    
+    if (!empty($params['location'])) {
+        $args['meta_query'][] = array(
+            'key' => 'hp_location',
+            'value' => sanitize_text_field($params['location']),
+            'compare' => 'LIKE'
+        );
+    }
+    
+    if (!empty($params['type'])) {
+        switch($params['type']) {
+            case 'popular':
+                $args['meta_key'] = 'hp_rating';
+                $args['orderby'] = 'meta_value_num';
+                $args['order'] = 'DESC';
+                break;
+            case 'new':
+                $args['orderby'] = 'date';
+                $args['order'] = 'DESC';
+                break;
+            case 'promo':
+                $args['meta_query'][] = array(
+                    'key' => 'hp_featured',
+                    'value' => '1'
+                );
+                break;
+        }
+    }
+    
+    $query = new WP_Query($args);
+    $listings = array();
+    
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            $listing_id = get_the_ID();
+            
+            $listings[] = array(
+                'id' => $listing_id,
+                'title' => get_the_title(),
+                'url' => get_permalink(),
+                'image' => get_the_post_thumbnail_url($listing_id, 'large'),
+                'price' => get_post_meta($listing_id, 'hp_price', true),
+                'location' => wp_get_post_terms($listing_id, 'hp_listing_ubicacion', array('fields' => 'names'))[0] ?? '',
+                'category' => wp_get_post_terms($listing_id, 'hp_listing_category', array('fields' => 'names'))[0] ?? '',
+                'rating' => get_post_meta($listing_id, 'hp_rating', true),
+                'reviews' => get_post_meta($listing_id, 'hp_reviews_count', true),
+                'verified' => get_post_meta($listing_id, 'hp_verified', true)
+            );
+        }
+        wp_reset_postdata();
+    }
+    
+    return array(
+        'listings' => $listings,
+        'total_pages' => $query->max_num_pages
+    );
+}
+
+/**
+ * MRB AJAX Handlers
+ */
+add_action('wp_ajax_mrb_toggle_favorite', 'mrb_handle_toggle_favorite');
+add_action('wp_ajax_nopriv_mrb_toggle_favorite', 'mrb_handle_toggle_favorite');
+
+function mrb_handle_toggle_favorite() {
+    check_ajax_referer('mrb_nonce', 'nonce');
+    
+    if (!is_user_logged_in()) {
+        wp_send_json_error('Please login to add favorites');
+        return;
+    }
+    
+    $listing_id = intval($_POST['listing_id']);
+    $action = sanitize_text_field($_POST['action']);
+    $user_id = get_current_user_id();
+    
+    // Aquí integrarías con el sistema de favoritos de HivePress
+    // Por ahora solo devolvemos success
+    
+    wp_send_json_success(array(
+        'message' => $action === 'add' ? 'Added to favorites' : 'Removed from favorites'
+    ));
+}
+
+add_action('wp_ajax_mrb_get_user_leads', 'mrb_handle_get_user_leads');
+add_action('wp_ajax_nopriv_mrb_get_user_leads', 'mrb_handle_get_user_leads');
+
+function mrb_handle_get_user_leads() {
+    check_ajax_referer('mrb_nonce', 'nonce');
+    
+    if (!is_user_logged_in()) {
+        wp_send_json_error('Please login');
+        return;
+    }
+    
+    // Aquí obtendrías los leads del usuario desde la base de datos
+    // Por ahora devolvemos datos de ejemplo
+    $leads = array(
+        array('id' => 1, 'name' => 'Juan Pérez', 'email' => 'juan@example.com'),
+        array('id' => 2, 'name' => 'María García', 'email' => 'maria@example.com')
+    );
+    
+    wp_send_json_success(array('leads' => $leads));
+}

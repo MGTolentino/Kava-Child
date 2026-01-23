@@ -1,0 +1,730 @@
+/**
+ * MRB - Modern Reservations Booking JavaScript
+ * Funcionalidad completa para la página de inicio personalizada
+ */
+
+// Variables globales
+let currentPage = 1;
+let isLoading = false;
+let selectedFilters = {
+    category: '',
+    location: '',
+    date: '',
+    priceRange: '',
+    rating: '',
+    type: 'all'
+};
+
+// Variables para el lead/CRM
+let currentLead = null;
+let currentEvent = null;
+
+// Inicialización cuando el DOM está listo
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSearch();
+    initializeCategories();
+    initializeFavorites();
+    initializeModals();
+    initializeFilters();
+    
+    // Si hay datos de lead en localStorage
+    if (localStorage.getItem('mrb_current_lead')) {
+        currentLead = JSON.parse(localStorage.getItem('mrb_current_lead'));
+        updateLeadDisplay();
+    }
+});
+
+/**
+ * Sistema de Búsqueda Principal
+ */
+function initializeSearch() {
+    const serviceInput = document.getElementById('mrb-service-search');
+    const locationSelect = document.getElementById('mrb-location-search');
+    const dateInput = document.getElementById('mrb-date-search');
+    const suggestionsDiv = document.getElementById('service-suggestions');
+    
+    if (!serviceInput) return;
+    
+    // Autocompletado para servicios
+    serviceInput.addEventListener('input', function(e) {
+        const value = e.target.value.toLowerCase();
+        if (value.length > 2) {
+            showServiceSuggestions(value);
+        } else {
+            hideSuggestions();
+        }
+    });
+    
+    // Cerrar sugerencias al hacer click fuera
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.mrb-search-what')) {
+            hideSuggestions();
+        }
+    });
+    
+    // Fecha mínima es hoy
+    if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+    }
+}
+
+/**
+ * Mostrar sugerencias de servicios
+ */
+function showServiceSuggestions(query) {
+    const suggestions = [
+        'Salones para eventos',
+        'Jardines para bodas',
+        'Fotografía profesional',
+        'Video para eventos',
+        'DJ para fiestas',
+        'Mariachi',
+        'Grupo versátil',
+        'Decoración con globos',
+        'Decoración floral',
+        'Catering completo',
+        'Banquetes',
+        'Mesa de dulces',
+        'Pastelería',
+        'Mobiliario para eventos',
+        'Sillas y mesas',
+        'Audio e iluminación',
+        'Pista de baile',
+        'Maestro de ceremonias',
+        'Show infantil',
+        'Maquillaje y peinado'
+    ];
+    
+    const filtered = suggestions.filter(s => s.toLowerCase().includes(query));
+    const suggestionsDiv = document.getElementById('service-suggestions');
+    
+    if (filtered.length > 0 && suggestionsDiv) {
+        suggestionsDiv.innerHTML = filtered
+            .slice(0, 5)
+            .map(s => `
+                <div class="mrb-suggestion-item" onclick="selectSuggestion('${s}')">
+                    <svg width="16" height="16" fill="currentColor" style="opacity: 0.5;">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.027.026.056.048.085.071l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.072-.086zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+                    </svg>
+                    ${s}
+                </div>
+            `)
+            .join('');
+        suggestionsDiv.style.display = 'block';
+    } else {
+        hideSuggestions();
+    }
+}
+
+function selectSuggestion(value) {
+    document.getElementById('mrb-service-search').value = value;
+    hideSuggestions();
+}
+
+function hideSuggestions() {
+    const suggestionsDiv = document.getElementById('service-suggestions');
+    if (suggestionsDiv) {
+        suggestionsDiv.style.display = 'none';
+    }
+}
+
+/**
+ * Búsqueda principal
+ */
+function performSearch() {
+    const service = document.getElementById('mrb-service-search').value;
+    const location = document.getElementById('mrb-location-search').value;
+    const date = document.getElementById('mrb-date-search').value;
+    
+    // Guardar búsqueda en el historial
+    saveSearchHistory({service, location, date});
+    
+    // Construir URL de búsqueda
+    let searchUrl = '/servicios?';
+    if (service) searchUrl += `search=${encodeURIComponent(service)}&`;
+    if (location) searchUrl += `location=${encodeURIComponent(location)}&`;
+    if (date) searchUrl += `date=${encodeURIComponent(date)}&`;
+    
+    // Redirigir a la página de resultados
+    window.location.href = searchUrl;
+}
+
+/**
+ * Búsqueda rápida por tag
+ */
+function quickSearch(tag) {
+    document.getElementById('mrb-service-search').value = tag;
+    performSearch();
+}
+
+/**
+ * Sistema de Categorías con Slider
+ */
+function initializeCategories() {
+    const track = document.getElementById('categories-track');
+    if (!track) return;
+    
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    
+    // Hacer el track draggable en desktop
+    track.addEventListener('mousedown', (e) => {
+        isDown = true;
+        track.style.cursor = 'grabbing';
+        startX = e.pageX - track.offsetLeft;
+        scrollLeft = track.scrollLeft;
+    });
+    
+    track.addEventListener('mouseleave', () => {
+        isDown = false;
+        track.style.cursor = 'grab';
+    });
+    
+    track.addEventListener('mouseup', () => {
+        isDown = false;
+        track.style.cursor = 'grab';
+    });
+    
+    track.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - track.offsetLeft;
+        const walk = (x - startX) * 2;
+        track.scrollLeft = scrollLeft - walk;
+    });
+}
+
+/**
+ * Control del slider de categorías
+ */
+function slideCategories(direction) {
+    const track = document.getElementById('categories-track');
+    if (!track) return;
+    
+    const scrollAmount = 300;
+    
+    if (direction === 'prev') {
+        track.scrollLeft -= scrollAmount;
+    } else {
+        track.scrollLeft += scrollAmount;
+    }
+}
+
+/**
+ * Filtrar por categoría
+ */
+function filterByCategory(category) {
+    selectedFilters.category = category;
+    applyFilters();
+}
+
+/**
+ * Filtros especiales
+ */
+function filterByOfficial() {
+    selectedFilters.type = 'official';
+    applyFilters();
+}
+
+function filterByPromoters() {
+    selectedFilters.type = 'promoters';
+    applyFilters();
+}
+
+function filterByOffers() {
+    selectedFilters.type = 'offers';
+    applyFilters();
+}
+
+/**
+ * Sistema de Filtros de Listados
+ */
+function initializeFilters() {
+    // Añadir event listeners a los pills
+    document.querySelectorAll('.mrb-pill').forEach(pill => {
+        pill.addEventListener('click', function() {
+            // Remover active de todos
+            document.querySelectorAll('.mrb-pill').forEach(p => p.classList.remove('active'));
+            // Añadir active al clickeado
+            this.classList.add('active');
+        });
+    });
+}
+
+function filterListings(type) {
+    selectedFilters.type = type;
+    applyFilters();
+}
+
+/**
+ * Aplicar todos los filtros
+ */
+function applyFilters() {
+    showLoadingState();
+    
+    // Construir parámetros de búsqueda
+    const params = new URLSearchParams();
+    
+    Object.keys(selectedFilters).forEach(key => {
+        if (selectedFilters[key]) {
+            params.append(key, selectedFilters[key]);
+        }
+    });
+    
+    // Hacer petición AJAX a WordPress
+    fetch(`/wp-json/mrb/v1/listings?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            updateListingsGrid(data.listings);
+            hideLoadingState();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            hideLoadingState();
+            // En caso de error, usar filtrado local
+            filterListingsLocally();
+        });
+}
+
+/**
+ * Filtrado local como fallback
+ */
+function filterListingsLocally() {
+    const cards = document.querySelectorAll('.mrb-listing-card');
+    
+    cards.forEach(card => {
+        let show = true;
+        
+        // Aplicar filtros según los criterios
+        if (selectedFilters.type === 'popular') {
+            // Mostrar solo los que tienen rating > 4.5
+            const rating = card.querySelector('.mrb-card-rating span');
+            if (rating && parseFloat(rating.textContent) < 4.5) {
+                show = false;
+            }
+        } else if (selectedFilters.type === 'new') {
+            // Por ahora mostrar todos (idealmente checkear fecha de creación)
+            show = true;
+        } else if (selectedFilters.type === 'promo') {
+            // Mostrar solo los que tienen badge de promoción
+            const badge = card.querySelector('.mrb-card-badge');
+            if (!badge || !badge.textContent.includes('Oferta')) {
+                show = false;
+            }
+        }
+        
+        // Mostrar u ocultar
+        card.style.display = show ? 'block' : 'none';
+    });
+}
+
+/**
+ * Actualizar grid de listados
+ */
+function updateListingsGrid(listings) {
+    const grid = document.getElementById('listings-grid');
+    if (!grid || !listings) return;
+    
+    if (listings.length === 0) {
+        grid.innerHTML = `
+            <div class="mrb-no-results">
+                <h3>No se encontraron servicios</h3>
+                <p>Intenta ajustar tus filtros o búsqueda</p>
+            </div>
+        `;
+        return;
+    }
+    
+    grid.innerHTML = listings.map(listing => createListingCard(listing)).join('');
+    initializeFavorites(); // Re-inicializar favoritos
+}
+
+/**
+ * Crear tarjeta de listado
+ */
+function createListingCard(listing) {
+    return `
+        <div class="mrb-listing-card" onclick="window.location.href='${listing.url}'">
+            <div class="mrb-card-image-container">
+                <img class="mrb-card-image" src="${listing.image}" alt="${listing.title}">
+                <button class="mrb-card-favorite" onclick="toggleFavorite(event, ${listing.id})">
+                    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m16 28c7-4.733 14-10 14-17 0-1.792-.683-3.583-2.05-4.95-1.367-1.366-3.158-2.05-4.95-2.05-1.791 0-3.583.684-4.949 2.05l-2.051 2.051-2.05-2.051c-1.367-1.366-3.158-2.05-4.95-2.05-1.791 0-3.583.684-4.949 2.05-1.367 1.367-2.051 3.158-2.051 4.95 0 7 7 12.267 14 17z"></path>
+                    </svg>
+                </button>
+                ${listing.verified ? '<div class="mrb-card-badge">Verificado</div>' : ''}
+            </div>
+            
+            <div class="mrb-card-content">
+                <div class="mrb-card-header">
+                    <h3 class="mrb-card-title">${listing.title}</h3>
+                    ${listing.rating ? `
+                        <div class="mrb-card-rating">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                            <span>${listing.rating}</span>
+                            ${listing.reviews ? `<span class="mrb-card-reviews">(${listing.reviews})</span>` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div class="mrb-card-meta">
+                    ${listing.category ? `<span class="mrb-card-category">${listing.category}</span>` : ''}
+                    ${listing.location ? `<span class="mrb-card-location">${listing.location}</span>` : ''}
+                </div>
+                
+                ${listing.price ? `
+                    <div class="mrb-card-price">
+                        <span class="mrb-price-amount">$${listing.price}</span>
+                        <span class="mrb-price-unit">MXN</span>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Cargar más listados
+ */
+function loadMoreListings() {
+    if (isLoading) return;
+    
+    isLoading = true;
+    currentPage++;
+    
+    const button = document.querySelector('.mrb-load-more');
+    const originalText = button.textContent;
+    button.innerHTML = '<span class="mrb-loading"></span> Cargando...';
+    button.disabled = true;
+    
+    // Simular carga AJAX
+    setTimeout(() => {
+        // Aquí iría la petición real a WordPress
+        fetch(`/wp-json/mrb/v1/listings?page=${currentPage}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.listings && data.listings.length > 0) {
+                    const grid = document.getElementById('listings-grid');
+                    data.listings.forEach(listing => {
+                        grid.insertAdjacentHTML('beforeend', createListingCard(listing));
+                    });
+                    
+                    // Si no hay más resultados, ocultar botón
+                    if (data.listings.length < 12) {
+                        button.style.display = 'none';
+                    }
+                } else {
+                    button.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error cargando más listados:', error);
+            })
+            .finally(() => {
+                isLoading = false;
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+    }, 1000);
+}
+
+/**
+ * Sistema de Favoritos
+ */
+function initializeFavorites() {
+    // Cargar favoritos del localStorage
+    const favorites = JSON.parse(localStorage.getItem('mrb_favorites') || '[]');
+    
+    // Marcar favoritos existentes
+    favorites.forEach(id => {
+        const button = document.querySelector(`[onclick="toggleFavorite(event, ${id})"]`);
+        if (button) {
+            button.classList.add('active');
+        }
+    });
+}
+
+function toggleFavorite(event, listingId) {
+    event.stopPropagation(); // Prevenir click en la tarjeta
+    
+    const button = event.currentTarget;
+    const favorites = JSON.parse(localStorage.getItem('mrb_favorites') || '[]');
+    
+    if (favorites.includes(listingId)) {
+        // Remover de favoritos
+        const index = favorites.indexOf(listingId);
+        favorites.splice(index, 1);
+        button.classList.remove('active');
+        showNotification('Removido de favoritos');
+    } else {
+        // Añadir a favoritos
+        favorites.push(listingId);
+        button.classList.add('active');
+        showNotification('Añadido a favoritos');
+        
+        // Animación de corazón
+        button.style.transform = 'scale(1.2)';
+        setTimeout(() => {
+            button.style.transform = '';
+        }, 300);
+    }
+    
+    // Guardar en localStorage
+    localStorage.setItem('mrb_favorites', JSON.stringify(favorites));
+    
+    // Si el usuario está logueado, sincronizar con el servidor
+    if (typeof wp !== 'undefined' && wp.ajax) {
+        wp.ajax.post('mrb_toggle_favorite', {
+            listing_id: listingId,
+            action: favorites.includes(listingId) ? 'add' : 'remove'
+        });
+    }
+}
+
+/**
+ * Sistema de Modales
+ */
+function initializeModals() {
+    // Cerrar modal al hacer click fuera
+    document.querySelectorAll('.mrb-modal').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal(this.id);
+            }
+        });
+    });
+    
+    // Esc para cerrar modal
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.mrb-modal.active').forEach(modal => {
+                closeModal(modal.id);
+            });
+        }
+    });
+}
+
+function openLeadModal() {
+    document.getElementById('mrb-lead-modal').classList.add('active');
+    loadExistingLeads();
+}
+
+function closeLeadModal() {
+    closeModal('mrb-lead-modal');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+/**
+ * Cargar leads existentes
+ */
+function loadExistingLeads() {
+    // Aquí se cargarían los leads del usuario desde WordPress
+    if (typeof wp !== 'undefined' && wp.ajax) {
+        wp.ajax.post('mrb_get_user_leads', {})
+            .done(function(response) {
+                const select = document.getElementById('lead-select');
+                select.innerHTML = '<option value="">Seleccionar lead existente</option>';
+                response.leads.forEach(lead => {
+                    select.innerHTML += `<option value="${lead.id}">${lead.name} - ${lead.email}</option>`;
+                });
+            });
+    }
+}
+
+/**
+ * Crear nuevo lead
+ */
+function createNewLead() {
+    // Aquí podrías abrir otro modal o expandir el formulario
+    const formHtml = `
+        <div class="mrb-form-group">
+            <label>Nombre</label>
+            <input type="text" id="new-lead-name" placeholder="Nombre completo">
+        </div>
+        <div class="mrb-form-group">
+            <label>Email</label>
+            <input type="email" id="new-lead-email" placeholder="correo@ejemplo.com">
+        </div>
+        <div class="mrb-form-group">
+            <label>Teléfono</label>
+            <input type="tel" id="new-lead-phone" placeholder="8112345678">
+        </div>
+    `;
+    
+    // Insertar formulario (simplificado para ejemplo)
+    const container = document.querySelector('.mrb-modal-form');
+    const div = document.createElement('div');
+    div.innerHTML = formHtml;
+    container.insertBefore(div, container.lastElementChild);
+}
+
+/**
+ * Guardar lead y evento
+ */
+function saveLeadEvent() {
+    const leadId = document.getElementById('lead-select').value;
+    const eventType = document.getElementById('event-select').value;
+    const eventDate = document.getElementById('event-date').value;
+    
+    if (!eventType || !eventDate) {
+        showNotification('Por favor completa todos los campos', 'error');
+        return;
+    }
+    
+    // Guardar en localStorage
+    currentLead = {id: leadId, type: eventType, date: eventDate};
+    localStorage.setItem('mrb_current_lead', JSON.stringify(currentLead));
+    
+    // Cerrar modal
+    closeLeadModal();
+    
+    // Actualizar display
+    updateLeadDisplay();
+    
+    // Mostrar notificación
+    showNotification('Lead y evento guardados correctamente');
+}
+
+/**
+ * Actualizar display del lead actual
+ */
+function updateLeadDisplay() {
+    // Aquí actualizarías el UI para mostrar el lead actual
+    // Por ejemplo, en un badge o en el header
+}
+
+/**
+ * Sistema de Notificaciones
+ */
+function showNotification(message, type = 'success') {
+    // Crear notificación
+    const notification = document.createElement('div');
+    notification.className = `mrb-notification mrb-notification-${type}`;
+    notification.textContent = message;
+    
+    // Estilos inline para la notificación
+    notification.style.cssText = `
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: ${type === 'success' ? '#10B981' : '#EF4444'};
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        animation: slideUp 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remover después de 3 segundos
+    setTimeout(() => {
+        notification.style.animation = 'slideDown 0.3s ease';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+
+/**
+ * Estados de carga
+ */
+function showLoadingState() {
+    const grid = document.getElementById('listings-grid');
+    if (grid) {
+        grid.style.opacity = '0.5';
+        grid.style.pointerEvents = 'none';
+    }
+}
+
+function hideLoadingState() {
+    const grid = document.getElementById('listings-grid');
+    if (grid) {
+        grid.style.opacity = '1';
+        grid.style.pointerEvents = 'auto';
+    }
+}
+
+/**
+ * Guardar historial de búsqueda
+ */
+function saveSearchHistory(searchData) {
+    let history = JSON.parse(localStorage.getItem('mrb_search_history') || '[]');
+    
+    // Añadir timestamp
+    searchData.timestamp = Date.now();
+    
+    // Añadir al principio del array
+    history.unshift(searchData);
+    
+    // Mantener solo las últimas 10 búsquedas
+    history = history.slice(0, 10);
+    
+    localStorage.setItem('mrb_search_history', JSON.stringify(history));
+}
+
+/**
+ * Animaciones CSS necesarias
+ */
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideUp {
+        from {
+            transform: translateX(-50%) translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideDown {
+        from {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(-50%) translateY(100%);
+            opacity: 0;
+        }
+    }
+    
+    .mrb-suggestion-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.2s;
+    }
+    
+    .mrb-suggestion-item:hover {
+        background: #f7f7f7;
+    }
+    
+    #service-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 8px 28px rgba(0,0,0,0.16);
+        margin-top: 8px;
+        display: none;
+        z-index: 100;
+        overflow: hidden;
+    }
+`;
+document.head.appendChild(style);
