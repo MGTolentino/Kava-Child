@@ -160,6 +160,9 @@
 
 .mrb-categories-slider {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .mrb-categories-track {
@@ -169,7 +172,9 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
     scroll-behavior: smooth;
-    padding: 4px 0 14px;
+    padding: 4px 40px 14px 40px;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 .mrb-categories-track::-webkit-scrollbar {
@@ -225,31 +230,35 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 28px;
-    height: 28px;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    width: 32px;
+    height: 32px;
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.3);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 2;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+    z-index: 20;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.18);
     transition: all 0.2s;
+    color: #222222;
+    font-size: 18px;
+    font-weight: 400;
 }
 
 .mrb-slider-arrow:hover {
-    transform: translateY(-50%) scale(1.04);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    background: #FFFFFF;
 }
 
 .mrb-slider-prev {
-    left: 0;
+    left: 8px;
 }
 
 .mrb-slider-next {
-    right: 0;
+    right: 8px;
 }
 
 /* Listings Section Airbnb Exact */
@@ -260,11 +269,11 @@
 
 .mrb-listings-grid {
     display: grid;
-    gap: 40px 24px;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
 }
 
-@media (min-width: 550px) {
+@media (min-width: 743px) {
     .mrb-listings-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -279,6 +288,7 @@
 @media (min-width: 1128px) {
     .mrb-listings-grid {
         grid-template-columns: repeat(4, 1fr);
+        gap: 24px 20px;
     }
 }
 
@@ -288,7 +298,7 @@
     }
 }
 
-@media (min-width: 1640px) {
+@media (min-width: 1760px) {
     .mrb-listings-grid {
         grid-template-columns: repeat(6, 1fr);
     }
@@ -296,21 +306,25 @@
 
 /* Listing Card - Diseño EXACTO de Airbnb */
 .mrb-listing-card {
-    display: flex;
-    flex-direction: column;
+    display: block;
     cursor: pointer;
     position: relative;
+    width: 100%;
 }
 
 .mrb-card-slider {
     position: relative;
     border-radius: 12px;
     overflow: hidden;
-    aspect-ratio: 20 / 19;
+    padding-bottom: 95%; /* Aspect ratio 20/19 = 95% */
     background: #F0F0F0;
+    width: 100%;
 }
 
 .mrb-card-image {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;

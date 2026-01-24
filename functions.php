@@ -1304,22 +1304,44 @@ function mrb_handle_search_suggestions() {
         return;
     }
     
-    // Buscar en los títulos de listings
+    // Buscar en los títulos de listings - buscar frase completa
     $args = array(
         'post_type' => 'hp_listing',
         'post_status' => 'publish',
-        's' => $query,
-        'posts_per_page' => 8,
-        'orderby' => 'relevance'
+        'posts_per_page' => 10,
+        'orderby' => 'relevance',
+        'meta_query' => array(
+            'relation' => 'OR',
+            array(
+                'key' => 'hp_title',
+                'value' => $query,
+                'compare' => 'LIKE'
+            )
+        )
     );
     
+    // Primero buscar títulos que contengan la frase completa
+    add_filter('posts_where', function($where) use ($query) {
+        global $wpdb;
+        $where .= " OR {$wpdb->posts}.post_title LIKE '%" . esc_sql($query) . "%'";
+        return $where;
+    }, 10, 1);
+    
     $search_query = new WP_Query($args);
+    
+    // Remover el filtro después de usarlo
+    remove_all_filters('posts_where');
+    
     $suggestions = array();
     
     if ($search_query->have_posts()) {
         while ($search_query->have_posts()) {
             $search_query->the_post();
-            $suggestions[] = get_the_title();
+            $title = get_the_title();
+            // Solo agregar si contiene la búsqueda
+            if (stripos($title, $query) !== false) {
+                $suggestions[] = $title;
+            }
         }
         wp_reset_postdata();
     }
@@ -1328,12 +1350,14 @@ function mrb_handle_search_suggestions() {
     $categories = get_terms(array(
         'taxonomy' => 'hp_listing_category',
         'name__like' => $query,
-        'hide_empty' => true,
+        'hide_empty' => false,
         'number' => 5
     ));
     
     foreach ($categories as $cat) {
-        $suggestions[] = $cat->name;
+        if (stripos($cat->name, $query) !== false) {
+            $suggestions[] = $cat->name;
+        }
     }
     
     // Eliminar duplicados y limitar a 8

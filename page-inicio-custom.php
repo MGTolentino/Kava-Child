@@ -46,25 +46,41 @@ $current_user = wp_get_current_user();
                         <label>¿Dónde?</label>
                         <select id="mrb-location-search">
                             <option value="">Todas las ciudades</option>
-                            <optgroup label="Nuevo León">
-                                <option value="monterrey">Monterrey</option>
-                                <option value="san-pedro">San Pedro Garza García</option>
-                                <option value="guadalupe">Guadalupe</option>
-                                <option value="apodaca">Apodaca</option>
-                                <option value="escobedo">Escobedo</option>
-                                <option value="santa-catarina">Santa Catarina</option>
-                            </optgroup>
-                            <optgroup label="Coahuila">
-                                <option value="saltillo">Saltillo</option>
-                                <option value="torreon">Torreón</option>
-                                <option value="monclova">Monclova</option>
-                                <option value="arteaga">Arteaga</option>
-                            </optgroup>
-                            <optgroup label="Texas">
-                                <option value="mcallen">McAllen</option>
-                                <option value="houston">Houston</option>
-                                <option value="san-antonio">San Antonio</option>
-                            </optgroup>
+                            <?php
+                            // Obtener ubicaciones padre (estados/países)
+                            $parent_locs = get_terms(array(
+                                'taxonomy' => 'hp_listing_ubicacion',
+                                'hide_empty' => false,
+                                'parent' => 0,
+                                'orderby' => 'name',
+                                'order' => 'ASC'
+                            ));
+                            
+                            foreach ($parent_locs as $parent) :
+                                // Obtener ciudades hijas
+                                $children = get_terms(array(
+                                    'taxonomy' => 'hp_listing_ubicacion',
+                                    'hide_empty' => false,
+                                    'parent' => $parent->term_id,
+                                    'orderby' => 'name',
+                                    'order' => 'ASC'
+                                ));
+                                
+                                if (!empty($children)) : ?>
+                                    <optgroup label="<?php echo esc_attr($parent->name); ?>">
+                                        <?php foreach ($children as $child) : ?>
+                                            <option value="<?php echo esc_attr($child->slug); ?>">
+                                                <?php echo esc_html($child->name); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </optgroup>
+                                <?php else : ?>
+                                    <option value="<?php echo esc_attr($parent->slug); ?>">
+                                        <?php echo esc_html($parent->name); ?>
+                                    </option>
+                                <?php endif;
+                            endforeach;
+                            ?>
                         </select>
                     </div>
                     

@@ -69,16 +69,36 @@ function initializeSearch() {
     }
 }
 
+// Variable para el timeout de debounce
+let searchTimeout = null;
+
 /**
- * Búsqueda con sugerencias dinámicas
+ * Búsqueda con sugerencias dinámicas y debounce
  */
 function searchSuggestions(query) {
     const suggestionsDiv = document.getElementById('service-suggestions');
+    
+    // Limpiar timeout anterior
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
     
     if (!query || query.length < 2) {
         suggestionsDiv.style.display = 'none';
         return;
     }
+    
+    // Usar debounce de 300ms para evitar búsquedas excesivas
+    searchTimeout = setTimeout(() => {
+        performSuggestionSearch(query);
+    }, 300);
+}
+
+/**
+ * Realizar búsqueda de sugerencias (separada para el debounce)
+ */
+function performSuggestionSearch(query) {
+    const suggestionsDiv = document.getElementById('service-suggestions');
     
     // Lista de servicios comunes para sugerencias
     const suggestions = [
@@ -128,7 +148,22 @@ function searchSuggestions(query) {
         'Maquillaje y peinado'
     ];
     
-    // También hacer búsqueda en los listings reales vía AJAX
+    // Primero mostrar sugerencias locales instantáneamente
+    const queryLower = query.toLowerCase();
+    const words = queryLower.split(' ').filter(w => w.length > 0);
+    
+    // Filtrar sugerencias que contengan TODAS las palabras
+    const filtered = suggestions.filter(s => {
+        const sLower = s.toLowerCase();
+        return words.every(word => sLower.includes(word));
+    });
+    
+    // Mostrar sugerencias locales inmediatamente
+    if (filtered.length > 0) {
+        displaySuggestions(filtered.slice(0, 8), query);
+    }
+    
+    // Luego hacer búsqueda AJAX si está disponible
     if (window.mrb_ajax && window.mrb_ajax.ajax_url) {
         jQuery.ajax({
             url: window.mrb_ajax.ajax_url,
@@ -139,30 +174,13 @@ function searchSuggestions(query) {
                 query: query
             },
             success: function(response) {
-                if (response.success && response.data.suggestions) {
-                    displaySuggestions(response.data.suggestions, query);
-                } else {
-                    // Fallback a sugerencias locales
-                    const filtered = suggestions.filter(s => 
-                        s.toLowerCase().includes(query.toLowerCase())
-                    );
-                    displaySuggestions(filtered.slice(0, 8), query);
+                if (response.success && response.data.suggestions && response.data.suggestions.length > 0) {
+                    // Combinar sugerencias AJAX con las locales
+                    const combined = [...new Set([...response.data.suggestions, ...filtered])];
+                    displaySuggestions(combined.slice(0, 8), query);
                 }
-            },
-            error: function() {
-                // Fallback a sugerencias locales
-                const filtered = suggestions.filter(s => 
-                    s.toLowerCase().includes(query.toLowerCase())
-                );
-                displaySuggestions(filtered.slice(0, 8), query);
             }
         });
-    } else {
-        // Sin AJAX, usar solo sugerencias locales
-        const filtered = suggestions.filter(s => 
-            s.toLowerCase().includes(query.toLowerCase())
-        );
-        displaySuggestions(filtered.slice(0, 8), query);
     }
 }
 
