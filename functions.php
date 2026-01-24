@@ -1287,3 +1287,58 @@ function mrb_handle_get_user_leads() {
     
     wp_send_json_success(array('leads' => $leads));
 }
+
+/**
+ * MRB AJAX Handler para sugerencias de búsqueda
+ */
+add_action('wp_ajax_mrb_search_suggestions', 'mrb_handle_search_suggestions');
+add_action('wp_ajax_nopriv_mrb_search_suggestions', 'mrb_handle_search_suggestions');
+
+function mrb_handle_search_suggestions() {
+    check_ajax_referer('mrb_nonce', 'nonce');
+    
+    $query = sanitize_text_field($_POST['query']);
+    
+    if (empty($query) || strlen($query) < 2) {
+        wp_send_json_error('Query too short');
+        return;
+    }
+    
+    // Buscar en los títulos de listings
+    $args = array(
+        'post_type' => 'hp_listing',
+        'post_status' => 'publish',
+        's' => $query,
+        'posts_per_page' => 8,
+        'orderby' => 'relevance'
+    );
+    
+    $search_query = new WP_Query($args);
+    $suggestions = array();
+    
+    if ($search_query->have_posts()) {
+        while ($search_query->have_posts()) {
+            $search_query->the_post();
+            $suggestions[] = get_the_title();
+        }
+        wp_reset_postdata();
+    }
+    
+    // También buscar en categorías
+    $categories = get_terms(array(
+        'taxonomy' => 'hp_listing_category',
+        'name__like' => $query,
+        'hide_empty' => true,
+        'number' => 5
+    ));
+    
+    foreach ($categories as $cat) {
+        $suggestions[] = $cat->name;
+    }
+    
+    // Eliminar duplicados y limitar a 8
+    $suggestions = array_unique($suggestions);
+    $suggestions = array_slice($suggestions, 0, 8);
+    
+    wp_send_json_success(array('suggestions' => $suggestions));
+}

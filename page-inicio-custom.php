@@ -36,8 +36,8 @@ $current_user = wp_get_current_user();
                 <div class="mrb-search-box">
                     <div class="mrb-search-field mrb-search-what">
                         <label>¿Qué necesitas?</label>
-                        <input type="text" id="mrb-service-search" placeholder="Salón, DJ, Fotografía..." autocomplete="off">
-                        <div class="mrb-search-suggestions" id="service-suggestions"></div>
+                        <input type="text" id="mrb-service-search" placeholder="Salón, DJ, Fotografía..." autocomplete="off" onkeyup="searchSuggestions(this.value)">
+                        <div class="mrb-search-suggestions" id="service-suggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #DDDDDD; border-radius: 12px; margin-top: 8px; max-height: 300px; overflow-y: auto; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
                     </div>
                     
                     <div class="mrb-search-divider"></div>
@@ -99,32 +99,86 @@ $current_user = wp_get_current_user();
                 <button class="mrb-slider-arrow mrb-slider-prev" onclick="slideCategories('prev')">‹</button>
                 
                 <div class="mrb-categories-track" id="categories-track">
-                    <?php
-                    // Iconos SVG para categorías
-                    $category_icons = array(
-                        'default' => '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 24px; width: 24px; fill: currentcolor;"><path d="M16 1c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-8.284 0-15-6.716-15-15C1 7.716 7.716 1 16 1zm0 2C8.82 3 3 8.82 3 16s5.82 13 13 13 13-5.82 13-13S23.18 3 16 3z"></path></svg>',
-                        'lugares' => '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 24px; width: 24px; fill: currentcolor;"><path d="M28 4a2 2 0 0 1 1.995 1.85L30 6v14a2 2 0 0 1-1.85 1.995L28 22h-6v4h2a2 2 0 0 1 1.995 1.85L26 28a2 2 0 0 1-1.85 1.995L24 30H8a2 2 0 0 1-1.995-1.85L6 28a2 2 0 0 1 1.85-1.995L8 26h2v-4H4a2 2 0 0 1-1.995-1.85L2 20V6a2 2 0 0 1 1.85-1.995L4 4zm0 2H4v14h24V6zm-6 20h-8v2h8v-2zm-5-14a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"></path></svg>',
-                        'musica' => '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 24px; width: 24px; fill: currentcolor;"><path d="M26 3a5 5 0 0 1 5 5v11a5 5 0 0 1-5 5h-1.15a5 5 0 0 1-3.519 3.457l-.331.052V28a2 2 0 0 1-1.85 1.995L19 30H7a2 2 0 0 1-1.995-1.85L5 28V8a5 5 0 0 1 4.995-5L10 3h16z"></path></svg>',
-                        'fotografia' => '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 24px; width: 24px; fill: currentcolor;"><path d="M16 4a2 2 0 0 1 1.744 1.018l.156.282 2.1 4.2H28a2 2 0 0 1 1.995 1.85L30 11.5V26a2 2 0 0 1-1.85 1.995L28 28H4a2 2 0 0 1-1.995-1.85L2 26V11.5a2 2 0 0 1 1.85-1.995L4 9.5h8l2.1-4.2A2 2 0 0 1 15.894 4H16zm0 2h-.472l-2.1 4.2a1 1 0 0 1-.77.794L12.5 11h-8v15h23V11h-8.5a1 1 0 0 1-.928-1.006l2.1-4.2L16.472 6H16zm0 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"></path></svg>',
-                        'decoracion' => '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 24px; width: 24px; fill: currentcolor;"><path d="M16 1l.324.001a16.5 16.5 0 0 1 11.27 5.454l.2.206A16.501 16.501 0 0 1 31 16.5V31h-2V16.5a14.5 14.5 0 0 0-2.821-8.605l-.179-.257A14.5 14.5 0 0 0 16.5 3L16 3zm0 5a11 11 0 0 1 11 10.988V31h-2V17c0-4.89-3.579-8.945-8.258-9.724L16.5 7.17 16 7.083z"></path></svg>',
-                        'catering' => '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 24px; width: 24px; fill: currentcolor;"><path d="M26 1a3 3 0 0 1 3 3c0 .28 0 .55-.01.82A208.62 208.62 0 0 1 26.98 29l-.02.23V30h-2V29a206.63 206.63 0 0 0 2-24c.01-.24.01-.48.01-.73a1 1 0 0 0-2-.27 194.14 194.14 0 0 1-2 23l-.02.23V30h-2V27.1a192.15 192.15 0 0 0 2-22.9V3a1 1 0 0 0-1.75-.66A218.13 218.13 0 0 1 18.98 28l-.02.23V30h-2V28.2A216.13 216.13 0 0 0 19 2.33 3 3 0 0 1 21.82.07c.06-.01.12-.02.18-.02L22.1.04a3 3 0 0 1 2.73-.97zM16 1v7a4 4 0 0 1-3 3.86V30h-2V11.86a4 4 0 0 1-3-3.6L8 8V1h2v7a2 2 0 0 0 1 1.73V1h2v8.73A2 2 0 0 0 14 8V1h2zM5 1v10a4 4 0 0 1-3 3.86V30h2V14.86a4 4 0 0 0 3-3.6L7 11V1H5z"></path></svg>'
-                    );
+                    <div class="mrb-category-item active" onclick="filterByCategory('all')">
+                        <div class="mrb-category-icon">
+                            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;height:24px;width:24px;fill:currentColor;">
+                                <path d="M13 0a13 13 0 0 1 9.87 21.52l8.3 8.3a1 1 0 0 1-1.32 1.5l-.1-.08-8.3-8.3a13 13 0 1 1-8.45-22.94zm0 2a11 11 0 1 0 0 22 11 11 0 0 0 0-22z"></path>
+                            </svg>
+                        </div>
+                        <span>Todos</span>
+                    </div>
                     
-                    if (!empty($listing_categories)) :
-                        foreach ($listing_categories as $category) :
-                            $slug = $category->slug;
-                            $icon = isset($category_icons[$slug]) ? $category_icons[$slug] : $category_icons['default'];
-                            ?>
-                            <div class="mrb-category-item" onclick="filterByCategory('<?php echo esc_attr($slug); ?>')">
-                                <div class="mrb-category-icon">
-                                    <?php echo $icon; ?>
-                                </div>
-                                <span><?php echo esc_html($category->name); ?></span>
-                            </div>
-                            <?php
-                        endforeach;
-                    endif;
-                    ?>
+                    <div class="mrb-category-item" onclick="filterByCategory('lugares-para-eventos')">
+                        <div class="mrb-category-icon">
+                            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;height:24px;width:24px;fill:currentColor;">
+                                <path d="M28 4v24H4V4h24zm0-2H4a2 2 0 0 0-2 2v24a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM16 7a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 2a7 7 0 1 1 0 14 7 7 0 0 1 0-14z"></path>
+                            </svg>
+                        </div>
+                        <span>Lugares para Eventos</span>
+                    </div>
+                    
+                    <div class="mrb-category-item" onclick="filterByCategory('fotografia')">
+                        <div class="mrb-category-icon">
+                            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;height:24px;width:24px;fill:currentColor;">
+                                <path d="M21 10V6h-4a2 2 0 0 0-2 2v2h-2V8a4 4 0 0 1 4-4h4V2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2zm-10 0H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2h-7v2h7v16H4V12h7v-2zm5 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"></path>
+                            </svg>
+                        </div>
+                        <span>Fotografía y Video</span>
+                    </div>
+                    
+                    <div class="mrb-category-item" onclick="filterByCategory('musica')">
+                        <div class="mrb-category-icon">
+                            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;height:24px;width:24px;fill:currentColor;">
+                                <path d="M26 3v18.05a5 5 0 1 0 2 3.95V3h-2zM24 26a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-10-4.05a5 5 0 1 0 2 3.95V7H8v2h6v12.05zM12 25a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path>
+                            </svg>
+                        </div>
+                        <span>Música y DJ</span>
+                    </div>
+                    
+                    <div class="mrb-category-item" onclick="filterByCategory('alimentos-y-bebidas')">
+                        <div class="mrb-category-icon">
+                            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;height:24px;width:24px;fill:currentColor;">
+                                <path d="M26 1v7a4 4 0 0 1-4 4h-6v16h4v2H12v-2h4V12h-6a4 4 0 0 1-4-4V1h2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V1h2zM7 1v10l1 1v18h2V12l1-1V1H7z"></path>
+                            </svg>
+                        </div>
+                        <span>Alimentos y Bebidas</span>
+                    </div>
+                    
+                    <div class="mrb-category-item" onclick="filterByCategory('decoracion')">
+                        <div class="mrb-category-icon">
+                            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;height:24px;width:24px;fill:currentColor;">
+                                <path d="M16 1l6 10h11l-9 6.5L27.5 31 16 23 4.5 31 8 17.5 -1 11h11L16 1z"></path>
+                            </svg>
+                        </div>
+                        <span>Decoración</span>
+                    </div>
+                    
+                    <div class="mrb-category-item" onclick="filterByCategory('artistas')">
+                        <div class="mrb-category-icon">
+                            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;height:24px;width:24px;fill:currentColor;">
+                                <path d="M16 3a13 13 0 0 1 13 13c0 6.88-5.44 12.58-12.32 12.97L16 29a13 13 0 0 1 0-26zm0 2a11 11 0 0 0 0 22 11 11 0 0 0 0-22zm0 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"></path>
+                            </svg>
+                        </div>
+                        <span>Artistas</span>
+                    </div>
+                    
+                    <div class="mrb-category-item" onclick="filterByCategory('entretenimiento')">
+                        <div class="mrb-category-icon">
+                            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;height:24px;width:24px;fill:currentColor;">
+                                <path d="M20.5 3a8.5 8.5 0 0 1 8.5 8.5c0 3.97-7.16 12.06-10.76 15.74a2 2 0 0 1-2.48 0C12.16 23.56 5 15.47 5 11.5A8.5 8.5 0 0 1 13.5 3a8.46 8.46 0 0 1 3.5.75A8.46 8.46 0 0 1 20.5 3z"></path>
+                            </svg>
+                        </div>
+                        <span>Entretenimiento</span>
+                    </div>
+                    
+                    <div class="mrb-category-item" onclick="filterByCategory('mobiliario')">
+                        <div class="mrb-category-icon">
+                            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;height:24px;width:24px;fill:currentColor;">
+                                <path d="M25 4v18a2 2 0 0 1 2 2v4h-2v-4H7v4H5v-4a2 2 0 0 1 2-2V4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2zm-2 0H9v18h14V4z"></path>
+                            </svg>
+                        </div>
+                        <span>Mobiliario</span>
+                    </div>
                 </div>
                 
                 <button class="mrb-slider-arrow mrb-slider-next" onclick="slideCategories('next')">›</button>
@@ -138,14 +192,53 @@ $current_user = wp_get_current_user();
             
             <div class="mrb-listings-grid" id="listings-grid">
                 <?php
-                // Query para obtener TODOS los listings reales de HivePress
+                // Query para obtener listings con prioridad a lugares-para-eventos
                 $args = array(
                     'post_type' => 'hp_listing',
-                    'posts_per_page' => 24,
+                    'posts_per_page' => 20,
                     'post_status' => 'publish',
+                    'tax_query' => array(
+                        array(
+                            'taxonomy' => 'hp_listing_category',
+                            'field' => 'term_id',
+                            'terms' => 58, // ID de lugares-para-eventos
+                            'operator' => 'IN'
+                        )
+                    ),
                     'orderby' => 'date',
                     'order' => 'DESC'
                 );
+                
+                // Primer query para lugares-para-eventos
+                $lugares_query = new WP_Query($args);
+                
+                // Segundo query para el resto si no hay suficientes
+                if ($lugares_query->post_count < 20) {
+                    $args2 = array(
+                        'post_type' => 'hp_listing',
+                        'posts_per_page' => 20 - $lugares_query->post_count,
+                        'post_status' => 'publish',
+                        'tax_query' => array(
+                            array(
+                                'taxonomy' => 'hp_listing_category',
+                                'field' => 'term_id',
+                                'terms' => 58,
+                                'operator' => 'NOT IN'
+                            )
+                        ),
+                        'orderby' => 'date',
+                        'order' => 'DESC'
+                    );
+                    $otros_query = new WP_Query($args2);
+                    
+                    // Combinar los posts
+                    $all_posts = array_merge($lugares_query->posts, $otros_query->posts);
+                    $listings_query = new WP_Query();
+                    $listings_query->posts = $all_posts;
+                    $listings_query->post_count = count($all_posts);
+                } else {
+                    $listings_query = $lugares_query;
+                }
                 
                 $listings_query = new WP_Query($args);
                 

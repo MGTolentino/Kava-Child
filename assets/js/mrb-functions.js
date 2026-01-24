@@ -70,51 +70,142 @@ function initializeSearch() {
 }
 
 /**
- * Mostrar sugerencias de servicios
+ * Búsqueda con sugerencias dinámicas
  */
-function showServiceSuggestions(query) {
+function searchSuggestions(query) {
+    const suggestionsDiv = document.getElementById('service-suggestions');
+    
+    if (!query || query.length < 2) {
+        suggestionsDiv.style.display = 'none';
+        return;
+    }
+    
+    // Lista de servicios comunes para sugerencias
     const suggestions = [
         'Salones para eventos',
-        'Jardines para bodas',
+        'Jardines para bodas', 
+        'Haciendas',
+        'Quintas',
+        'Terrazas',
+        'Hoteles para eventos',
         'Fotografía profesional',
         'Video para eventos',
-        'DJ para fiestas',
+        'Fotografía y video',
+        'DJ profesional',
+        'DJ para bodas',
+        'DJ para XV años',
         'Mariachi',
+        'Grupo norteño',
         'Grupo versátil',
+        'Banda en vivo',
         'Decoración con globos',
         'Decoración floral',
+        'Decoración para bodas',
         'Catering completo',
         'Banquetes',
+        'Taquizas',
+        'Parrilladas',
         'Mesa de dulces',
         'Pastelería',
+        'Pastel de bodas',
+        'Pastel de XV años',
         'Mobiliario para eventos',
         'Sillas y mesas',
+        'Sillas tiffany',
+        'Mesas redondas',
         'Audio e iluminación',
+        'Sonido profesional',
+        'Iluminación LED',
         'Pista de baile',
+        'Pista iluminada',
         'Maestro de ceremonias',
+        'Animador de eventos',
         'Show infantil',
+        'Payasos',
+        'Botargas',
+        'Maquillaje profesional',
+        'Peinado para novias',
         'Maquillaje y peinado'
     ];
     
-    const filtered = suggestions.filter(s => s.toLowerCase().includes(query));
+    // También hacer búsqueda en los listings reales vía AJAX
+    if (window.mrb_ajax && window.mrb_ajax.ajax_url) {
+        jQuery.ajax({
+            url: window.mrb_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'mrb_search_suggestions',
+                nonce: window.mrb_ajax.nonce,
+                query: query
+            },
+            success: function(response) {
+                if (response.success && response.data.suggestions) {
+                    displaySuggestions(response.data.suggestions, query);
+                } else {
+                    // Fallback a sugerencias locales
+                    const filtered = suggestions.filter(s => 
+                        s.toLowerCase().includes(query.toLowerCase())
+                    );
+                    displaySuggestions(filtered.slice(0, 8), query);
+                }
+            },
+            error: function() {
+                // Fallback a sugerencias locales
+                const filtered = suggestions.filter(s => 
+                    s.toLowerCase().includes(query.toLowerCase())
+                );
+                displaySuggestions(filtered.slice(0, 8), query);
+            }
+        });
+    } else {
+        // Sin AJAX, usar solo sugerencias locales
+        const filtered = suggestions.filter(s => 
+            s.toLowerCase().includes(query.toLowerCase())
+        );
+        displaySuggestions(filtered.slice(0, 8), query);
+    }
+}
+
+/**
+ * Mostrar sugerencias en el dropdown
+ */
+function displaySuggestions(suggestions, query) {
     const suggestionsDiv = document.getElementById('service-suggestions');
     
-    if (filtered.length > 0 && suggestionsDiv) {
-        suggestionsDiv.innerHTML = filtered
-            .slice(0, 5)
-            .map(s => `
-                <div class="mrb-suggestion-item" onclick="selectSuggestion('${s}')">
-                    <svg width="16" height="16" fill="currentColor" style="opacity: 0.5;">
+    if (suggestions.length > 0) {
+        suggestionsDiv.innerHTML = suggestions.map(s => `
+            <div class="mrb-suggestion-item" onclick="selectSuggestion('${s.replace(/'/g, "\\'")}')" style="padding: 12px 16px; cursor: pointer; transition: background 0.2s;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <svg width="16" height="16" fill="#6A6A6A">
                         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.027.026.056.048.085.071l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.072-.086zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
                     </svg>
-                    ${s}
+                    <span style="color: #222; font-size: 14px;">${highlightMatch(s, query)}</span>
                 </div>
-            `)
-            .join('');
+            </div>
+        `).join('');
+        
         suggestionsDiv.style.display = 'block';
+        
+        // Agregar hover effects
+        suggestionsDiv.querySelectorAll('.mrb-suggestion-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.background = '#F7F7F7';
+            });
+            item.addEventListener('mouseleave', function() {
+                this.style.background = 'transparent';
+            });
+        });
     } else {
-        hideSuggestions();
+        suggestionsDiv.style.display = 'none';
     }
+}
+
+/**
+ * Resaltar coincidencias en las sugerencias
+ */
+function highlightMatch(text, query) {
+    const regex = new RegExp(`(${query})`, 'gi');
+    return text.replace(regex, '<strong>$1</strong>');
 }
 
 function selectSuggestion(value) {
