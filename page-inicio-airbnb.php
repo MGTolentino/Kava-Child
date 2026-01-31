@@ -22,8 +22,30 @@
     console.log('✅ mrb-functions.js cargado, toggleDropdown disponible:', typeof window.toggleDropdown);
     </script>
     
-    <!-- CSS específico para forzar iconos y flechas -->
+    <!-- CSS AIRBNB EXACTO - TODO MÁS PEQUEÑO -->
     <style>
+        /* BASE TIPOGRAFÍA COMO AIRBNB */
+        body.page-template-airbnb {
+            font-size: 14px !important;
+            line-height: 1.4 !important;
+        }
+        
+        /* Cards más compactos */
+        .mrb-card-content {
+            padding: 8px 0 !important;
+        }
+        
+        .mrb-card-title {
+            font-size: 15px !important;
+            line-height: 1.2 !important;
+            margin-bottom: 2px !important;
+        }
+        
+        .mrb-card-meta {
+            font-size: 14px !important;
+            margin-bottom: 4px !important;
+        }
+        
         /* Forzar iconos de categorías */
         .mrb-category-icon svg {
             width: 24px !important;
@@ -286,7 +308,7 @@ $current_user = wp_get_current_user();
                 ?>
             </a>
             
-            <div class="mrb-user-menu" onclick="toggleDropdown(this)">
+            <div class="mrb-user-menu" data-dropdown="user">
                 <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;fill:none;height:16px;width:16px;stroke:currentColor;stroke-width:3;overflow:visible;">
                     <g fill="none" fill-rule="nonzero">
                         <path d="m2 16h28"></path>
@@ -401,7 +423,7 @@ $current_user = wp_get_current_user();
                 
                 <div class="mrb-categories-track" id="categories-track">
                     <?php
-                    // Array de iconos personalizados para cada categoría
+                    // Array COMPLETO de iconos para TODAS las categorías
                     $category_icons = array(
                         'lugares-para-eventos' => '<path d="M25 4v18a2 2 0 0 1 2 2v4h-2v-4H7v4H5v-4a2 2 0 0 1 2-2V4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2zm-2 0H9v18h14V4z"/>',
                         'fotografia' => '<path d="M21 10V6h-4a2 2 0 0 0-2 2v2h-2V8a4 4 0 0 1 4-4h4V2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2zm-10 0H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2h-7v2h7v16H4V12h7v-2zm5 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/>',
@@ -417,6 +439,11 @@ $current_user = wp_get_current_user();
                         'vestidos' => '<path d="M21 2h-2l-2-2h-2l-2 2h-2a2 2 0 0 0-2 2v4l-2 1v21a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-2-1V4a2 2 0 0 0-2-2z"/>',
                         'planners' => '<path d="M28 4v24a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h20a2 2 0 0 1 2 2zM12 18h8v2h-8v-2zm0-4h8v2h-8v-2zm0-4h8v2h-8v-2z"/>',
                         'viajes' => '<path d="M27.5 3h-23a1.5 1.5 0 0 0-1.5 1.5v23a1.5 1.5 0 0 0 1.5 1.5h23a1.5 1.5 0 0 0 1.5-1.5v-23A1.5 1.5 0 0 0 27.5 3zM16 25L6 16l10-9 10 9-10 9z"/>',
+                        // 🆕 ICONOS NUEVOS PARA CATEGORÍAS FALTANTES
+                        'comediantes' => '<path d="M16 3a13 13 0 0 1 13 13c0 7.18-5.82 13-13 13S3 23.18 3 16A13 13 0 0 1 16 3zm0 2a11 11 0 1 0 0 22 11 11 0 0 0 0-22zm-4.5 7.5a1.5 1.5 0 0 1 3 0 1.5 1.5 0 0 1-3 0zm7 0a1.5 1.5 0 0 1 3 0 1.5 1.5 0 0 1-3 0zm-6.5 6c0 2.21 1.79 4 4 4s4-1.79 4-4"/>',
+                        'paquetes-todo-incluido' => '<path d="M6 2a2 2 0 0 0-2 2v24a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V8.83a2 2 0 0 0-.59-1.42L22.58 2.6A2 2 0 0 0 21.17 2H6zm14 2v4a2 2 0 0 0 2 2h4v16H6V4h14zM8 12h16v2H8v-2zm0 4h16v2H8v-2zm0 4h12v2H8v-2z"/>',
+                        'pirotecnia-y-efectos-especiales' => '<path d="M16 2l4 8 8 2-6 6 2 8-8-4-8 4 2-8-6-6 8-2 4-8zm0 4.5L14 10l-4 1 3 3-.5 4 3.5-2 3.5 2-.5-4 3-3-4-1-2-3.5z"/>',
+                        'toldos-y-carpas' => '<path d="M16 4L4 14h4v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V14h4L16 4zm0 3.66L21.17 12H20v12H12V12h-1.17L16 7.66zM10 18h2v6h-2v-6zm10 0h2v6h-2v-6z"/>',
                         'default' => '<path d="M16 3a13 13 0 0 1 13 13c0 7.18-5.82 13-13 13S3 23.18 3 16A13 13 0 0 1 16 3zm0 2a11 11 0 1 0 0 22 11 11 0 0 0 0-22z"/>'
                     );
                     ?>
@@ -872,26 +899,22 @@ function toggleDropdown(element) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, setting up dropdown events');
     
-    // Multiple event listeners para mayor compatibilidad
+    // SOLO UN event listener, sin duplicados
     const userMenu = document.querySelector('.mrb-user-menu');
     if (userMenu) {
-        console.log('User menu found, adding events');
+        console.log('User menu found, adding SINGLE event');
         
-        // Event listener principal
+        // REMOVER cualquier onclick anterior
+        userMenu.onclick = null;
+        userMenu.removeAttribute('onclick');
+        
+        // UN SOLO event listener
         userMenu.addEventListener('click', function(e) {
-            console.log('User menu clicked via event listener');
+            console.log('User menu clicked ONCE');
             e.preventDefault();
             e.stopPropagation();
             toggleDropdown(this);
-        });
-        
-        // Event listener adicional para touch devices
-        userMenu.addEventListener('touchend', function(e) {
-            console.log('User menu touched');
-            e.preventDefault();
-            e.stopPropagation();
-            toggleDropdown(this);
-        });
+        }, { once: false });
         
         // Verificar que el dropdown existe
         const dropdown = userMenu.querySelector('.mrb-dropdown-menu');

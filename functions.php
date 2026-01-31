@@ -10,6 +10,42 @@ use HivePress\Forms;
 
 defined('ABSPATH') || exit;
 
+// ENDPOINT AJAX PARA BÚSQUEDA DE LISTINGS REALES
+add_action('wp_ajax_search_listings', 'mrb_search_listings');
+add_action('wp_ajax_nopriv_search_listings', 'mrb_search_listings');
+
+function mrb_search_listings() {
+    $query = isset($_GET['q']) ? sanitize_text_field($_GET['q']) : '';
+    
+    if (strlen($query) < 2) {
+        wp_send_json([]);
+        wp_die();
+    }
+    
+    $args = array(
+        'post_type' => 'hp_listing',
+        'post_status' => 'publish',
+        's' => $query,
+        'posts_per_page' => 8,
+        'orderby' => 'relevance',
+        'order' => 'DESC'
+    );
+    
+    $search_query = new WP_Query($args);
+    $suggestions = array();
+    
+    if ($search_query->have_posts()) {
+        while ($search_query->have_posts()) {
+            $search_query->the_post();
+            $suggestions[] = get_the_title();
+        }
+        wp_reset_postdata();
+    }
+    
+    wp_send_json($suggestions);
+    wp_die();
+}
+
 /**
  * Enqueue parent theme styles
  */

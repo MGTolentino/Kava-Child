@@ -82,8 +82,10 @@ function debugDropdown() {
 window.toggleDropdown = toggleDropdown;
 window.debugDropdown = debugDropdown;
 
-// Variables globales
-var currentPage = currentPage || 1;
+// Variables globales - Prevenir duplicación
+if (typeof currentPage === 'undefined') {
+    var currentPage = 1;
+}
 let isLoading = false;
 let hasMorePages = true;
 let mapViewActive = false;
@@ -181,73 +183,35 @@ function showServiceSuggestions(query) {
  * Realizar búsqueda de sugerencias (separada para el debounce)
  */
 function performSuggestionSearch(query) {
+    console.log('🚀 Búsqueda AJAX real:', query);
+    
     const suggestionsDiv = document.getElementById('service-suggestions');
     
-    // Lista de servicios comunes para sugerencias
-    const suggestions = [
+    // BÚSQUEDA REAL EN BASE DE DATOS CON AJAX
+    fetch(`/wp-admin/admin-ajax.php?action=search_listings&q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(suggestions => {
+            console.log('✅ Resultados de BD:', suggestions);
+            displaySuggestions(suggestions, query);
+        })
+        .catch(error => {
+            console.error('❌ Error en búsqueda:', error);
+            // Fallback a búsqueda local si falla AJAX
+            fallbackLocalSearch(query);
+        });
+}
+
+function fallbackLocalSearch(query) {
+    console.log('⚠️ Usando búsqueda local como fallback');
+    // Backup con algunos servicios comunes
+    const localSuggestions = [
         'Salones para eventos',
-        'Jardines para bodas', 
-        'Haciendas',
-        'Quintas',
-        'Terrazas',
-        'Hoteles para eventos',
-        'Fotografía profesional',
-        'Video para eventos',
-        'Fotografía y video',
-        'DJ profesional',
-        'DJ para bodas',
-        'DJ para XV años',
-        'Mariachi',
-        'Grupo norteño',
-        'Grupo versátil',
-        'Banda en vivo',
-        'Decoración con globos',
-        'Decoración floral',
-        'Decoración para bodas',
-        'Catering completo',
-        'Banquetes',
-        'Taquizas',
-        'Parrilladas',
-        'Mesa de dulces',
-        'Pastelería',
-        'Pastel de bodas',
-        'Pastel de XV años',
-        'Mobiliario para eventos',
-        'Sillas y mesas',
-        'Sillas tiffany',
-        'Mesas redondas',
-        'Audio e iluminación',
-        'Sonido profesional',
-        'Iluminación LED',
-        'Pista de baile',
-        'Pista iluminada',
-        'Maestro de ceremonias',
-        'Animador de eventos',
-        'Show infantil',
-        'Payasos',
-        'Botargas',
-        'Maquillaje profesional',
-        'Peinado para novias',
-        'Maquillaje y peinado'
-    ];
+        'Villa Valencia',
+        'Jardín Las Flores',
+        'Quinta Real'
+    ].filter(s => s.toLowerCase().includes(query.toLowerCase()));
     
-    // Primero mostrar sugerencias locales instantáneamente
-    const queryLower = query.toLowerCase();
-    const words = queryLower.split(' ').filter(w => w.length > 0);
-    
-    // Filtrar sugerencias que contengan TODAS las palabras
-    const filtered = suggestions.filter(s => {
-        const sLower = s.toLowerCase();
-        return words.every(word => sLower.includes(word));
-    });
-    
-    // Mostrar sugerencias locales inmediatamente
-    if (filtered.length > 0) {
-        displaySuggestions(filtered.slice(0, 8), query);
-    }
-    
-    // Solo usar sugerencias locales por ahora (más rápido y estable)
-    displaySuggestions(filtered.slice(0, 8), query);
+    displaySuggestions(localSuggestions, query);
 }
 
 /**
@@ -255,14 +219,14 @@ function performSuggestionSearch(query) {
  */
 function displaySuggestions(suggestions, query) {
     const suggestionsDiv = document.getElementById('service-suggestions');
-    console.log('displaySuggestions called with:', suggestions, query); // Debug
+    console.log('🔍 displaySuggestions called:', suggestions.length, 'suggestions for:', query);
     
     if (!suggestionsDiv) {
-        console.error('service-suggestions element not found');
+        console.error('❌ service-suggestions element not found');
         return;
     }
     
-    if (suggestions.length > 0) {
+    if (suggestions && suggestions.length > 0) {
         suggestionsDiv.innerHTML = suggestions.map(s => `
             <div class="mrb-suggestion-item" onclick="selectSuggestion('${s.replace(/'/g, "\\'")}')"">
                 <div style="display: flex; align-items: center; gap: 12px;">
