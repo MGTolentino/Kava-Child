@@ -1118,7 +1118,7 @@ add_action( 'wp_head', 'cargar_fuentes_montserrat' );
 add_action('wp_enqueue_scripts', 'mrb_enqueue_custom_home_assets');
 function mrb_enqueue_custom_home_assets() {
     // Solo cargar en la página con el template personalizado
-    if (is_page_template('page-inicio-custom.php')) {
+    if (is_page_template('page-inicio-custom.php') || is_page_template('page-inicio-airbnb.php')) {
         // Estilos MRB Airbnb Base
         wp_enqueue_style(
             'mrb-airbnb-styles', 
@@ -1132,6 +1132,14 @@ function mrb_enqueue_custom_home_assets() {
             'mrb-ultimate-airbnb', 
             get_stylesheet_directory_uri() . '/assets/css/mrb-ultimate-airbnb.css',
             array('mrb-airbnb-styles'),
+            '1.0.1'
+        );
+        
+        // Estilos Final Fixes con todas las correcciones
+        wp_enqueue_style(
+            'mrb-final-fixes', 
+            get_stylesheet_directory_uri() . '/assets/css/mrb-final-fixes.css',
+            array('mrb-airbnb-styles', 'mrb-ultimate-airbnb'),
             '1.0.0'
         );
         
