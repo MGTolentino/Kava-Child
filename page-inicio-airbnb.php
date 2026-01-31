@@ -24,6 +24,74 @@
     
     <!-- CSS AIRBNB EXACTO - TODO MÁS PEQUEÑO -->
     <style>
+        /* 🔥 FORZAR 6 COLUMNAS EN TODO DESKTOP - AIRBNB EXACT */
+        @media (min-width: 950px) {
+            .mrb-listings-grid,
+            #listings-grid,
+            body .mrb-listings-grid,
+            .mrb-wrapper .mrb-listings-grid,
+            body.page-template-airbnb .mrb-listings-grid {
+                display: grid !important;
+                grid-template-columns: repeat(6, 1fr) !important;
+                gap: 20px 16px !important;
+                max-width: 100% !important;
+            }
+            
+            /* Asegurar que los cards se ajusten al grid */
+            .mrb-listing-card {
+                width: 100% !important;
+                max-width: none !important;
+            }
+        }
+        
+        @media (min-width: 743px) and (max-width: 949px) {
+            .mrb-listings-grid,
+            #listings-grid,
+            body .mrb-listings-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+        }
+        
+        @media (min-width: 550px) and (max-width: 742px) {
+            .mrb-listings-grid,
+            #listings-grid,
+            body .mrb-listings-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+        
+        @media (max-width: 549px) {
+            .mrb-listings-grid,
+            #listings-grid,
+            body .mrb-listings-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        
+        /* Cards más pequeños para que quepan 6 */
+        .mrb-listing-card {
+            width: 100% !important;
+            max-width: none !important;
+        }
+        
+        .mrb-card-slider {
+            padding-bottom: 100% !important; /* Cuadrado */
+        }
+        
+        /* Contenedor con ancho máximo apropiado para 6 columnas */
+        .mrb-container {
+            max-width: 1760px !important; /* Más ancho para 6 columnas */
+            padding: 0 40px !important;
+            margin: 0 auto !important;
+        }
+        
+        @media (max-width: 1439px) {
+            .mrb-container {
+                max-width: 1280px !important;
+                padding: 0 24px !important;
+            }
+        }
+        
         /* BASE TIPOGRAFÍA COMO AIRBNB */
         body.page-template-airbnb {
             font-size: 14px !important;

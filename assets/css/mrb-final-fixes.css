@@ -122,15 +122,10 @@ body {
     padding: 0 !important;
 }
 
-@media (max-width: 1640px) {
+/* Force 6 columns for desktop - removed conflicting max-width queries */
+@media (min-width: 1280px) {
     .mrb-listings-grid {
-        grid-template-columns: repeat(5, 1fr) !important;
-    }
-}
-
-@media (max-width: 1440px) {
-    .mrb-listings-grid {
-        grid-template-columns: repeat(4, 1fr) !important;
+        grid-template-columns: repeat(6, 1fr) !important;
     }
 }
 

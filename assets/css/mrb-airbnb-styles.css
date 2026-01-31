@@ -269,8 +269,8 @@
 
 .mrb-listings-grid {
     display: grid;
-    gap: 24px;
-    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 20px 16px;
+    grid-template-columns: repeat(6, 1fr); /* Default 6 columnas */
 }
 
 @media (min-width: 743px) {
@@ -285,22 +285,11 @@
     }
 }
 
-@media (min-width: 1128px) {
+/* GRID 6 COLUMNAS - Solo un breakpoint para desktop */
+@media (min-width: 1280px) {
     .mrb-listings-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 24px 20px;
-    }
-}
-
-@media (min-width: 1440px) {
-    .mrb-listings-grid {
-        grid-template-columns: repeat(5, 1fr);
-    }
-}
-
-@media (min-width: 1760px) {
-    .mrb-listings-grid {
-        grid-template-columns: repeat(6, 1fr);
+        grid-template-columns: repeat(6, 1fr) !important;
+        gap: 20px 16px !important;
     }
 }
 
@@ -316,7 +305,7 @@
     position: relative;
     border-radius: 12px;
     overflow: hidden;
-    padding-bottom: 95%; /* Aspect ratio 20/19 = 95% */
+    padding-bottom: 100%; /* Cuadrado perfecto para cards más pequeños */
     background: #F0F0F0;
     width: 100%;
 }
