@@ -390,7 +390,8 @@
 }
 
 /* Arrows for category navigation */
-.mrb-slider-arrow {
+.page-template-page-inicio-airbnb .mrb-slider-arrow,
+.page-template-page-inicio-custom .mrb-slider-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -403,7 +404,7 @@
     font-size: 18px;
     font-weight: bold;
     cursor: pointer;
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
@@ -411,27 +412,49 @@
     transition: all 0.2s ease;
 }
 
-.mrb-slider-arrow:hover {
+.page-template-page-inicio-airbnb .mrb-slider-arrow:hover,
+.page-template-page-inicio-custom .mrb-slider-arrow:hover {
     background: #F7F7F7;
     border-color: #BBBBBB;
     transform: translateY(-50%) scale(1.05);
 }
 
-.mrb-slider-prev {
+.page-template-page-inicio-airbnb .mrb-slider-prev,
+.page-template-page-inicio-custom .mrb-slider-prev {
     left: -16px;
 }
 
-.mrb-slider-next {
+.page-template-page-inicio-airbnb .mrb-slider-next,
+.page-template-page-inicio-custom .mrb-slider-next {
     right: -16px;
 }
 
-.mrb-categories-slider {
+.page-template-page-inicio-airbnb .mrb-categories-slider,
+.page-template-page-inicio-custom .mrb-categories-slider {
     position: relative;
 }
 
+/* Forzar iconos de categorías */
+.page-template-page-inicio-airbnb .mrb-category-icon svg,
+.page-template-page-inicio-custom .mrb-category-icon svg {
+    width: 24px !important;
+    height: 24px !important;
+    display: block !important;
+    fill: #6A6A6A !important;
+    transition: fill 0.2s ease;
+}
+
+.page-template-page-inicio-airbnb .mrb-category-item:hover .mrb-category-icon svg,
+.page-template-page-inicio-airbnb .mrb-category-item.active .mrb-category-icon svg,
+.page-template-page-inicio-custom .mrb-category-item:hover .mrb-category-icon svg,
+.page-template-page-inicio-custom .mrb-category-item.active .mrb-category-icon svg {
+    fill: #FF385C !important;
+}
+
 @media (max-width: 768px) {
-    .mrb-slider-arrow {
-        display: none;
+    .page-template-page-inicio-airbnb .mrb-slider-arrow,
+    .page-template-page-inicio-custom .mrb-slider-arrow {
+        display: none !important;
     }
 }
 

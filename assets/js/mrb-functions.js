@@ -167,24 +167,26 @@ function performSuggestionSearch(query) {
         displaySuggestions(filtered.slice(0, 8), query);
     }
     
-    // Luego hacer búsqueda AJAX si está disponible
-    if (window.mrb_ajax && window.mrb_ajax.ajax_url) {
-        jQuery.ajax({
-            url: window.mrb_ajax.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'mrb_search_suggestions',
-                nonce: window.mrb_ajax.nonce,
-                query: query
-            },
-            success: function(response) {
-                if (response.success && response.data.suggestions && response.data.suggestions.length > 0) {
-                    // Combinar sugerencias AJAX con las locales
-                    const combined = [...new Set([...response.data.suggestions, ...filtered])];
+    // Buscar en WordPress usando REST API
+    if (window.wp && window.wp.ajax) {
+        fetch(`/wp-json/wp/v2/hp_listing?search=${encodeURIComponent(query)}&per_page=5&_fields=title,slug`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const wpSuggestions = data.map(post => post.title.rendered);
+                    // Combinar sugerencias de WordPress con las locales
+                    const combined = [...new Set([...wpSuggestions, ...filtered])];
                     displaySuggestions(combined.slice(0, 8), query);
                 }
-            }
-        });
+            })
+            .catch(error => {
+                console.log('Error searching WordPress:', error);
+                // Si falla, usar solo las sugerencias locales
+                displaySuggestions(filtered.slice(0, 8), query);
+            });
+    } else {
+        // Si no hay WordPress disponible, usar solo sugerencias locales
+        displaySuggestions(filtered.slice(0, 8), query);
     }
 }
 
