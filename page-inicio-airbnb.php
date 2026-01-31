@@ -22,18 +22,20 @@
     console.log('✅ mrb-functions.js cargado, toggleDropdown disponible:', typeof window.toggleDropdown);
     </script>
     
-    <!-- CSS AIRBNB EXACTO - TODO MÁS PEQUEÑO -->
+    <!-- CSS AIRBNB EXACTO - TODO 30% MÁS PEQUEÑO -->
     <style>
-        /* 🔥 FORZAR 6 COLUMNAS EN TODO DESKTOP - AIRBNB EXACT */
+        /* 🔥 FORZAR 6 COLUMNAS EN ABSOLUTAMENTE TODO - MÁXIMA PRIORIDAD */
         @media (min-width: 950px) {
             .mrb-listings-grid,
             #listings-grid,
             body .mrb-listings-grid,
             .mrb-wrapper .mrb-listings-grid,
-            body.page-template-airbnb .mrb-listings-grid {
+            body.page-template-airbnb .mrb-listings-grid,
+            .mrb-section .mrb-listings-grid,
+            div.mrb-listings-grid {
                 display: grid !important;
                 grid-template-columns: repeat(6, 1fr) !important;
-                gap: 20px 16px !important;
+                gap: 14px 12px !important; /* Reducido 30% */
                 max-width: 100% !important;
             }
             
@@ -68,34 +70,141 @@
             }
         }
         
-        /* Cards más pequeños para que quepan 6 */
+        /* Cards 30% más pequeños para que quepan 6 en pantalla */
         .mrb-listing-card {
             width: 100% !important;
             max-width: none !important;
         }
         
         .mrb-card-slider {
-            padding-bottom: 100% !important; /* Cuadrado */
+            padding-bottom: 95% !important; /* Ligeramente rectangular */
+            border-radius: 8px !important; /* Más pequeño */
         }
         
-        /* Contenedor con ancho máximo apropiado para 6 columnas */
+        /* Contenedor con ancho máximo apropiado para 6 columnas COMPACTAS */
         .mrb-container {
-            max-width: 1760px !important; /* Más ancho para 6 columnas */
-            padding: 0 40px !important;
+            max-width: 1280px !important; /* Reducido para que quepa en pantalla */
+            padding: 0 24px !important;
             margin: 0 auto !important;
         }
         
-        @media (max-width: 1439px) {
+        @media (max-width: 1127px) {
             .mrb-container {
-                max-width: 1280px !important;
-                padding: 0 24px !important;
+                max-width: 100% !important;
+                padding: 0 20px !important;
             }
         }
         
-        /* BASE TIPOGRAFÍA COMO AIRBNB */
+        /* BASE TIPOGRAFÍA REDUCIDA 30% - AIRBNB COMPACT */
         body.page-template-airbnb {
-            font-size: 14px !important;
-            line-height: 1.4 !important;
+            font-size: 12px !important; /* Reducido de 14px */
+            line-height: 1.3 !important;
+        }
+        
+        /* REDUCIR TODOS LOS TAMAÑOS 30% */
+        .mrb-section {
+            padding: 22px 0 !important; /* De 32px a 22px */
+        }
+        
+        .mrb-section-header {
+            margin-bottom: 16px !important; /* De 24px a 16px */
+        }
+        
+        .mrb-section-title {
+            font-size: 18px !important; /* De 26px a 18px */
+            font-weight: 600 !important;
+            margin-bottom: 4px !important;
+        }
+        
+        .mrb-section-subtitle {
+            font-size: 12px !important; /* De 16px a 12px */
+            color: #717171 !important;
+        }
+        
+        /* Cards más pequeños */
+        .mrb-card-content {
+            padding-top: 8px !important; /* De 12px a 8px */
+            gap: 1px !important;
+        }
+        
+        .mrb-card-title {
+            font-size: 13px !important; /* De 15px a 13px */
+            line-height: 16px !important;
+            font-weight: 600 !important;
+        }
+        
+        .mrb-card-subtitle,
+        .mrb-card-row-2 {
+            font-size: 11px !important; /* De 14px a 11px */
+            line-height: 14px !important;
+        }
+        
+        .mrb-price-amount {
+            font-size: 13px !important; /* De 15px a 13px */
+            font-weight: 600 !important;
+        }
+        
+        .mrb-price-unit {
+            font-size: 11px !important; /* De 14px a 11px */
+        }
+        
+        .mrb-card-rating {
+            font-size: 11px !important;
+        }
+        
+        .mrb-card-rating svg {
+            width: 10px !important; /* De 12px a 10px */
+            height: 10px !important;
+        }
+        
+        /* Categorías más pequeñas */
+        .mrb-categories {
+            padding: 22px 0 6px 0 !important; /* Reducido 30% */
+        }
+        
+        .mrb-category-icon {
+            width: 20px !important; /* De 28px a 20px */
+            height: 20px !important;
+        }
+        
+        .mrb-category-icon svg {
+            width: 20px !important;
+            height: 20px !important;
+        }
+        
+        .mrb-category-item span {
+            font-size: 10px !important; /* De 12px a 10px */
+            line-height: 13px !important;
+        }
+        
+        /* Search box más pequeño */
+        .mrb-search-box {
+            border-radius: 24px !important; /* De 32px a 24px */
+        }
+        
+        .mrb-search-field {
+            padding: 10px 18px !important; /* De 14px 24px */
+        }
+        
+        .mrb-search-field label {
+            font-size: 10px !important; /* De 12px a 10px */
+            padding-bottom: 2px !important;
+        }
+        
+        .mrb-search-field input,
+        .mrb-search-field select {
+            font-size: 11px !important; /* De 14px a 11px */
+        }
+        
+        .mrb-search-button {
+            height: 36px !important; /* De 48px a 36px */
+            width: 36px !important;
+            margin: 5px !important;
+        }
+        
+        .mrb-search-button svg {
+            width: 12px !important; /* De 16px a 12px */
+            height: 12px !important;
         }
         
         /* Cards más compactos */
@@ -551,7 +660,7 @@ $current_user = wp_get_current_user();
     <?php
     $verified_args = array(
         'post_type' => 'hp_listing',
-        'posts_per_page' => 8,
+        'posts_per_page' => 12,
         'post_status' => 'publish',
         'meta_query' => array(
             array(
@@ -574,12 +683,10 @@ $current_user = wp_get_current_user();
                     <p class="mrb-section-subtitle">Proveedores certificados con la mejor calidad garantizada</p>
                 </div>
                 
-                <div class="mrb-section-carousel">
-                    <div class="mrb-section-track">
-                        <?php while ($verified_query->have_posts()) : $verified_query->the_post();
-                            include 'template-parts/listing-card.php';
-                        endwhile; ?>
-                    </div>
+                <div class="mrb-listings-grid">
+                    <?php while ($verified_query->have_posts()) : $verified_query->the_post();
+                        include 'template-parts/listing-card.php';
+                    endwhile; ?>
                 </div>
             </div>
         </section>
@@ -592,7 +699,7 @@ $current_user = wp_get_current_user();
     // Primero intentar con hp_featured
     $featured_args = array(
         'post_type' => 'hp_listing',
-        'posts_per_page' => 8,
+        'posts_per_page' => 12,
         'post_status' => 'publish',
         'meta_query' => array(
             array(
@@ -614,7 +721,7 @@ $current_user = wp_get_current_user();
     if (!$featured_query->have_posts()) {
         $featured_args = array(
             'post_type' => 'hp_listing',
-            'posts_per_page' => 8,
+            'posts_per_page' => 12,
             'post_status' => 'publish',
             'orderby' => 'date',
             'order' => 'DESC'
@@ -631,13 +738,11 @@ $current_user = wp_get_current_user();
                     <p class="mrb-section-subtitle">Los proveedores premium con las mejores valoraciones</p>
                 </div>
                 
-                <div class="mrb-section-carousel">
-                    <div class="mrb-section-track">
-                        <?php while ($featured_query->have_posts()) : $featured_query->the_post();
-                            echo '<!-- Debug Destacado: Post ID: ' . get_the_ID() . ' -->';
-                            include 'template-parts/listing-card.php';
-                        endwhile; ?>
-                    </div>
+                <div class="mrb-listings-grid">
+                    <?php while ($featured_query->have_posts()) : $featured_query->the_post();
+                        echo '<!-- Debug Destacado: Post ID: ' . get_the_ID() . ' -->';
+                        include 'template-parts/listing-card.php';
+                    endwhile; ?>
                 </div>
             </div>
         </section>
