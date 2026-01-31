@@ -12,6 +12,55 @@
     <meta charset="<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php wp_head(); ?>
+    
+    <!-- Cargar scripts MRB manualmente -->
+    <script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/mrb-functions.js?v=<?php echo filemtime(get_stylesheet_directory() . '/assets/js/mrb-functions.js'); ?>"></script>
+    
+    <!-- CSS específico para forzar iconos y flechas -->
+    <style>
+        /* Forzar iconos de categorías */
+        .mrb-category-icon svg {
+            width: 24px !important;
+            height: 24px !important;
+            display: block !important;
+            fill: #6A6A6A !important;
+            stroke: none !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        .mrb-category-item:hover .mrb-category-icon svg,
+        .mrb-category-item.active .mrb-category-icon svg {
+            fill: #FF385C !important;
+        }
+        
+        /* Forzar visibilidad de flechas */
+        .mrb-slider-arrow {
+            background: white !important;
+            border: 1px solid #DDDDDD !important;
+            color: #222 !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            z-index: 2;
+        }
+        
+        .mrb-slider-prev { left: -16px; }
+        .mrb-slider-next { right: -16px; }
+        .mrb-categories-slider { position: relative; }
+    </style>
 </head>
 <body <?php body_class('page-template-airbnb'); ?>>
 
@@ -98,8 +147,10 @@ $current_user = wp_get_current_user();
                         <select id="mrb-location-search">
                             <option value="">Todas las ciudades</option>
                             <?php
-                            // Función recursiva para obtener todas las ubicaciones anidadas
-                            function get_recursive_locations_airbnb($parent_id = 0, $level = 0) {
+                            // Función mejorada para obtener TODAS las ubicaciones anidadas
+                            function display_all_locations_recursive($parent_id = 0, $level = 0, $max_depth = 10) {
+                                if ($level >= $max_depth) return; // Prevenir recursión infinita
+                                
                                 $terms = get_terms(array(
                                     'taxonomy' => 'hp_listing_ubicacion',
                                     'hide_empty' => false,
@@ -108,21 +159,21 @@ $current_user = wp_get_current_user();
                                     'order' => 'ASC'
                                 ));
                                 
-                                if (empty($terms)) return;
+                                if (empty($terms) || is_wp_error($terms)) return;
                                 
                                 foreach ($terms as $term) {
-                                    $indent = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level);
+                                    $indent = str_repeat('&nbsp;&nbsp;&nbsp;', $level);
                                     echo '<option value="' . esc_attr($term->slug) . '">';
                                     echo $indent . esc_html($term->name);
                                     echo '</option>';
                                     
-                                    // Recursivamente obtener hijos
-                                    get_recursive_locations_airbnb($term->term_id, $level + 1);
+                                    // Recursivamente obtener todos los hijos
+                                    display_all_locations_recursive($term->term_id, $level + 1, $max_depth);
                                 }
                             }
                             
                             // Mostrar todas las ubicaciones recursivamente
-                            get_recursive_locations_airbnb();
+                            display_all_locations_recursive();
                             ?>
                         </select>
                     </div>
@@ -298,12 +349,14 @@ $current_user = wp_get_current_user();
                 'terms' => 58, // ID de lugares-para-eventos
             )
         ),
-        'orderby' => 'meta_value_num',
-        'meta_key' => 'hp_rating',
+        'orderby' => 'date',
         'order' => 'DESC'
     );
     
     $lugares_query = new WP_Query($lugares_args);
+    
+    // Debug
+    echo '<!-- Debug Lugares: Total found: ' . $lugares_query->found_posts . ' -->';
     
     if ($lugares_query->have_posts()) : ?>
         <section class="mrb-section">
@@ -315,8 +368,39 @@ $current_user = wp_get_current_user();
                 
                 <div class="mrb-listings-grid">
                     <?php while ($lugares_query->have_posts()) : $lugares_query->the_post();
+                        echo '<!-- Debug Lugar: Post ID: ' . get_the_ID() . ' -->';
                         include 'template-parts/listing-card.php';
                     endwhile; ?>
+                </div>
+            </div>
+        </section>
+    <?php else : ?>
+        <!-- Si no hay lugares específicos, mostrar algunos listados generales -->
+        <section class="mrb-section">
+            <div class="mrb-container">
+                <div class="mrb-section-header">
+                    <h2 class="mrb-section-title">Servicios para tu evento</h2>
+                    <p class="mrb-section-subtitle">Encuentra todo lo que necesitas para hacer tu evento inolvidable</p>
+                </div>
+                
+                <div class="mrb-listings-grid">
+                    <?php
+                    $general_args = array(
+                        'post_type' => 'hp_listing',
+                        'posts_per_page' => 8,
+                        'post_status' => 'publish',
+                        'orderby' => 'date',
+                        'order' => 'DESC'
+                    );
+                    $general_query = new WP_Query($general_args);
+                    
+                    if ($general_query->have_posts()) :
+                        while ($general_query->have_posts()) : $general_query->the_post();
+                            include 'template-parts/listing-card.php';
+                        endwhile;
+                    endif;
+                    wp_reset_postdata();
+                    ?>
                 </div>
             </div>
         </section>
@@ -406,21 +490,24 @@ $current_user = wp_get_current_user();
             
             <div class="mrb-listings-grid" id="listings-grid">
                 <?php
-                // Query simple para todos los listings, priorizando lugares-para-eventos
+                // Query simple para todos los listings
                 $all_listings_args = array(
                     'post_type' => 'hp_listing',
                     'posts_per_page' => 20,
                     'post_status' => 'publish',
-                    'orderby' => array(
-                        'date' => 'DESC',
-                    ),
+                    'orderby' => 'date',
                     'order' => 'DESC'
                 );
                 
                 $all_listings_query = new WP_Query($all_listings_args);
                 
+                // Debug: mostrar información del query
+                echo '<!-- Debug: Total posts found: ' . $all_listings_query->found_posts . ' -->';
+                
                 if ($all_listings_query->have_posts()) :
                     while ($all_listings_query->have_posts()) : $all_listings_query->the_post();
+                        // Debug cada post
+                        echo '<!-- Debug: Post ID: ' . get_the_ID() . ', Title: ' . get_the_title() . ' -->';
                         include(get_template_directory() . '/template-parts/listing-card.php');
                     endwhile;
                     wp_reset_postdata();
@@ -428,7 +515,8 @@ $current_user = wp_get_current_user();
                     ?>
                     <div class="mrb-no-results">
                         <h3>No se encontraron servicios</h3>
-                        <p>Intenta ajustar tus filtros o búsqueda</p>
+                        <p>Query debug: <?php echo print_r($all_listings_args, true); ?></p>
+                        <p>Encontrados: <?php echo $all_listings_query->found_posts; ?> posts</p>
                     </div>
                 <?php endif; ?>
             </div>
