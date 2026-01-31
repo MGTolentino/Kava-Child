@@ -331,12 +331,18 @@ $current_user = wp_get_current_user();
                 <?php endif; ?>
             </div>
             
-            <!-- Botón cargar más -->
-            <div class="mrb-load-more-container">
-                <button class="mrb-load-more" onclick="loadMoreListings()">
-                    Mostrar más servicios
-                </button>
+            <!-- Infinite Scroll Loader -->
+            <div class="mrb-infinite-loader" id="infinite-loader">
+                <div class="mrb-loader-spinner"></div>
             </div>
+            
+            <!-- Botón Flotante de Mapa -->
+            <button class="mrb-map-toggle" onclick="toggleMapView()">
+                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;fill:currentColor;height:16px;width:16px;">
+                    <path d="M31.245 3.747a2.285 2.285 0 0 0-1.01-1.44A2.286 2.286 0 0 0 28.501 2l-7.515 1.67-10-2L2.5 3.557A2.286 2.286 0 0 0 .7 5.802v21.95a2.284 2.284 0 0 0 1.065 1.941A2.29 2.29 0 0 0 2.999 30a2.3 2.3 0 0 0 .501-.054l7.515-1.67 10 2 8.486-1.886a2.285 2.285 0 0 0 1.799-2.245V4.195a2.3 2.3 0 0 0-.055-.448zm-2.746 1.482v19.483l-5.999 1.333v-19.483zM2.999 4.49l6 1.333v19.483l-6-1.333zM11 25.273V5.79l10 2v19.483z"></path>
+                </svg>
+                <span>Mostrar mapa</span>
+            </button>
         </div>
     </section>
 

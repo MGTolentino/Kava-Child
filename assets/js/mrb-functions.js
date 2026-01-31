@@ -6,6 +6,8 @@
 // Variables globales
 let currentPage = 1;
 let isLoading = false;
+let hasMorePages = true;
+let mapViewActive = false;
 let selectedFilters = {
     category: '',
     location: '',
@@ -26,6 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeFavorites();
     initializeModals();
     initializeFilters();
+    initializeInfiniteScroll();
+    initializeSkeletons();
     
     // Si hay datos de lead en localStorage
     if (localStorage.getItem('mrb_current_lead')) {
@@ -497,7 +501,67 @@ function createListingCard(listing) {
 }
 
 /**
- * Cargar más listados
+ * Toggle Map View
+ */
+function toggleMapView() {
+    mapViewActive = !mapViewActive;
+    const button = document.querySelector('.mrb-map-toggle');
+    const grid = document.getElementById('listings-grid');
+    
+    if (mapViewActive) {
+        button.innerHTML = `
+            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;fill:currentColor;height:16px;width:16px;">
+                <path d="M13 0a13 13 0 0 1 9.87 21.52l8.3 8.3a1 1 0 0 1-1.32 1.5l-.1-.08-8.3-8.3a13 13 0 1 1-8.45-22.94zm0 2a11 11 0 1 0 0 22 11 11 0 0 0 0-22z"></path>
+            </svg>
+            <span>Mostrar lista</span>
+        `;
+        // Aquí iría la lógica para mostrar el mapa
+        showNotification('Vista de mapa en desarrollo');
+    } else {
+        button.innerHTML = `
+            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;fill:currentColor;height:16px;width:16px;">
+                <path d="M31.245 3.747a2.285 2.285 0 0 0-1.01-1.44A2.286 2.286 0 0 0 28.501 2l-7.515 1.67-10-2L2.5 3.557A2.286 2.286 0 0 0 .7 5.802v21.95a2.284 2.284 0 0 0 1.065 1.941A2.29 2.29 0 0 0 2.999 30a2.3 2.3 0 0 0 .501-.054l7.515-1.67 10 2 8.486-1.886a2.285 2.285 0 0 0 1.799-2.245V4.195a2.3 2.3 0 0 0-.055-.448zm-2.746 1.482v19.483l-5.999 1.333v-19.483zM2.999 4.49l6 1.333v19.483l-6-1.333zM11 25.273V5.79l10 2v19.483z"></path>
+            </svg>
+            <span>Mostrar mapa</span>
+        `;
+    }
+}
+
+/**
+ * Infinite Scroll
+ */
+function initializeInfiniteScroll() {
+    window.addEventListener('scroll', function() {
+        if (isLoading || !hasMorePages) return;
+        
+        const scrollHeight = document.documentElement.scrollHeight;
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        const clientHeight = document.documentElement.clientHeight;
+        
+        if (scrollTop + clientHeight >= scrollHeight - 200) {
+            loadMoreListings();
+        }
+    });
+}
+
+/**
+ * Initialize Loading Skeletons
+ */
+function initializeSkeletons() {
+    // Agregar skeletons a las imágenes mientras cargan
+    const images = document.querySelectorAll('.mrb-card-image');
+    images.forEach(img => {
+        if (!img.complete) {
+            img.classList.add('mrb-skeleton');
+            img.addEventListener('load', function() {
+                this.classList.remove('mrb-skeleton');
+            });
+        }
+    });
+}
+
+/**
+ * Cargar más listados con infinite scroll
  */
 function loadMoreListings() {
     if (isLoading) return;
@@ -510,7 +574,13 @@ function loadMoreListings() {
     button.innerHTML = '<span class="mrb-loading"></span> Cargando...';
     button.disabled = true;
     
-    // Simular carga AJAX
+    // Mostrar loader
+    const loader = document.getElementById('infinite-loader');
+    if (loader) {
+        loader.classList.add('active');
+    }
+    
+    // Hacer petición AJAX real
     setTimeout(() => {
         // Aquí iría la petición real a WordPress
         fetch(`/wp-json/mrb/v1/listings?page=${currentPage}`)
@@ -522,12 +592,12 @@ function loadMoreListings() {
                         grid.insertAdjacentHTML('beforeend', createListingCard(listing));
                     });
                     
-                    // Si no hay más resultados, ocultar botón
+                    // Si no hay más resultados, desactivar infinite scroll
                     if (data.listings.length < 12) {
-                        button.style.display = 'none';
+                        hasMorePages = false;
                     }
                 } else {
-                    button.style.display = 'none';
+                    hasMorePages = false;
                 }
             })
             .catch(error => {
@@ -535,10 +605,11 @@ function loadMoreListings() {
             })
             .finally(() => {
                 isLoading = false;
-                button.innerHTML = originalText;
-                button.disabled = false;
+                if (loader) {
+                    loader.classList.remove('active');
+                }
             });
-    }, 1000);
+    }, 500);
 }
 
 /**
