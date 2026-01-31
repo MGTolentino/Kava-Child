@@ -3,6 +3,85 @@
  * Funcionalidad completa para la página de inicio personalizada
  */
 
+/**
+ * FUNCIÓN DROPDOWN TOGGLE PARA USER MENU
+ */
+function toggleDropdown(element) {
+    console.log('toggleDropdown called - element:', element); // Debug mejorado
+    
+    const dropdown = element.querySelector('.mrb-dropdown-menu');
+    if (!dropdown) {
+        console.error('Dropdown menu not found in element:', element);
+        // Buscar dropdown por ID como backup
+        const dropdownById = document.getElementById('user-dropdown');
+        if (dropdownById) {
+            console.log('Found dropdown by ID as backup');
+            dropdown = dropdownById;
+        } else {
+            console.error('No dropdown found by ID either');
+            return;
+        }
+    } else {
+        console.log('Dropdown found:', dropdown);
+    }
+    
+    // Toggle la clase active
+    const isActive = dropdown.classList.contains('active');
+    console.log('Dropdown current state - isActive:', isActive);
+    
+    // Cerrar otros dropdowns primero
+    document.querySelectorAll('.mrb-dropdown-menu.active').forEach(menu => {
+        menu.classList.remove('active');
+        console.log('Closed other dropdown');
+    });
+    
+    // Toggle el dropdown actual
+    if (!isActive) {
+        dropdown.classList.add('active');
+        console.log('Dropdown opened - classes:', dropdown.className);
+        
+        // Verificar CSS
+        const computedStyle = window.getComputedStyle(dropdown);
+        console.log('Dropdown display style:', computedStyle.display);
+        console.log('Dropdown visibility:', computedStyle.visibility);
+        
+        // Cerrar al hacer click fuera
+        const closeDropdown = function(e) {
+            if (!element.contains(e.target)) {
+                dropdown.classList.remove('active');
+                console.log('Dropdown closed by outside click');
+                document.removeEventListener('click', closeDropdown);
+            }
+        };
+        
+        // Delay para evitar que se cierre inmediatamente
+        setTimeout(() => {
+            document.addEventListener('click', closeDropdown);
+        }, 100);
+    } else {
+        console.log('Dropdown was already open, closing it');
+    }
+}
+
+// Función de debug para verificar estado
+function debugDropdown() {
+    const userMenu = document.querySelector('.mrb-user-menu');
+    const dropdown = document.querySelector('.mrb-dropdown-menu');
+    console.log('=== DROPDOWN DEBUG ===');
+    console.log('User menu element:', userMenu);
+    console.log('Dropdown element:', dropdown);
+    if (dropdown) {
+        console.log('Dropdown classes:', dropdown.className);
+        console.log('Dropdown display:', window.getComputedStyle(dropdown).display);
+        console.log('Dropdown visibility:', window.getComputedStyle(dropdown).visibility);
+    }
+    console.log('======================');
+}
+
+// Hacer funciones disponibles globalmente
+window.toggleDropdown = toggleDropdown;
+window.debugDropdown = debugDropdown;
+
 // Variables globales
 let currentPage = 1;
 let isLoading = false;
@@ -176,20 +255,29 @@ function performSuggestionSearch(query) {
  */
 function displaySuggestions(suggestions, query) {
     const suggestionsDiv = document.getElementById('service-suggestions');
+    console.log('displaySuggestions called with:', suggestions, query); // Debug
+    
+    if (!suggestionsDiv) {
+        console.error('service-suggestions element not found');
+        return;
+    }
     
     if (suggestions.length > 0) {
         suggestionsDiv.innerHTML = suggestions.map(s => `
-            <div class="mrb-suggestion-item" onclick="selectSuggestion('${s.replace(/'/g, "\\'")}')" style="padding: 12px 16px; cursor: pointer; transition: background 0.2s;">
+            <div class="mrb-suggestion-item" onclick="selectSuggestion('${s.replace(/'/g, "\\'")}')"">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <svg width="16" height="16" fill="#6A6A6A">
                         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.027.026.056.048.085.071l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.072-.086zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
                     </svg>
-                    <span style="color: #222; font-size: 14px;">${highlightMatch(s, query)}</span>
+                    <span>${highlightMatch(s, query)}</span>
                 </div>
             </div>
         `).join('');
         
+        // Usar tanto clase CSS como style para compatibilidad
         suggestionsDiv.style.display = 'block';
+        suggestionsDiv.classList.add('active');
+        console.log('Suggestions displayed:', suggestions.length, 'items');
         
         // Agregar hover effects
         suggestionsDiv.querySelectorAll('.mrb-suggestion-item').forEach(item => {
@@ -222,6 +310,8 @@ function hideSuggestions() {
     const suggestionsDiv = document.getElementById('service-suggestions');
     if (suggestionsDiv) {
         suggestionsDiv.style.display = 'none';
+        suggestionsDiv.classList.remove('active');
+        console.log('Suggestions hidden');
     }
 }
 

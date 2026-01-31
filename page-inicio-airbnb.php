@@ -203,6 +203,48 @@
             opacity: 1 !important;
             visibility: visible !important;
         }
+        
+        /* DROPDOWN SUGERENCIAS DE BÚSQUEDA */
+        .mrb-search-suggestions {
+            display: none !important;
+            position: absolute !important;
+            top: 100% !important;
+            left: 0 !important;
+            right: 0 !important;
+            background: white !important;
+            border: 1px solid #DDDDDD !important;
+            border-radius: 12px !important;
+            margin-top: 8px !important;
+            max-height: 300px !important;
+            overflow-y: auto !important;
+            z-index: 10001 !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+        }
+        
+        .mrb-search-suggestions.active {
+            display: block !important;
+        }
+        
+        .mrb-suggestion-item {
+            padding: 12px 16px !important;
+            cursor: pointer !important;
+            transition: background 0.2s !important;
+            font-size: 14px !important;
+            color: #222 !important;
+            border-bottom: 1px solid #F0F0F0 !important;
+        }
+        
+        .mrb-suggestion-item:last-child {
+            border-bottom: none !important;
+        }
+        
+        .mrb-suggestion-item:hover {
+            background: #F7F7F7 !important;
+        }
+        
+        .mrb-search-field {
+            position: relative !important;
+        }
     </style>
 </head>
 <body <?php body_class('page-template-airbnb'); ?>>
@@ -287,7 +329,7 @@ $current_user = wp_get_current_user();
                     <div class="mrb-search-field mrb-search-what">
                         <label>¿Qué necesitas?</label>
                         <input type="text" id="mrb-service-search" placeholder="Salón, DJ, Fotografía..." autocomplete="off" onkeyup="showServiceSuggestions(this.value)">
-                        <div class="mrb-search-suggestions" id="service-suggestions"></div>
+                        <div class="mrb-search-suggestions" id="service-suggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #DDDDDD; border-radius: 12px; margin-top: 8px; max-height: 300px; overflow-y: auto; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
                     </div>
                     
                     <div class="mrb-search-divider"></div>
@@ -297,7 +339,7 @@ $current_user = wp_get_current_user();
                         <select id="mrb-location-search">
                             <option value="">Todas las ciudades</option>
                             <?php
-                            // Función mejorada para obtener TODAS las ubicaciones anidadas
+                            // Función mejorada para obtener TODAS las ubicaciones anidadas CON DEBUG
                             function display_all_locations_recursive($parent_id = 0, $level = 0, $max_depth = 10) {
                                 if ($level >= $max_depth) return; // Prevenir recursión infinita
                                 
@@ -309,12 +351,22 @@ $current_user = wp_get_current_user();
                                     'order' => 'ASC'
                                 ));
                                 
-                                if (empty($terms) || is_wp_error($terms)) return;
+                                // Debug en comentarios HTML
+                                if ($level == 0) {
+                                    echo '<!-- Debug Ubicaciones: parent_id=' . $parent_id . ', found ' . (is_array($terms) ? count($terms) : 0) . ' terms -->';
+                                }
+                                
+                                if (empty($terms) || is_wp_error($terms)) {
+                                    if ($level == 0) {
+                                        echo '<!-- Debug: No terms found or WP_Error for parent_id=' . $parent_id . ' -->';
+                                    }
+                                    return;
+                                }
                                 
                                 foreach ($terms as $term) {
                                     $indent = str_repeat('&nbsp;&nbsp;&nbsp;', $level);
                                     echo '<option value="' . esc_attr($term->slug) . '">';
-                                    echo $indent . esc_html($term->name);
+                                    echo $indent . esc_html($term->name) . ' (ID:' . $term->term_id . ')';
                                     echo '</option>';
                                     
                                     // Recursivamente obtener todos los hijos
