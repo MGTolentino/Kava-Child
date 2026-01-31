@@ -83,7 +83,7 @@ window.toggleDropdown = toggleDropdown;
 window.debugDropdown = debugDropdown;
 
 // Variables globales
-let currentPage = 1;
+var currentPage = currentPage || 1;
 let isLoading = false;
 let hasMorePages = true;
 let mapViewActive = false;

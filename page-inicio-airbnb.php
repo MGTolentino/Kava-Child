@@ -13,8 +13,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php wp_head(); ?>
     
-    <!-- Cargar scripts MRB manualmente -->
-    <script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/mrb-functions.js?v=<?php echo filemtime(get_stylesheet_directory() . '/assets/js/mrb-functions.js'); ?>"></script>
+    <!-- Cargar scripts MRB manualmente - ORDEN CORRECTO -->
+    <script>
+    console.log('⚡ Cargando mrb-functions.js...');
+    </script>
+    <script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/mrb-functions.js?v=<?php echo time(); ?>"></script>
+    <script>
+    console.log('✅ mrb-functions.js cargado, toggleDropdown disponible:', typeof window.toggleDropdown);
+    </script>
     
     <!-- CSS específico para forzar iconos y flechas -->
     <style>
@@ -339,43 +345,25 @@ $current_user = wp_get_current_user();
                         <select id="mrb-location-search">
                             <option value="">Todas las ciudades</option>
                             <?php
-                            // Función mejorada para obtener TODAS las ubicaciones anidadas CON DEBUG
-                            function display_all_locations_recursive($parent_id = 0, $level = 0, $max_depth = 10) {
-                                if ($level >= $max_depth) return; // Prevenir recursión infinita
-                                
-                                $terms = get_terms(array(
-                                    'taxonomy' => 'hp_listing_ubicacion',
-                                    'hide_empty' => false,
-                                    'parent' => $parent_id,
-                                    'orderby' => 'name',
-                                    'order' => 'ASC'
-                                ));
-                                
-                                // Debug en comentarios HTML
-                                if ($level == 0) {
-                                    echo '<!-- Debug Ubicaciones: parent_id=' . $parent_id . ', found ' . (is_array($terms) ? count($terms) : 0) . ' terms -->';
-                                }
-                                
-                                if (empty($terms) || is_wp_error($terms)) {
-                                    if ($level == 0) {
-                                        echo '<!-- Debug: No terms found or WP_Error for parent_id=' . $parent_id . ' -->';
-                                    }
-                                    return;
-                                }
-                                
-                                foreach ($terms as $term) {
-                                    $indent = str_repeat('&nbsp;&nbsp;&nbsp;', $level);
-                                    echo '<option value="' . esc_attr($term->slug) . '">';
-                                    echo $indent . esc_html($term->name) . ' (ID:' . $term->term_id . ')';
-                                    echo '</option>';
-                                    
-                                    // Recursivamente obtener todos los hijos
-                                    display_all_locations_recursive($term->term_id, $level + 1, $max_depth);
-                                }
-                            }
+                            // Función SIMPLE para mostrar TODAS las ubicaciones sin jerarquía
+                            $all_locations = get_terms(array(
+                                'taxonomy' => 'hp_listing_ubicacion',
+                                'hide_empty' => false,
+                                'orderby' => 'name',
+                                'order' => 'ASC'
+                            ));
                             
-                            // Mostrar todas las ubicaciones recursivamente
-                            display_all_locations_recursive();
+                            echo '<!-- Debug Ubicaciones: Total encontradas: ' . (is_array($all_locations) ? count($all_locations) : 0) . ' -->';
+                            
+                            if (!empty($all_locations) && !is_wp_error($all_locations)) {
+                                foreach ($all_locations as $location) {
+                                    echo '<option value="' . esc_attr($location->slug) . '">';
+                                    echo esc_html($location->name) . ' (' . $location->count . ' listings)';
+                                    echo '</option>';
+                                }
+                            } else {
+                                echo '<!-- Debug: No locations found or WP_Error -->';
+                            }
                             ?>
                         </select>
                     </div>
@@ -734,7 +722,7 @@ $current_user = wp_get_current_user();
                     while ($all_listings_query->have_posts()) : $all_listings_query->the_post();
                         // Debug cada post
                         echo '<!-- Debug: Post ID: ' . get_the_ID() . ', Title: ' . get_the_title() . ' -->';
-                        include(get_template_directory() . '/template-parts/listing-card.php');
+                        include('template-parts/listing-card.php');
                     endwhile;
                     wp_reset_postdata();
                 else :
