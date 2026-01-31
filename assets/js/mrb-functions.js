@@ -79,7 +79,7 @@ let searchTimeout = null;
 /**
  * Búsqueda con sugerencias dinámicas y debounce
  */
-function searchSuggestions(query) {
+function showServiceSuggestions(query) {
     const suggestionsDiv = document.getElementById('service-suggestions');
     
     // Limpiar timeout anterior

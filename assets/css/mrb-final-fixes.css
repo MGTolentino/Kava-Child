@@ -365,7 +365,78 @@
 }
 
 /* ========================================
-   8. HEADER MEJORADO SIN PADDING
+   8. ICONOS DE CATEGORÍAS ARREGLAR
+   ======================================== */
+
+.mrb-category-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mrb-category-icon svg {
+    width: 24px;
+    height: 24px;
+    display: block;
+    fill: #6A6A6A;
+    transition: fill 0.2s ease;
+}
+
+.mrb-category-item:hover .mrb-category-icon svg,
+.mrb-category-item.active .mrb-category-icon svg {
+    fill: #FF385C;
+}
+
+/* Arrows for category navigation */
+.mrb-slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border: 1px solid #DDDDDD;
+    border-radius: 50%;
+    background: white;
+    color: #222;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    z-index: 2;
+    transition: all 0.2s ease;
+}
+
+.mrb-slider-arrow:hover {
+    background: #F7F7F7;
+    border-color: #BBBBBB;
+    transform: translateY(-50%) scale(1.05);
+}
+
+.mrb-slider-prev {
+    left: -16px;
+}
+
+.mrb-slider-next {
+    right: -16px;
+}
+
+.mrb-categories-slider {
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .mrb-slider-arrow {
+        display: none;
+    }
+}
+
+/* ========================================
+   9. HEADER MEJORADO SIN PADDING
    ======================================== */
 
 .mrb-custom-header {

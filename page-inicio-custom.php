@@ -36,7 +36,7 @@ $current_user = wp_get_current_user();
                 <div class="mrb-search-box">
                     <div class="mrb-search-field mrb-search-what">
                         <label>¿Qué necesitas?</label>
-                        <input type="text" id="mrb-service-search" placeholder="Salón, DJ, Fotografía..." autocomplete="off" onkeyup="searchSuggestions(this.value)">
+                        <input type="text" id="mrb-service-search" placeholder="Salón, DJ, Fotografía..." autocomplete="off" onkeyup="showServiceSuggestions(this.value)">
                         <div class="mrb-search-suggestions" id="service-suggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #DDDDDD; border-radius: 12px; margin-top: 8px; max-height: 300px; overflow-y: auto; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
                     </div>
                     
@@ -47,39 +47,31 @@ $current_user = wp_get_current_user();
                         <select id="mrb-location-search">
                             <option value="">Todas las ciudades</option>
                             <?php
-                            // Obtener ubicaciones padre (estados/países)
-                            $parent_locs = get_terms(array(
-                                'taxonomy' => 'hp_listing_ubicacion',
-                                'hide_empty' => false,
-                                'parent' => 0,
-                                'orderby' => 'name',
-                                'order' => 'ASC'
-                            ));
-                            
-                            foreach ($parent_locs as $parent) :
-                                // Obtener ciudades hijas
-                                $children = get_terms(array(
+                            // Función recursiva para obtener todas las ubicaciones anidadas
+                            function get_recursive_locations($parent_id = 0, $level = 0) {
+                                $terms = get_terms(array(
                                     'taxonomy' => 'hp_listing_ubicacion',
                                     'hide_empty' => false,
-                                    'parent' => $parent->term_id,
+                                    'parent' => $parent_id,
                                     'orderby' => 'name',
                                     'order' => 'ASC'
                                 ));
                                 
-                                if (!empty($children)) : ?>
-                                    <optgroup label="<?php echo esc_attr($parent->name); ?>">
-                                        <?php foreach ($children as $child) : ?>
-                                            <option value="<?php echo esc_attr($child->slug); ?>">
-                                                <?php echo esc_html($child->name); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </optgroup>
-                                <?php else : ?>
-                                    <option value="<?php echo esc_attr($parent->slug); ?>">
-                                        <?php echo esc_html($parent->name); ?>
-                                    </option>
-                                <?php endif;
-                            endforeach;
+                                if (empty($terms)) return;
+                                
+                                foreach ($terms as $term) {
+                                    $indent = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level);
+                                    echo '<option value="' . esc_attr($term->slug) . '">';
+                                    echo $indent . esc_html($term->name);
+                                    echo '</option>';
+                                    
+                                    // Recursivamente obtener hijos
+                                    get_recursive_locations($term->term_id, $level + 1);
+                                }
+                            }
+                            
+                            // Mostrar todas las ubicaciones recursivamente
+                            get_recursive_locations();
                             ?>
                         </select>
                     </div>
@@ -88,7 +80,14 @@ $current_user = wp_get_current_user();
                     
                     <div class="mrb-search-field mrb-search-when">
                         <label>¿Cuándo?</label>
-                        <input type="date" id="mrb-date-search" placeholder="Fecha del evento">
+                        <div class="mrb-calendar-wrapper">
+                            <input type="date" id="mrb-date-search" placeholder="Fecha del evento">
+                            <div class="mrb-calendar-icon">
+                                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display:block;fill:none;height:16px;width:16px;stroke:currentColor;stroke-width:2;overflow:visible">
+                                    <path fill="none" d="M24 4v2m-8-2v2m-8-2v2m16 2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zm-9 11h6m-6 4h6"></path>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                     
                     <button class="mrb-search-button" onclick="performSearch()">
@@ -202,9 +201,169 @@ $current_user = wp_get_current_user();
         </div>
     </section>
 
-    <!-- Listado de Servicios -->
+    <!-- Secciones Destacadas estilo Airbnb -->
+    <?php
+    // Servicios Verificados
+    $verified_args = array(
+        'post_type' => 'hp_listing',
+        'posts_per_page' => 4,
+        'post_status' => 'publish',
+        'meta_query' => array(
+            array(
+                'key' => 'hp_verified',
+                'value' => '1',
+                'compare' => '='
+            )
+        ),
+        'orderby' => 'meta_value_num',
+        'meta_key' => 'hp_rating',
+        'order' => 'DESC'
+    );
+    $verified_query = new WP_Query($verified_args);
+    
+    if ($verified_query->have_posts()) : ?>
+    <section class="mrb-section">
+        <div class="mrb-container">
+            <div class="mrb-section-header">
+                <h2 class="mrb-section-title">Servicios Verificados</h2>
+                <p class="mrb-section-subtitle">Proveedores de confianza con garantía de calidad</p>
+            </div>
+            
+            <div class="mrb-section-carousel">
+                <div class="mrb-section-track">
+                    <?php while ($verified_query->have_posts()) : $verified_query->the_post();
+                        include(get_template_directory() . '/template-parts/listing-card.php');
+                    endwhile; ?>
+                </div>
+            </div>
+        </div>
+    </section>
+    <?php endif; wp_reset_postdata(); ?>
+
+    <?php
+    // Mejores Lugares para Eventos  
+    $lugares_args = array(
+        'post_type' => 'hp_listing',
+        'posts_per_page' => 4,
+        'post_status' => 'publish',
+        'tax_query' => array(
+            array(
+                'taxonomy' => 'hp_listing_category',
+                'field' => 'term_id',
+                'terms' => 58,
+                'operator' => 'IN'
+            )
+        ),
+        'meta_query' => array(
+            array(
+                'key' => 'hp_rating',
+                'value' => 4.0,
+                'compare' => '>=',
+                'type' => 'DECIMAL'
+            )
+        ),
+        'orderby' => 'meta_value_num',
+        'meta_key' => 'hp_rating',
+        'order' => 'DESC'
+    );
+    $lugares_query = new WP_Query($lugares_args);
+    
+    if ($lugares_query->have_posts()) : ?>
+    <section class="mrb-section">
+        <div class="mrb-container">
+            <div class="mrb-section-header">
+                <h2 class="mrb-section-title">Mejores Lugares para Eventos</h2>
+                <p class="mrb-section-subtitle">Espacios mejor valorados para tu celebración</p>
+            </div>
+            
+            <div class="mrb-section-carousel">
+                <div class="mrb-section-track">
+                    <?php while ($lugares_query->have_posts()) : $lugares_query->the_post();
+                        include(get_template_directory() . '/template-parts/listing-card.php');
+                    endwhile; ?>
+                </div>
+            </div>
+        </div>
+    </section>
+    <?php endif; wp_reset_postdata(); ?>
+
+    <?php
+    // Populares Esta Semana
+    $popular_args = array(
+        'post_type' => 'hp_listing',
+        'posts_per_page' => 4,
+        'post_status' => 'publish',
+        'date_query' => array(
+            array(
+                'after' => '1 week ago'
+            )
+        ),
+        'orderby' => 'comment_count',
+        'order' => 'DESC'
+    );
+    $popular_query = new WP_Query($popular_args);
+    
+    if ($popular_query->have_posts()) : ?>
+    <section class="mrb-section">
+        <div class="mrb-container">
+            <div class="mrb-section-header">
+                <h2 class="mrb-section-title">Populares Esta Semana</h2>
+                <p class="mrb-section-subtitle">Los más buscados por otros usuarios</p>
+            </div>
+            
+            <div class="mrb-section-carousel">
+                <div class="mrb-section-track">
+                    <?php while ($popular_query->have_posts()) : $popular_query->the_post();
+                        include(get_template_directory() . '/template-parts/listing-card.php');
+                    endwhile; ?>
+                </div>
+            </div>
+        </div>
+    </section>
+    <?php endif; wp_reset_postdata(); ?>
+
+    <?php
+    // Nuevos Listings
+    $new_args = array(
+        'post_type' => 'hp_listing',
+        'posts_per_page' => 4,
+        'post_status' => 'publish',
+        'orderby' => 'date',
+        'order' => 'DESC',
+        'date_query' => array(
+            array(
+                'after' => '30 days ago'
+            )
+        )
+    );
+    $new_query = new WP_Query($new_args);
+    
+    if ($new_query->have_posts()) : ?>
+    <section class="mrb-section">
+        <div class="mrb-container">
+            <div class="mrb-section-header">
+                <h2 class="mrb-section-title">Nuevos Servicios</h2>
+                <p class="mrb-section-subtitle">Recién agregados a nuestra plataforma</p>
+            </div>
+            
+            <div class="mrb-section-carousel">
+                <div class="mrb-section-track">
+                    <?php while ($new_query->have_posts()) : $new_query->the_post();
+                        include(get_template_directory() . '/template-parts/listing-card.php');
+                    endwhile; ?>
+                </div>
+            </div>
+        </div>
+    </section>
+    <?php endif; wp_reset_postdata(); ?>
+
+    <!-- Listado General de Servicios -->
     <section class="mrb-listings">
         <div class="mrb-container">
+            <div class="mrb-section-header">
+                <h2 class="mrb-section-title">Todos los Servicios</h2>
+                <p class="mrb-section-subtitle">Explora nuestra colección completa de proveedores para eventos</p>
+            </div>
             
             <div class="mrb-listings-grid" id="listings-grid">
                 <?php
