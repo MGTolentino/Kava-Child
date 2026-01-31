@@ -167,27 +167,8 @@ function performSuggestionSearch(query) {
         displaySuggestions(filtered.slice(0, 8), query);
     }
     
-    // Buscar en WordPress usando REST API
-    if (window.wp && window.wp.ajax) {
-        fetch(`/wp-json/wp/v2/hp_listing?search=${encodeURIComponent(query)}&per_page=5&_fields=title,slug`)
-            .then(response => response.json())
-            .then(data => {
-                if (data && data.length > 0) {
-                    const wpSuggestions = data.map(post => post.title.rendered);
-                    // Combinar sugerencias de WordPress con las locales
-                    const combined = [...new Set([...wpSuggestions, ...filtered])];
-                    displaySuggestions(combined.slice(0, 8), query);
-                }
-            })
-            .catch(error => {
-                console.log('Error searching WordPress:', error);
-                // Si falla, usar solo las sugerencias locales
-                displaySuggestions(filtered.slice(0, 8), query);
-            });
-    } else {
-        // Si no hay WordPress disponible, usar solo sugerencias locales
-        displaySuggestions(filtered.slice(0, 8), query);
-    }
+    // Solo usar sugerencias locales por ahora (más rápido y estable)
+    displaySuggestions(filtered.slice(0, 8), query);
 }
 
 /**
@@ -572,9 +553,11 @@ function loadMoreListings() {
     currentPage++;
     
     const button = document.querySelector('.mrb-load-more');
-    const originalText = button.textContent;
-    button.innerHTML = '<span class="mrb-loading"></span> Cargando...';
-    button.disabled = true;
+    if (button) {
+        const originalText = button.textContent;
+        button.innerHTML = '<span class="mrb-loading"></span> Cargando...';
+        button.disabled = true;
+    }
     
     // Mostrar loader
     const loader = document.getElementById('infinite-loader');

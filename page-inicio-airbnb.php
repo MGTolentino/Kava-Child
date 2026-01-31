@@ -60,6 +60,149 @@
         .mrb-slider-prev { left: -16px; }
         .mrb-slider-next { right: -16px; }
         .mrb-categories-slider { position: relative; }
+        
+        /* Paginación */
+        .mrb-pagination {
+            text-align: center;
+            margin: 32px 0;
+        }
+        
+        .mrb-load-more-btn {
+            background: #FF385C;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+        
+        .mrb-load-more-btn:hover {
+            background: #E31C3C;
+        }
+        
+        /* CSS para dropdown de usuario - MEJORADO */
+        .mrb-user-menu {
+            position: relative !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            padding: 8px 12px !important;
+            border: 1px solid #DDDDDD !important;
+            border-radius: 25px !important;
+            cursor: pointer !important;
+            background: white !important;
+            transition: box-shadow 0.2s ease !important;
+            user-select: none !important;
+        }
+        
+        .mrb-user-menu:hover {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            border-color: #B0B0B0 !important;
+        }
+        
+        .mrb-user-menu:active {
+            transform: scale(0.98) !important;
+        }
+        
+        .mrb-user-avatar {
+            width: 24px !important;
+            height: 24px !important;
+            border-radius: 50% !important;
+            background: #6A6A6A !important;
+            color: white !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 12px !important;
+            font-weight: bold !important;
+            pointer-events: none !important;
+        }
+        
+        /* DROPDOWN MENU - MUY ESPECÍFICO */
+        .mrb-dropdown-menu {
+            position: absolute !important;
+            top: calc(100% + 8px) !important;
+            right: 0 !important;
+            background: white !important;
+            border-radius: 12px !important;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.12) !important;
+            min-width: 240px !important;
+            display: none !important;
+            z-index: 10000 !important;
+            overflow: hidden !important;
+            border: 1px solid #EBEBEB !important;
+            opacity: 0 !important;
+            transform: translateY(-10px) !important;
+            transition: all 0.2s ease !important;
+            pointer-events: auto !important;
+        }
+        
+        .mrb-dropdown-menu.active {
+            display: block !important;
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+            visibility: visible !important;
+        }
+        
+        .mrb-dropdown-item {
+            padding: 12px 16px !important;
+            font-size: 14px !important;
+            color: #222 !important;
+            cursor: pointer !important;
+            transition: background 0.2s !important;
+            display: block !important;
+            text-decoration: none !important;
+            border: none !important;
+            background: none !important;
+            width: 100% !important;
+            text-align: left !important;
+            border-bottom: none !important;
+            margin: 0 !important;
+            font-family: inherit !important;
+        }
+        
+        .mrb-dropdown-item:hover {
+            background: #F7F7F7 !important;
+            text-decoration: none !important;
+            color: #222 !important;
+        }
+        
+        .mrb-dropdown-item:focus {
+            background: #F7F7F7 !important;
+            outline: none !important;
+        }
+        
+        .mrb-dropdown-item.bold {
+            font-weight: 600 !important;
+        }
+        
+        .mrb-dropdown-divider {
+            height: 1px !important;
+            background: #EBEBEB !important;
+            margin: 8px 0 !important;
+            border: none !important;
+        }
+        
+        /* Asegurar que header tiene el z-index correcto */
+        .mrb-custom-header {
+            z-index: 100 !important;
+            position: relative !important;
+        }
+        
+        /* Override cualquier conflicto de theme */
+        .page-template-airbnb .mrb-dropdown-menu,
+        body.page-template-airbnb .mrb-dropdown-menu {
+            display: none !important;
+        }
+        
+        .page-template-airbnb .mrb-dropdown-menu.active,
+        body.page-template-airbnb .mrb-dropdown-menu.active {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
     </style>
 </head>
 <body <?php body_class('page-template-airbnb'); ?>>
@@ -82,10 +225,17 @@ $current_user = wp_get_current_user();
     <header class="mrb-custom-header">
         <div class="mrb-header-content">
             <a href="<?php echo home_url(); ?>" class="mrb-logo">
-                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;fill:#FF385C;height:32px;width:32px;">
-                    <path d="M16 1c2.008 0 3.463.963 4.751 3.269l.533 1.025c1.954 3.83 6.114 12.54 7.1 14.836l.145.353c.667 1.666.557 2.894-.35 3.821-.766.78-1.814.995-3.195.689-1.213-.269-2.827-.912-4.746-1.863l-.29-.145c-1.99-1.006-5.057-2.597-6.888-3.524-1.831.927-4.898 2.518-6.888 3.524l-.29.145c-1.919.951-3.533 1.594-4.746 1.863-1.381.306-2.429.091-3.195-.689-.907-.927-1.017-2.155-.35-3.82l.145-.354c.986-2.295 5.146-11.006 7.1-14.836l.533-1.025C12.537 1.963 13.992 1 16 1z"/>
-                </svg>
-                <span>Reservas.Events</span>
+                <?php
+                $custom_logo_id = get_theme_mod('custom_logo');
+                if ($custom_logo_id) {
+                    $logo_image = wp_get_attachment_image($custom_logo_id, 'full', false, array(
+                        'style' => 'height: 32px; width: auto; max-width: 150px;'
+                    ));
+                    echo $logo_image;
+                } else {
+                    echo '<span style="font-weight: 600; font-size: 18px; color: #FF385C;">Reservas.Events</span>';
+                }
+                ?>
             </a>
             
             <div class="mrb-user-menu" onclick="toggleDropdown(this)">
@@ -213,12 +363,21 @@ $current_user = wp_get_current_user();
                     <?php
                     // Array de iconos personalizados para cada categoría
                     $category_icons = array(
-                        'lugares-para-eventos' => '<path d="M2 4v16a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2zm2 0h24v16H4V4zm12 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 0 0-6z"/>',
-                        'fotografia' => '<path d="M21 10V7l5-5v23l-5-5v-3a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3zm0-8v5h-2V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v3H5V4a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4z"/>',
+                        'lugares-para-eventos' => '<path d="M25 4v18a2 2 0 0 1 2 2v4h-2v-4H7v4H5v-4a2 2 0 0 1 2-2V4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2zm-2 0H9v18h14V4z"/>',
+                        'fotografia' => '<path d="M21 10V6h-4a2 2 0 0 0-2 2v2h-2V8a4 4 0 0 1 4-4h4V2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2zm-10 0H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2h-7v2h7v16H4V12h7v-2zm5 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/>',
                         'musica' => '<path d="M26 3v18.05a5 5 0 1 0 2 3.95V3h-2zM24 26a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-10-4.05a5 5 0 1 0 2 3.95V7H8v2h6v12.05zM12 25a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>',
                         'alimentos-y-bebidas' => '<path d="M26 1v7a4 4 0 0 1-4 4h-6v16h4v2H12v-2h4V12h-6a4 4 0 0 1-4-4V1h2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V1h2zM7 1v10l1 1v18h2V12l1-1V1H7z"/>',
                         'decoracion' => '<path d="M16 1l6 10h11l-9 6.5L27.5 31 16 23 4.5 31 8 17.5 -1 11h11L16 1z"/>',
-                        'default' => '<path d="M16 1a15 15 0 1 0 0 30 15 15 0 0 0 0-30zm0 2a13 13 0 1 1 0 26 13 13 0 0 0 0-26z"/>'
+                        'entretenimiento' => '<path d="M16 3a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S6 18.52 6 13A10 10 0 0 1 16 3zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm-1 3v6l5 3 1-2-4-2V8h-2z"/>',
+                        'artistas' => '<path d="M16 3a13 13 0 0 1 13 13c0 6.88-5.44 12.58-12.32 12.97L16 29a13 13 0 0 1 0-26zm0 2a11 11 0 0 0 0 22 11 11 0 0 0 0-22zm0 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/>',
+                        'joyeria' => '<path d="M16 3l4 8h12l-10 7 4 11-10-7-10 7 4-11L0 11h12l4-8z"/>',
+                        'mobiliario' => '<path d="M25 4v18a2 2 0 0 1 2 2v4h-2v-4H7v4H5v-4a2 2 0 0 1 2-2V4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2zm-2 0H9v18h14V4z"/>',
+                        'transporte' => '<path d="M29 10H17V6a4 4 0 0 0-4-4H3v28h3c0-2.76 2.24-5 5-5s5 2.24 5 5h6c0-2.76 2.24-5 5-5s5 2.24 5 5h1V14l-4-4zM11 27a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm16 0a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm2-15h-12v-2h10l2 2z"/>',
+                        'hospedaje' => '<path d="M27 4v24H5V4h22zm0-2H5a2 2 0 0 0-2 2v24a2 2 0 0 0 2 2h22a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM16 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 8a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm-3 8h6v2h-6v-2z"/>',
+                        'vestidos' => '<path d="M21 2h-2l-2-2h-2l-2 2h-2a2 2 0 0 0-2 2v4l-2 1v21a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-2-1V4a2 2 0 0 0-2-2z"/>',
+                        'planners' => '<path d="M28 4v24a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h20a2 2 0 0 1 2 2zM12 18h8v2h-8v-2zm0-4h8v2h-8v-2zm0-4h8v2h-8v-2z"/>',
+                        'viajes' => '<path d="M27.5 3h-23a1.5 1.5 0 0 0-1.5 1.5v23a1.5 1.5 0 0 0 1.5 1.5h23a1.5 1.5 0 0 0 1.5-1.5v-23A1.5 1.5 0 0 0 27.5 3zM16 25L6 16l10-9 10 9-10 9z"/>',
+                        'default' => '<path d="M16 3a13 13 0 0 1 13 13c0 7.18-5.82 13-13 13S3 23.18 3 16A13 13 0 0 1 16 3zm0 2a11 11 0 1 0 0 22 11 11 0 0 0 0-22z"/>'
                     );
                     ?>
                     
@@ -295,6 +454,7 @@ $current_user = wp_get_current_user();
 
     <!-- SECCIÓN: Servicios Destacados -->
     <?php
+    // Primero intentar con hp_featured
     $featured_args = array(
         'post_type' => 'hp_listing',
         'posts_per_page' => 8,
@@ -306,14 +466,27 @@ $current_user = wp_get_current_user();
                 'compare' => '='
             )
         ),
-        'orderby' => array(
-            'meta_value_num' => 'DESC',
-            'date' => 'DESC'
-        ),
-        'meta_key' => 'hp_rating'
+        'orderby' => 'date',
+        'order' => 'DESC'
     );
     
     $featured_query = new WP_Query($featured_args);
+    
+    // Debug
+    echo '<!-- Debug Destacados: Found ' . $featured_query->found_posts . ' featured posts -->';
+    
+    // Si no hay destacados con hp_featured, usar los más recientes
+    if (!$featured_query->have_posts()) {
+        $featured_args = array(
+            'post_type' => 'hp_listing',
+            'posts_per_page' => 8,
+            'post_status' => 'publish',
+            'orderby' => 'date',
+            'order' => 'DESC'
+        );
+        $featured_query = new WP_Query($featured_args);
+        echo '<!-- Debug Destacados Fallback: Found ' . $featured_query->found_posts . ' recent posts -->';
+    }
     
     if ($featured_query->have_posts()) : ?>
         <section class="mrb-section">
@@ -326,6 +499,7 @@ $current_user = wp_get_current_user();
                 <div class="mrb-section-carousel">
                     <div class="mrb-section-track">
                         <?php while ($featured_query->have_posts()) : $featured_query->the_post();
+                            echo '<!-- Debug Destacado: Post ID: ' . get_the_ID() . ' -->';
                             include 'template-parts/listing-card.php';
                         endwhile; ?>
                     </div>
@@ -493,7 +667,7 @@ $current_user = wp_get_current_user();
                 // Query simple para todos los listings
                 $all_listings_args = array(
                     'post_type' => 'hp_listing',
-                    'posts_per_page' => 20,
+                    'posts_per_page' => 16,
                     'post_status' => 'publish',
                     'orderby' => 'date',
                     'order' => 'DESC'
@@ -515,11 +689,19 @@ $current_user = wp_get_current_user();
                     ?>
                     <div class="mrb-no-results">
                         <h3>No se encontraron servicios</h3>
-                        <p>Query debug: <?php echo print_r($all_listings_args, true); ?></p>
-                        <p>Encontrados: <?php echo $all_listings_query->found_posts; ?> posts</p>
+                        <p>Intenta buscar algo específico o revisa más tarde</p>
                     </div>
                 <?php endif; ?>
             </div>
+            
+            <!-- Paginación simple -->
+            <?php if ($all_listings_query->found_posts > 16) : ?>
+            <div class="mrb-pagination">
+                <button class="mrb-load-more-btn" onclick="loadMoreListings()">
+                    Ver más servicios
+                </button>
+            </div>
+            <?php endif; ?>
             
             <!-- Infinite Scroll Loader -->
             <div class="mrb-infinite-loader" id="infinite-loader">
@@ -587,19 +769,132 @@ $current_user = wp_get_current_user();
 </div>
 
 <script>
-// Solo funciones específicas para esta plantilla que no están en mrb-functions.js
+// Funciones específicas para esta plantilla
 function toggleDropdown(element) {
-    const dropdown = element.querySelector('.mrb-dropdown-menu');
-    dropdown.classList.toggle('active');
+    console.log('toggleDropdown called - element:', element); // Debug mejorado
+    console.log('User logged in:', <?php echo $user_logged_in ? 'true' : 'false'; ?>); // Debug login status
     
-    // Cerrar al hacer click fuera
-    document.addEventListener('click', function closeDropdown(e) {
-        if (!element.contains(e.target)) {
-            dropdown.classList.remove('active');
-            document.removeEventListener('click', closeDropdown);
+    const dropdown = element.querySelector('.mrb-dropdown-menu');
+    if (!dropdown) {
+        console.error('Dropdown menu not found in element:', element);
+        // Buscar dropdown por ID como backup
+        const dropdownById = document.getElementById('user-dropdown');
+        if (dropdownById) {
+            console.log('Found dropdown by ID as backup');
+            dropdown = dropdownById;
+        } else {
+            console.error('No dropdown found by ID either');
+            return;
+        }
+    } else {
+        console.log('Dropdown found:', dropdown);
+    }
+    
+    // Toggle la clase active
+    const isActive = dropdown.classList.contains('active');
+    console.log('Dropdown current state - isActive:', isActive);
+    
+    // Cerrar otros dropdowns primero
+    document.querySelectorAll('.mrb-dropdown-menu.active').forEach(menu => {
+        menu.classList.remove('active');
+        console.log('Closed other dropdown');
+    });
+    
+    // Toggle el dropdown actual
+    if (!isActive) {
+        dropdown.classList.add('active');
+        console.log('Dropdown opened - classes:', dropdown.className);
+        
+        // Verificar CSS
+        const computedStyle = window.getComputedStyle(dropdown);
+        console.log('Dropdown display style:', computedStyle.display);
+        console.log('Dropdown visibility:', computedStyle.visibility);
+        
+        // Cerrar al hacer click fuera
+        const closeDropdown = function(e) {
+            if (!element.contains(e.target)) {
+                dropdown.classList.remove('active');
+                console.log('Dropdown closed by outside click');
+                document.removeEventListener('click', closeDropdown);
+            }
+        };
+        
+        // Delay para evitar que se cierre inmediatamente
+        setTimeout(() => {
+            document.addEventListener('click', closeDropdown);
+        }, 100); // Incrementar delay
+    } else {
+        console.log('Dropdown was already open, closing it');
+    }
+}
+
+// Función alternativa usando event delegation mejorada
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, setting up dropdown events');
+    
+    // Multiple event listeners para mayor compatibilidad
+    const userMenu = document.querySelector('.mrb-user-menu');
+    if (userMenu) {
+        console.log('User menu found, adding events');
+        
+        // Event listener principal
+        userMenu.addEventListener('click', function(e) {
+            console.log('User menu clicked via event listener');
+            e.preventDefault();
+            e.stopPropagation();
+            toggleDropdown(this);
+        });
+        
+        // Event listener adicional para touch devices
+        userMenu.addEventListener('touchend', function(e) {
+            console.log('User menu touched');
+            e.preventDefault();
+            e.stopPropagation();
+            toggleDropdown(this);
+        });
+        
+        // Verificar que el dropdown existe
+        const dropdown = userMenu.querySelector('.mrb-dropdown-menu');
+        if (dropdown) {
+            console.log('Dropdown menu found in DOM');
+        } else {
+            console.error('Dropdown menu NOT found in DOM');
+        }
+    } else {
+        console.error('User menu NOT found in DOM');
+    }
+    
+    // Global click handler para cerrar dropdowns
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.mrb-user-menu')) {
+            const activeDropdowns = document.querySelectorAll('.mrb-dropdown-menu.active');
+            activeDropdowns.forEach(dropdown => {
+                dropdown.classList.remove('active');
+                console.log('Closed dropdown via global click handler');
+            });
         }
     });
+});
+
+// Función de debug para verificar estado
+function debugDropdown() {
+    const userMenu = document.querySelector('.mrb-user-menu');
+    const dropdown = document.querySelector('.mrb-dropdown-menu');
+    console.log('=== DROPDOWN DEBUG ===');
+    console.log('User menu element:', userMenu);
+    console.log('Dropdown element:', dropdown);
+    if (dropdown) {
+        console.log('Dropdown classes:', dropdown.className);
+        console.log('Dropdown display:', window.getComputedStyle(dropdown).display);
+        console.log('Dropdown visibility:', window.getComputedStyle(dropdown).visibility);
+    }
+    console.log('User logged in:', <?php echo $user_logged_in ? 'true' : 'false'; ?>);
+    console.log('======================');
 }
+
+// Hacer función de debug disponible globalmente
+window.debugDropdown = debugDropdown;
+console.log('Dropdown debugging functions loaded. Run debugDropdown() in console for info.');
 </script>
 
 <?php wp_footer(); ?>

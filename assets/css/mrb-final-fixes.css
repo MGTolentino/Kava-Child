@@ -160,56 +160,124 @@
 }
 
 /* ========================================
-   4. MENÚ DROPDOWN ESTILO AIRBNB
+   4. MENÚ DROPDOWN ESTILO AIRBNB - ARREGLADO
    ======================================== */
 
 .mrb-user-menu {
-    position: relative;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 12px !important;
+    border: 1px solid #DDDDDD !important;
+    border-radius: 25px !important;
+    cursor: pointer !important;
+    background: white !important;
+    transition: box-shadow 0.2s ease !important;
+    user-select: none !important;
 }
 
+.mrb-user-menu:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    border-color: #B0B0B0 !important;
+}
+
+.mrb-user-menu:active {
+    transform: scale(0.98) !important;
+}
+
+.mrb-user-avatar {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    background: #6A6A6A !important;
+    color: white !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+    pointer-events: none !important;
+}
+
+/* DROPDOWN MENU CORREGIDO */
 .mrb-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 12px);
-    right: 0;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.12);
-    min-width: 240px;
-    display: none;
-    z-index: 1000;
-    overflow: hidden;
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+    background: white !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.12) !important;
+    min-width: 240px !important;
+    display: none !important;
+    z-index: 10000 !important;
+    overflow: hidden !important;
+    border: 1px solid #EBEBEB !important;
+    opacity: 0 !important;
+    transform: translateY(-10px) !important;
+    transition: all 0.2s ease !important;
+    pointer-events: auto !important;
 }
 
 .mrb-dropdown-menu.active {
-    display: block;
+    display: block !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    visibility: visible !important;
 }
 
 .mrb-dropdown-item {
-    padding: 12px 16px;
-    font-size: 14px;
-    color: #222;
-    cursor: pointer;
-    transition: background 0.2s;
-    display: block;
-    text-decoration: none;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    color: #222 !important;
+    cursor: pointer !important;
+    transition: background 0.2s !important;
+    display: block !important;
+    text-decoration: none !important;
+    border: none !important;
+    background: none !important;
+    width: 100% !important;
+    text-align: left !important;
+    border-bottom: none !important;
+    margin: 0 !important;
+    font-family: inherit !important;
 }
 
 .mrb-dropdown-item:hover {
-    background: #F7F7F7;
+    background: #F7F7F7 !important;
+    text-decoration: none !important;
+    color: #222 !important;
 }
 
-.mrb-dropdown-divider {
-    height: 1px;
-    background: #EBEBEB;
-    margin: 8px 0;
+.mrb-dropdown-item:focus {
+    background: #F7F7F7 !important;
+    outline: none !important;
 }
 
 .mrb-dropdown-item.bold {
-    font-weight: 600;
+    font-weight: 600 !important;
+}
+
+.mrb-dropdown-divider {
+    height: 1px !important;
+    background: #EBEBEB !important;
+    margin: 8px 0 !important;
+    border: none !important;
+}
+
+/* Override cualquier conflicto de theme */
+body.page-template-airbnb .mrb-dropdown-menu,
+body.page-template-page-inicio-airbnb .mrb-dropdown-menu,
+body.page-template-page-inicio-custom .mrb-dropdown-menu {
+    display: none !important;
+}
+
+body.page-template-airbnb .mrb-dropdown-menu.active,
+body.page-template-page-inicio-airbnb .mrb-dropdown-menu.active,
+body.page-template-page-inicio-custom .mrb-dropdown-menu.active {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 /* ========================================
