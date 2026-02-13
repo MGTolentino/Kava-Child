@@ -10,6 +10,9 @@ use HivePress\Forms;
 
 defined('ABSPATH') || exit;
 
+// Incluir sistema de filtros AJAX
+require_once get_stylesheet_directory() . '/includes/ajax-filters.php';
+
 // ENDPOINT AJAX PARA BÚSQUEDA DE LISTINGS REALES
 add_action('wp_ajax_search_listings', 'mrb_search_listings');
 add_action('wp_ajax_nopriv_search_listings', 'mrb_search_listings');

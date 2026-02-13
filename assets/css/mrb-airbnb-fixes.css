@@ -1,0 +1,95 @@
+/* 🔧 FIXES URGENTES - Arregla problemas de visualización */
+
+/* ========================================
+   FIX 1: IMÁGENES NO VISIBLES
+   ======================================== */
+
+/* Hacer visibles las imágenes del template original */
+.mrb-listing-card .mrb-card-slider > .mrb-card-image {
+    opacity: 1 !important;
+    position: relative !important;
+}
+
+/* Solo aplicar opacity:0 a imágenes dentro del carousel nuevo */
+.mrb-card-images .mrb-card-image {
+    position: absolute;
+    opacity: 0;
+}
+
+.mrb-card-images .mrb-card-image.active {
+    opacity: 1;
+}
+
+/* ========================================
+   FIX 2: DOBLE BORDE EN FILTROS
+   ======================================== */
+
+/* Eliminar bordes duplicados */
+.mrb-categories {
+    border-bottom: 1px solid #EBEBEB !important;
+    border-top: none !important;
+}
+
+.mrb-category-item::after {
+    bottom: -8px !important; /* Ajustar posición de línea activa */
+}
+
+/* ========================================
+   FIX 3: FILTROS DE CATEGORÍAS FUNCIONALES
+   ======================================== */
+
+/* Asegurar que los links funcionen */
+.mrb-category-item {
+    cursor: pointer !important;
+}
+
+.mrb-category-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ========================================
+   FIX 4: DROPDOWN MENU VISIBLE
+   ======================================== */
+
+.mrb-dropdown-menu {
+    display: none;
+}
+
+.mrb-dropdown-menu.active {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* ========================================
+   FIX 5: SEARCH BOX RESPONSIVE
+   ======================================== */
+
+@media (max-width: 950px) {
+    .mrb-search-box {
+        flex-direction: column;
+        max-width: 100%;
+        margin: 20px;
+    }
+    
+    .mrb-search-divider {
+        display: none;
+    }
+    
+    .mrb-search-field {
+        width: 100%;
+        border-bottom: 1px solid #EBEBEB;
+    }
+    
+    .mrb-search-button {
+        width: 100%;
+        height: 48px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+}
