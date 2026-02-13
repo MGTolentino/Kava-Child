@@ -20,7 +20,10 @@ $thirty_days_ago = strtotime('-30 days');
 $is_new = ($post_date > $thirty_days_ago);
 ?>
 
-<div class="mrb-listing-card mrb-section-card" onclick="window.location.href='<?php echo get_permalink(); ?>'">
+<div class="mrb-listing-card mrb-section-card" 
+     data-listing-id="<?php echo $listing_id; ?>" 
+     data-url="<?php echo get_permalink(); ?>"
+     onclick="window.location.href='<?php echo get_permalink(); ?>'">
     <div class="mrb-card-slider">
         <?php if ($featured_image) : ?>
             <img class="mrb-card-image" src="<?php echo esc_url($featured_image); ?>" alt="<?php the_title(); ?>" loading="lazy">

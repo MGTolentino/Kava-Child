@@ -1,0 +1,402 @@
+/* 
+🎯 MRB MASTER FINAL CSS - ARCHIVO DEFINITIVO
+Este archivo reemplaza TODOS los anteriores para evitar conflictos
+*/
+
+/* ========================================
+   VARIABLES GLOBALES
+   ======================================== */
+:root {
+    --mrb-primary: #FF385C;
+    --mrb-text-primary: #222222;
+    --mrb-text-secondary: #717171;
+    --mrb-border: #DDDDDD;
+    --mrb-background: #F7F7F7;
+    --mrb-radius: 12px;
+    --mrb-shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --mrb-shadow-md: 0 2px 8px rgba(0,0,0,0.12);
+    --mrb-transition: 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ========================================
+   CONTENEDORES - DEFINICIÓN ÚNICA
+   ======================================== */
+.mrb-container {
+    max-width: 1280px !important;
+    margin: 0 auto !important;
+    padding: 0 40px !important;
+}
+
+@media (max-width: 1280px) {
+    .mrb-container { padding: 0 24px !important; }
+}
+
+@media (max-width: 744px) {
+    .mrb-container { padding: 0 16px !important; }
+}
+
+/* Search container específico */
+.mrb-search-container {
+    max-width: 850px !important;
+    margin: 32px auto !important;
+    padding: 0 !important;
+}
+
+/* ========================================
+   GRID RESPONSIVE - DEFINICIÓN ÚNICA
+   ======================================== */
+.mrb-listings-grid {
+    display: grid !important;
+    gap: 20px 16px !important;
+    width: 100% !important;
+}
+
+/* Desktop XL: 6 columnas */
+@media (min-width: 1440px) {
+    .mrb-listings-grid { grid-template-columns: repeat(6, 1fr) !important; }
+}
+
+/* Desktop L: 5 columnas */
+@media (min-width: 1128px) and (max-width: 1439px) {
+    .mrb-listings-grid { grid-template-columns: repeat(5, 1fr) !important; }
+}
+
+/* Desktop M: 4 columnas */
+@media (min-width: 950px) and (max-width: 1127px) {
+    .mrb-listings-grid { grid-template-columns: repeat(4, 1fr) !important; }
+}
+
+/* Tablet: 3 columnas */
+@media (min-width: 744px) and (max-width: 949px) {
+    .mrb-listings-grid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
+/* Mobile L: 2 columnas */
+@media (min-width: 551px) and (max-width: 743px) {
+    .mrb-listings-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* Mobile S: 1 columna */
+@media (max-width: 550px) {
+    .mrb-listings-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ========================================
+   CARDS - CUADRADAS PERFECTAS
+   ======================================== */
+.mrb-listing-card {
+    cursor: pointer;
+    transition: transform var(--mrb-transition);
+    will-change: transform;
+}
+
+.mrb-listing-card:hover {
+    transform: translateY(-2px);
+}
+
+/* SLIDER - CUADRADO PERFECTO */
+.mrb-card-slider {
+    position: relative !important;
+    width: 100% !important;
+    padding-bottom: 100% !important; /* CUADRADO PERFECTO */
+    border-radius: var(--mrb-radius) !important;
+    overflow: hidden !important;
+    background: var(--mrb-background) !important;
+    box-shadow: var(--mrb-shadow-sm) !important;
+    transition: box-shadow var(--mrb-transition) !important;
+}
+
+.mrb-listing-card:hover .mrb-card-slider {
+    box-shadow: var(--mrb-shadow-md) !important;
+}
+
+/* IMÁGENES - VISIBLES Y CUADRADAS */
+.mrb-card-image {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    opacity: 1 !important; /* VISIBLE POR DEFECTO */
+    transition: opacity 0.3s ease !important;
+}
+
+/* Solo para carousel múltiple */
+.mrb-card-images .mrb-card-image {
+    opacity: 0 !important;
+}
+
+.mrb-card-images .mrb-card-image.active {
+    opacity: 1 !important;
+}
+
+/* ========================================
+   SEARCH BOX - COMPACTO
+   ======================================== */
+.mrb-search-box {
+    background: white !important;
+    border: 1px solid var(--mrb-border) !important;
+    border-radius: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    box-shadow: var(--mrb-shadow-sm) !important;
+    transition: box-shadow var(--mrb-transition) !important;
+    max-width: 850px !important;
+}
+
+.mrb-search-box:hover {
+    box-shadow: var(--mrb-shadow-md) !important;
+}
+
+/* Campos de búsqueda compactos */
+.mrb-search-field {
+    flex: 1 !important;
+    padding: 12px 20px !important; /* Reducido de 14px 24px */
+    position: relative !important;
+}
+
+.mrb-search-field label {
+    font-size: 11px !important; /* Más pequeño */
+    font-weight: 600 !important;
+    margin-bottom: 2px !important;
+    color: var(--mrb-text-primary) !important;
+}
+
+.mrb-search-field input,
+.mrb-search-field select {
+    width: 100% !important;
+    border: none !important;
+    outline: none !important;
+    font-size: 13px !important; /* Más pequeño */
+    color: var(--mrb-text-secondary) !important;
+    background: transparent !important;
+}
+
+/* Dividers */
+.mrb-search-divider {
+    width: 1px !important;
+    height: 32px !important; /* Más pequeño */
+    background: var(--mrb-border) !important;
+}
+
+/* Botón buscar */
+.mrb-search-button {
+    height: 40px !important; /* Más pequeño */
+    width: 40px !important;
+    background: var(--mrb-primary) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    margin: 6px !important;
+    cursor: pointer !important;
+    transition: background var(--mrb-transition) !important;
+}
+
+.mrb-search-button:hover {
+    background: #E31C3C !important;
+}
+
+/* ========================================
+   CATEGORÍAS - MENOS ESPACIO
+   ======================================== */
+.mrb-categories {
+    position: sticky !important;
+    top: 80px !important;
+    background: white !important;
+    z-index: 90 !important;
+    border-bottom: 1px solid var(--mrb-border) !important;
+    padding: 16px 0 6px 0 !important; /* Reducido de 20px a 16px */
+}
+
+.mrb-categories-track {
+    display: flex !important;
+    gap: 28px !important; /* Reducido de 32px */
+    overflow-x: auto !important;
+    scroll-behavior: smooth !important;
+    padding: 0 40px !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+}
+
+.mrb-category-item {
+    flex: 0 0 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 6px !important; /* Reducido de 8px */
+    padding: 8px 0 !important; /* Reducido de 12px */
+    cursor: pointer !important;
+    transition: opacity var(--mrb-transition) !important;
+    opacity: 0.7 !important;
+}
+
+.mrb-category-item:hover,
+.mrb-category-item.active {
+    opacity: 1 !important;
+}
+
+.mrb-category-item::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: -6px !important; /* Ajustado */
+    left: 0 !important;
+    right: 0 !important;
+    height: 2px !important;
+    background: var(--mrb-text-primary) !important;
+    transform: scaleX(0) !important;
+    transition: transform var(--mrb-transition) !important;
+}
+
+.mrb-category-item.active::after {
+    transform: scaleX(1) !important;
+}
+
+.mrb-category-icon {
+    width: 24px !important;
+    height: 24px !important;
+    transition: transform var(--mrb-transition) !important;
+}
+
+.mrb-category-item span {
+    font-size: 11px !important; /* Más pequeño */
+    line-height: 1.2 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+}
+
+/* ========================================
+   HEADER - COMPACTO
+   ======================================== */
+.mrb-custom-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: white !important;
+    border-bottom: 1px solid var(--mrb-border) !important;
+    z-index: 1000 !important;
+    height: 70px !important; /* Reducido de 80px */
+}
+
+.mrb-header-content {
+    max-width: 1760px !important;
+    margin: 0 auto !important;
+    padding: 0 40px !important;
+    height: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.mrb-wrapper {
+    padding-top: 70px !important; /* Ajustado */
+}
+
+/* ========================================
+   HERO SECTION - MÁS COMPACTO
+   ======================================== */
+.mrb-hero {
+    background: white !important;
+    padding: 20px 0 !important; /* Reducido de 40px */
+}
+
+/* ========================================
+   SECCIONES - MENOS ESPACIO
+   ======================================== */
+.mrb-section {
+    padding: 24px 0 !important; /* Reducido de 32px */
+}
+
+.mrb-section-header {
+    margin-bottom: 20px !important; /* Reducido de 24px */
+}
+
+.mrb-section-title {
+    font-size: 22px !important; /* Reducido de 26px */
+    font-weight: 600 !important;
+    margin-bottom: 6px !important;
+}
+
+.mrb-section-subtitle {
+    font-size: 14px !important;
+    color: var(--mrb-text-secondary) !important;
+}
+
+/* ========================================
+   CARD CONTENT - OPTIMIZADO
+   ======================================== */
+.mrb-card-content {
+    padding: 10px 0 !important; /* Más compacto */
+    min-height: 100px !important;
+}
+
+.mrb-card-title {
+    font-size: 14px !important;
+    line-height: 1.3 !important;
+    font-weight: 600 !important;
+    margin-bottom: 4px !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+}
+
+.mrb-card-row-2 {
+    font-size: 13px !important;
+    color: var(--mrb-text-secondary) !important;
+    margin-bottom: 6px !important;
+}
+
+.mrb-card-price {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+}
+
+/* ========================================
+   RESPONSIVE MOBILE
+   ======================================== */
+@media (max-width: 744px) {
+    .mrb-search-box {
+        flex-direction: column !important;
+        border-radius: 16px !important;
+        margin: 20px auto !important;
+    }
+    
+    .mrb-search-divider {
+        display: none !important;
+    }
+    
+    .mrb-search-field {
+        width: 100% !important;
+        padding: 12px 16px !important;
+        border-bottom: 1px solid var(--mrb-border) !important;
+    }
+    
+    .mrb-search-field:last-of-type {
+        border-bottom: none !important;
+    }
+    
+    .mrb-search-button {
+        width: calc(100% - 12px) !important;
+        height: 44px !important;
+        border-radius: 8px !important;
+        margin: 6px !important;
+    }
+    
+    .mrb-categories {
+        padding: 12px 0 4px 0 !important;
+    }
+    
+    .mrb-custom-header {
+        height: 60px !important;
+    }
+    
+    .mrb-wrapper {
+        padding-top: 60px !important;
+    }
+    
+    .mrb-hero {
+        padding: 16px 0 !important;
+    }
+}
