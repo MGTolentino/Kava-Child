@@ -16,8 +16,8 @@
     <!-- 🎨 Cargar CSS y JS mejorados -->
     <link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/mrb-airbnb-enhanced.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/mrb-airbnb-fixes.css?v=<?php echo time(); ?>">
-    <script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/mrb-airbnb-enhanced.js?v=<?php echo time(); ?>" defer></script>
-    <script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/mrb-filters.js?v=<?php echo time(); ?>" defer></script>
+    <link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/mrb-ultimate-fixes.css?v=<?php echo time(); ?>">
+    <script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/mrb-complete-fix.js?v=<?php echo time(); ?>" defer></script>
     
     <!-- CSS AIRBNB EXACTO - TODO 30% MÁS PEQUEÑO -->
     <style>
