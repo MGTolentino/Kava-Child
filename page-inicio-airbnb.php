@@ -13,14 +13,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php wp_head(); ?>
     
-    <!-- Cargar scripts MRB manualmente - ORDEN CORRECTO -->
-    <script>
-    console.log('⚡ Cargando mrb-functions.js...');
-    </script>
-    <script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/mrb-functions.js?v=<?php echo time(); ?>"></script>
-    <script>
-    console.log('✅ mrb-functions.js cargado, toggleDropdown disponible:', typeof window.toggleDropdown);
-    </script>
+    <!-- 🎨 Cargar CSS y JS mejorados -->
+    <link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/mrb-airbnb-enhanced.css?v=<?php echo time(); ?>">
+    <script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/mrb-airbnb-enhanced.js?v=<?php echo time(); ?>" defer></script>
     
     <!-- CSS AIRBNB EXACTO - TODO 30% MÁS PEQUEÑO -->
     <style>
@@ -485,7 +480,7 @@ $current_user = wp_get_current_user();
                 ?>
             </a>
             
-            <div class="mrb-user-menu" data-dropdown="user">
+            <div class="mrb-user-menu" data-dropdown="user" aria-label="Menú de usuario" role="button" tabindex="0">
                 <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;fill:none;height:16px;width:16px;stroke:currentColor;stroke-width:3;overflow:visible;">
                     <g fill="none" fill-rule="nonzero">
                         <path d="m2 16h28"></path>
@@ -533,8 +528,8 @@ $current_user = wp_get_current_user();
                 <div class="mrb-search-box">
                     <div class="mrb-search-field mrb-search-what">
                         <label>¿Qué necesitas?</label>
-                        <input type="text" id="mrb-service-search" placeholder="Salón, DJ, Fotografía..." autocomplete="off" onkeyup="showServiceSuggestions(this.value)">
-                        <div class="mrb-search-suggestions" id="service-suggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #DDDDDD; border-radius: 12px; margin-top: 8px; max-height: 300px; overflow-y: auto; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                        <input type="text" id="mrb-service-search" placeholder="Salón, DJ, Fotografía..." autocomplete="off">
+                        <div class="mrb-search-suggestions" id="service-suggestions"></div>
                     </div>
                     
                     <div class="mrb-search-divider"></div>

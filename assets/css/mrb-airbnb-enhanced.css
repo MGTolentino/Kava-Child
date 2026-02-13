@@ -1,0 +1,660 @@
+/* 🎨 MRB Airbnb Enhanced - Sistema de Grid Optimizado y Mejoras UX */
+
+/* ========================================
+   VARIABLES CSS PARA CONSISTENCIA
+   ======================================== */
+:root {
+    --mrb-primary: #FF385C;
+    --mrb-primary-dark: #E31C3C;
+    --mrb-text-primary: #222222;
+    --mrb-text-secondary: #717171;
+    --mrb-border-light: #EBEBEB;
+    --mrb-border-medium: #DDDDDD;
+    --mrb-background-hover: #F7F7F7;
+    --mrb-shadow-sm: 0 2px 4px rgba(0,0,0,0.08);
+    --mrb-shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+    --mrb-shadow-lg: 0 8px 28px rgba(0,0,0,0.25);
+    --mrb-transition-fast: 0.2s cubic-bezier(0.2, 0, 0, 1);
+    --mrb-transition-smooth: 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ========================================
+   GRID SYSTEM OPTIMIZADO (6 COLUMNAS)
+   ======================================== */
+.mrb-listings-grid {
+    display: grid !important;
+    gap: 20px 16px !important;
+    width: 100% !important;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Desktop Extra Large (1440px+) - 6 columnas */
+@media (min-width: 1440px) {
+    .mrb-listings-grid {
+        grid-template-columns: repeat(6, 1fr) !important;
+    }
+    
+    .mrb-container {
+        max-width: 1760px !important;
+        padding: 0 80px !important;
+    }
+}
+
+/* Desktop Large (1128px-1439px) - 5 columnas */
+@media (min-width: 1128px) and (max-width: 1439px) {
+    .mrb-listings-grid {
+        grid-template-columns: repeat(5, 1fr) !important;
+    }
+    
+    .mrb-container {
+        max-width: 1280px !important;
+        padding: 0 40px !important;
+    }
+}
+
+/* Desktop Medium (950px-1127px) - 4 columnas */
+@media (min-width: 950px) and (max-width: 1127px) {
+    .mrb-listings-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+    
+    .mrb-container {
+        max-width: 100% !important;
+        padding: 0 40px !important;
+    }
+}
+
+/* Tablet (744px-949px) - 3 columnas */
+@media (min-width: 744px) and (max-width: 949px) {
+    .mrb-listings-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+    
+    .mrb-container {
+        padding: 0 24px !important;
+    }
+}
+
+/* Mobile Large (551px-743px) - 2 columnas */
+@media (min-width: 551px) and (max-width: 743px) {
+    .mrb-listings-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px 12px !important;
+    }
+    
+    .mrb-container {
+        padding: 0 24px !important;
+    }
+}
+
+/* Mobile Small (<550px) - 1 columna */
+@media (max-width: 550px) {
+    .mrb-listings-grid {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+    }
+    
+    .mrb-container {
+        padding: 0 24px !important;
+    }
+}
+
+/* ========================================
+   CARD ENHANCEMENTS CON CAROUSEL
+   ======================================== */
+.mrb-listing-card {
+    cursor: pointer;
+    position: relative;
+    will-change: transform;
+    transition: transform var(--mrb-transition-smooth);
+}
+
+.mrb-listing-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Slider de imágenes mejorado */
+.mrb-card-slider {
+    position: relative;
+    padding-bottom: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #F7F7F7;
+    box-shadow: var(--mrb-shadow-sm);
+    transition: box-shadow var(--mrb-transition-smooth);
+}
+
+.mrb-listing-card:hover .mrb-card-slider {
+    box-shadow: var(--mrb-shadow-md);
+}
+
+/* Contenedor de imágenes para carousel */
+.mrb-card-images {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mrb-card-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mrb-card-image.active {
+    opacity: 1;
+}
+
+/* Controles del carousel */
+.mrb-card-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(0,0,0,0.08);
+    cursor: pointer;
+    opacity: 0;
+    transition: all var(--mrb-transition-fast);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+    z-index: 3;
+}
+
+.mrb-card-nav:hover {
+    transform: translateY(-50%) scale(1.04);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.mrb-listing-card:hover .mrb-card-nav {
+    opacity: 1;
+}
+
+.mrb-card-prev { left: 8px; }
+.mrb-card-next { right: 8px; }
+
+/* Dots mejorados */
+.mrb-card-dots {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 2;
+    padding: 4px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(4px);
+}
+
+.mrb-card-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transition: all var(--mrb-transition-fast);
+    cursor: pointer;
+}
+
+.mrb-card-dot:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.mrb-card-dot.active {
+    background: #FFFFFF;
+    width: 8px;
+    height: 8px;
+}
+
+/* Badges mejorados */
+.mrb-badge-verified,
+.mrb-badge-featured,
+.mrb-badge-new {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 2;
+    backdrop-filter: blur(8px);
+    animation: slideDown 0.3s ease-out;
+}
+
+.mrb-badge-verified {
+    background: rgba(255, 255, 255, 0.95);
+    color: #008A05;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.mrb-badge-featured {
+    background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+    color: white;
+}
+
+.mrb-badge-new {
+    background: rgba(255, 56, 92, 0.9);
+    color: white;
+}
+
+/* Botón favorito mejorado */
+.mrb-card-favorite {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 3;
+    transition: transform var(--mrb-transition-fast);
+    opacity: 0.9;
+}
+
+.mrb-card-favorite:hover {
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+.mrb-card-favorite:active {
+    transform: scale(0.95);
+}
+
+.mrb-card-favorite.active svg {
+    fill: var(--mrb-primary) !important;
+    stroke: var(--mrb-primary) !important;
+}
+
+/* ========================================
+   SEARCH BOX MEJORADO
+   ======================================== */
+.mrb-search-box {
+    background: white;
+    border-radius: 32px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.15), 0 3px 8px rgba(0,0,0,0.1);
+    max-width: 850px;
+    margin: 32px auto;
+    border: 1px solid var(--mrb-border-light);
+    transition: all var(--mrb-transition-smooth);
+}
+
+.mrb-search-box:hover {
+    box-shadow: 0 20px 36px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.mrb-search-field {
+    flex: 1;
+    padding: 14px 24px;
+    position: relative;
+}
+
+.mrb-search-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--mrb-text-primary);
+}
+
+.mrb-search-field input,
+.mrb-search-field select {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: var(--mrb-text-secondary);
+    background: transparent;
+}
+
+/* Autocompletado mejorado */
+.mrb-search-suggestions {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--mrb-shadow-lg);
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all var(--mrb-transition-fast);
+}
+
+.mrb-search-suggestions.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.mrb-suggestion-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background var(--mrb-transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mrb-suggestion-item:hover {
+    background: var(--mrb-background-hover);
+}
+
+.mrb-suggestion-icon {
+    width: 40px;
+    height: 40px;
+    background: #F7F7F7;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mrb-suggestion-text {
+    flex: 1;
+}
+
+.mrb-suggestion-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--mrb-text-primary);
+}
+
+.mrb-suggestion-subtitle {
+    font-size: 12px;
+    color: var(--mrb-text-secondary);
+}
+
+/* ========================================
+   CATEGORÍAS MEJORADAS
+   ======================================== */
+.mrb-categories {
+    position: sticky;
+    top: 80px;
+    background: white;
+    z-index: 90;
+    border-bottom: 1px solid var(--mrb-border-light);
+    padding: 20px 0 8px 0;
+}
+
+.mrb-categories-slider {
+    position: relative;
+}
+
+.mrb-categories-track {
+    display: flex;
+    gap: 32px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 0 40px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.mrb-categories-track::-webkit-scrollbar {
+    display: none;
+}
+
+.mrb-category-item {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0;
+    cursor: pointer;
+    position: relative;
+    transition: all var(--mrb-transition-fast);
+    opacity: 0.64;
+}
+
+.mrb-category-item:hover {
+    opacity: 1;
+}
+
+.mrb-category-item.active {
+    opacity: 1;
+}
+
+.mrb-category-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--mrb-text-primary);
+    transform: scaleX(0);
+    transition: transform var(--mrb-transition-fast);
+}
+
+.mrb-category-item.active::after {
+    transform: scaleX(1);
+}
+
+.mrb-category-icon {
+    width: 28px;
+    height: 28px;
+    transition: transform var(--mrb-transition-fast);
+}
+
+.mrb-category-item:hover .mrb-category-icon {
+    transform: translateY(-2px);
+}
+
+/* ========================================
+   ANIMACIONES
+   ======================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Loading skeleton */
+.mrb-skeleton {
+    animation: skeleton-loading 1.5s infinite;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ========================================
+   MEJORAS DE PERFORMANCE
+   ======================================== */
+.mrb-listing-card {
+    contain: layout style paint;
+}
+
+.mrb-card-image[loading="lazy"] {
+    background: #F7F7F7;
+}
+
+/* Optimización GPU */
+.mrb-card-slider,
+.mrb-listing-card,
+.mrb-card-nav {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* ========================================
+   DROPDOWN MEJORADO
+   ======================================== */
+.mrb-dropdown-menu {
+    position: absolute !important;
+    top: calc(100% + 12px) !important;
+    right: 0 !important;
+    background: white !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.12) !important;
+    min-width: 240px !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-10px) scale(0.95) !important;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1) !important;
+    z-index: 10000 !important;
+    pointer-events: none !important;
+}
+
+.mrb-dropdown-menu.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) scale(1) !important;
+    pointer-events: auto !important;
+}
+
+.mrb-dropdown-item {
+    padding: 12px 16px !important;
+    cursor: pointer !important;
+    transition: background var(--mrb-transition-fast) !important;
+}
+
+.mrb-dropdown-item:hover {
+    background: var(--mrb-background-hover) !important;
+}
+
+/* ========================================
+   MOBILE OPTIMIZATIONS
+   ======================================== */
+@media (max-width: 743px) {
+    .mrb-custom-header {
+        height: 65px;
+    }
+    
+    .mrb-wrapper {
+        padding-top: 65px;
+    }
+    
+    .mrb-search-box {
+        flex-direction: column;
+        border-radius: 16px;
+        padding: 16px;
+    }
+    
+    .mrb-search-divider {
+        display: none;
+    }
+    
+    .mrb-search-field {
+        width: 100%;
+        padding: 12px;
+        border-bottom: 1px solid var(--mrb-border-light);
+    }
+    
+    .mrb-search-field:last-of-type {
+        border-bottom: none;
+    }
+    
+    .mrb-map-toggle {
+        bottom: 80px;
+        padding: 12px 20px;
+        font-size: 13px;
+    }
+}
+
+/* ========================================
+   LAZY LOADING STATES
+   ======================================== */
+.mrb-lazy-container {
+    position: relative;
+    min-height: 200px;
+}
+
+.mrb-lazy-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+}
+
+.mrb-lazy-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--mrb-primary);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   SMOOTH SCROLL BEHAVIOR
+   ======================================== */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
