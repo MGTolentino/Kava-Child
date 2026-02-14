@@ -38,7 +38,7 @@ Este archivo reemplaza TODOS los anteriores para evitar conflictos
 /* Search container específico - BALANCEADO */
 .mrb-search-container {
     max-width: 780px !important; /* Tamaño óptimo */
-    margin: 20px auto !important; /* Margen balanceado */
+    margin: 28px auto 20px auto !important; /* Más margen arriba para separarlo */
     padding: 0 !important;
 }
 
@@ -276,7 +276,7 @@ Este archivo reemplaza TODOS los anteriores para evitar conflictos
     background: white !important;
     border-bottom: 1px solid var(--mrb-border) !important;
     z-index: 1000 !important;
-    height: 75px !important; /* Balance perfecto */
+    height: 80px !important; /* Altura aumentada para que no se corte */
 }
 
 .mrb-header-content {
@@ -290,7 +290,7 @@ Este archivo reemplaza TODOS los anteriores para evitar conflictos
 }
 
 .mrb-wrapper {
-    padding-top: 75px !important; /* Ajustado al header */
+    padding-top: 80px !important; /* Ajustado al nuevo height del header */
 }
 
 /* ========================================
@@ -298,7 +298,7 @@ Este archivo reemplaza TODOS los anteriores para evitar conflictos
    ======================================== */
 .mrb-hero {
     background: white !important;
-    padding: 20px 0 !important; /* Espaciado equilibrado */
+    padding: 32px 0 20px 0 !important; /* Más espacio arriba para que no esté pegado */
 }
 
 /* ========================================
@@ -351,6 +351,33 @@ Este archivo reemplaza TODOS los anteriores para evitar conflictos
 .mrb-card-price {
     font-size: 14px !important;
     font-weight: 600 !important;
+}
+
+/* ========================================
+   FAVORITOS
+   ======================================== */
+.mrb-card-favorite {
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    z-index: 10 !important;
+    padding: 8px !important;
+    transition: transform 0.2s ease !important;
+}
+
+.mrb-card-favorite:hover {
+    transform: scale(1.1) !important;
+}
+
+.mrb-card-favorite.active svg {
+    fill: #FF385C !important;
+}
+
+.mrb-card-favorite svg {
+    transition: fill 0.2s ease !important;
 }
 
 /* ========================================

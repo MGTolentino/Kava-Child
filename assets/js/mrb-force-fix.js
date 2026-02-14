@@ -3,6 +3,38 @@
  * Se ejecuta múltiples veces para asegurar que funciona
  */
 
+// Función global para manejar favoritos
+window.toggleFavorite = function(event, listingId) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    console.log('Toggle favorite for listing:', listingId);
+    
+    // Obtener favoritos del localStorage
+    let favorites = JSON.parse(localStorage.getItem('mrb_favorites') || '[]');
+    const button = event.currentTarget;
+    const svg = button.querySelector('svg');
+    
+    if (favorites.includes(listingId)) {
+        // Quitar de favoritos
+        favorites = favorites.filter(id => id !== listingId);
+        svg.style.fill = 'rgba(0, 0, 0, 0.5)';
+        button.classList.remove('active');
+        console.log('Removed from favorites:', listingId);
+    } else {
+        // Agregar a favoritos
+        favorites.push(listingId);
+        svg.style.fill = '#FF385C';
+        button.classList.add('active');
+        console.log('Added to favorites:', listingId);
+    }
+    
+    // Guardar en localStorage
+    localStorage.setItem('mrb_favorites', JSON.stringify(favorites));
+    
+    return false;
+};
+
 // SOLO para página Airbnb
 if (document.body && !document.body.classList.contains('page-template-airbnb')) {
     console.log('🚫 No es página Airbnb - saliendo');
@@ -10,9 +42,33 @@ if (document.body && !document.body.classList.contains('page-template-airbnb')) 
 } else {
     console.log('✅ Página Airbnb detectada - aplicando fixes FORZADOS');
 
+    // Función para restaurar favoritos guardados
+    function restoreFavorites() {
+        const favorites = JSON.parse(localStorage.getItem('mrb_favorites') || '[]');
+        if (favorites.length > 0) {
+            console.log('Restaurando favoritos guardados:', favorites);
+            favorites.forEach(listingId => {
+                const card = document.querySelector(`[data-listing-id="${listingId}"]`);
+                if (card) {
+                    const button = card.querySelector('.mrb-card-favorite');
+                    if (button) {
+                        const svg = button.querySelector('svg');
+                        if (svg) {
+                            svg.style.fill = '#FF385C';
+                            button.classList.add('active');
+                        }
+                    }
+                }
+            });
+        }
+    }
+    
     // Función principal de fixes
     function applyAllFixes() {
         console.log('🔧 Aplicando todos los fixes...');
+        
+        // Restaurar favoritos
+        restoreFavorites();
         
         // ========================================
         // 1. FORZAR CARDS - NUEVA PESTAÑA
