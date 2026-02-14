@@ -294,11 +294,11 @@ Este archivo reemplaza TODOS los anteriores para evitar conflictos
 }
 
 /* ========================================
-   HERO SECTION - ULTRA COMPACTO
+   HERO SECTION - BALANCEADO
    ======================================== */
 .mrb-hero {
     background: white !important;
-    padding: 8px 0 !important; /* Mucho más pequeño */
+    padding: 16px 0 12px 0 !important; /* Balanceado: más arriba, menos abajo */
 }
 
 /* ========================================

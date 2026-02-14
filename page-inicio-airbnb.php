@@ -15,7 +15,8 @@
     
     <!-- 🎯 CSS MASTER FINAL - SIN CONFLICTOS -->
     <link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/mrb-master-final.css?v=<?php echo time(); ?>">
-    <script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/mrb-simple-fix.js?v=<?php echo time(); ?>"></script>
+    <!-- 🔥 FORCE FIX - Script agresivo que override todo -->
+    <script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/mrb-force-fix.js?v=<?php echo time(); ?>"></script>
 </head>
 <body <?php body_class('page-template-airbnb'); ?>>
 
@@ -146,7 +147,7 @@ $current_user = wp_get_current_user();
                         </div>
                     </div>
                     
-                    <button class="mrb-search-button" onclick="performSearch()">
+                    <button class="mrb-search-button" id="search-btn">
                         <svg viewBox="0 0 32 32" aria-hidden="true" style="display:block;fill:none;height:16px;width:16px;stroke:currentColor;stroke-width:4;overflow:visible">
                             <g fill="none"><path d="m13 24c6.0751322 0 11-4.9248678 11-11 0-6.07513225-4.9248678-11-11-11-6.07513225 0-11 4.92486775-11 11 0 6.0751322 4.92486775 11 11 11zm8-3 9 9"></path></g>
                         </svg>
@@ -192,7 +193,7 @@ $current_user = wp_get_current_user();
                     
                     <div class="mrb-category-item active" 
                          data-category="all" 
-                         onclick="filterByCategory('all')">
+                         data-url="/">
                         <div class="mrb-category-icon">
                             <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;height:24px;width:24px;fill:currentColor;">
                                 <path d="M16 1a15 15 0 1 0 0 30 15 15 0 0 0 0-30zm0 2a13 13 0 1 1 0 26 13 13 0 0 0 0-26z"/>
@@ -208,7 +209,7 @@ $current_user = wp_get_current_user();
                             ?>
                             <div class="mrb-category-item" 
                                  data-category="<?php echo esc_attr($slug); ?>" 
-                                 onclick="filterByCategory('<?php echo esc_attr($slug); ?>')">
+                                 data-url="/listing-category/<?php echo esc_attr($slug); ?>/">
                                 <div class="mrb-category-icon">
                                     <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display:block;height:24px;width:24px;fill:currentColor;">
                                         <?php echo $icon_path; ?>

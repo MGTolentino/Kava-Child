@@ -1,0 +1,265 @@
+/**
+ * 🔥 FORCE FIX - Solución AGRESIVA que OVERRIDE todo
+ * Se ejecuta múltiples veces para asegurar que funciona
+ */
+
+// SOLO para página Airbnb
+if (document.body && !document.body.classList.contains('page-template-airbnb')) {
+    console.log('🚫 No es página Airbnb - saliendo');
+    // Salir si no es la página correcta
+} else {
+    console.log('✅ Página Airbnb detectada - aplicando fixes FORZADOS');
+
+    // Función principal de fixes
+    function applyAllFixes() {
+        console.log('🔧 Aplicando todos los fixes...');
+        
+        // ========================================
+        // 1. FORZAR CARDS - NUEVA PESTAÑA
+        // ========================================
+        const cards = document.querySelectorAll('.mrb-listing-card');
+        
+        cards.forEach(function(card) {
+            // LIMPIAR TODO
+            card.onclick = null;
+            card.removeEventListener('click', null);
+            const oldOnclick = card.getAttribute('onclick');
+            card.removeAttribute('onclick');
+            
+            // Crear nuevo handler
+            function handleCardClick(e) {
+                // Prevenir propagación
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // No abrir si es favorito
+                if (e.target.closest('.mrb-card-favorite')) {
+                    return false;
+                }
+                
+                // Obtener URL
+                let url = card.dataset.url || null;
+                
+                if (!url && oldOnclick) {
+                    const match = oldOnclick.match(/window\.location\.href='([^']+)'/);
+                    if (match) url = match[1];
+                }
+                
+                if (!url && card.dataset.listingId) {
+                    url = '/listing/' + card.dataset.listingId + '/';
+                }
+                
+                console.log('CARD CLICK → URL:', url);
+                
+                if (url) {
+                    // FORZAR NUEVA PESTAÑA
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                    return false;
+                }
+            }
+            
+            // Añadir múltiples listeners para asegurar
+            card.addEventListener('click', handleCardClick, true);
+            card.onclick = handleCardClick;
+            card.style.cursor = 'pointer';
+            
+            // Marcar como procesada
+            card.dataset.fixApplied = 'true';
+        });
+        
+        console.log('✅ Cards procesadas:', cards.length);
+        
+        // ========================================
+        // 2. FORZAR CATEGORÍAS - NUEVA PESTAÑA
+        // ========================================
+        const categories = document.querySelectorAll('.mrb-category-item');
+        
+        const categoryUrls = {
+            'all': '/',
+            'fotografia': '/listing-category/fotografia/',
+            'musica': '/listing-category/musica/',
+            'joyeria': '/listing-category/joyeria/',
+            'mobiliario': '/listing-category/mobiliario/',
+            'transporte': '/listing-category/transporte/',
+            'entretenimiento': '/listing-category/entretenimiento/',
+            'decoracion': '/listing-category/decoracion/',
+            'alimentos-y-bebidas': '/listing-category/alimentos-y-bebidas/',
+            'hospedaje': '/listing-category/hospedaje/',
+            'vestidos': '/listing-category/vestidos/',
+            'planners': '/listing-category/planners/',
+            'viajes': '/listing-category/viajes/',
+            'lugares-para-eventos': '/listing-category/lugares-para-eventos/',
+            'artistas': '/listing-category/artistas/',
+            'comediantes': '/listing-category/comediantes/',
+            'paquetes-todo-incluido': '/listing-category/paquetes-todo-incluido/',
+            'pirotecnia-y-efectos-especiales': '/listing-category/pirotecnia-y-efectos-especiales/',
+            'toldos-y-carpas': '/listing-category/toldos-y-carpas/'
+        };
+        
+        categories.forEach(function(category) {
+            // LIMPIAR TODO
+            category.onclick = null;
+            category.removeAttribute('onclick');
+            
+            // Crear nuevo handler SIMPLE
+            function handleCategoryClick(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Obtener URL directamente del data-url
+                const url = category.dataset.url || categoryUrls[category.dataset.category] || '/';
+                
+                console.log('CATEGORÍA CLICK → URL:', url);
+                
+                // FORZAR NUEVA PESTAÑA
+                window.open(url, '_blank', 'noopener,noreferrer');
+                return false;
+            }
+            
+            // Añadir listener
+            category.addEventListener('click', handleCategoryClick, true);
+            category.style.cursor = 'pointer';
+            
+            // Marcar como procesada
+            category.dataset.fixApplied = 'true';
+        });
+        
+        console.log('✅ Categorías procesadas:', categories.length);
+        
+        // ========================================
+        // 3. FORZAR BÚSQUEDA - URL CORRECTA
+        // ========================================
+        const searchButton = document.querySelector('.mrb-search-button');
+        const searchInput = document.getElementById('mrb-service-search');
+        
+        if (searchButton && searchInput) {
+            // LIMPIAR TODO
+            searchButton.onclick = null;
+            searchButton.removeEventListener('click', null);
+            searchButton.removeAttribute('onclick');
+            
+            // Crear handler de búsqueda
+            function handleSearch(e) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                
+                const searchTerm = searchInput.value.trim();
+                
+                if (searchTerm) {
+                    const slug = searchTerm.toLowerCase()
+                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remover acentos
+                        .replace(/[^a-z0-9\s-]/g, '')
+                        .replace(/\s+/g, '-')
+                        .replace(/-+/g, '-')
+                        .replace(/^-+|-+$/g, '');
+                    
+                    const searchUrl = '/contrata-el-servicio-de/' + slug + '/';
+                    
+                    console.log('BÚSQUEDA → URL:', searchUrl);
+                    
+                    // FORZAR NUEVA PESTAÑA
+                    window.open(searchUrl, '_blank', 'noopener,noreferrer');
+                }
+                
+                return false;
+            }
+            
+            // Añadir múltiples listeners
+            searchButton.addEventListener('click', handleSearch, true);
+            searchButton.onclick = handleSearch;
+            
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleSearch(e);
+                }
+            }, true);
+            
+            console.log('✅ Búsqueda configurada');
+        }
+        
+        // ========================================
+        // 4. OVERRIDE FUNCIONES GLOBALES
+        // ========================================
+        window.filterByCategory = function(slug) {
+            console.log('filterByCategory OVERRIDE:', slug);
+            const url = categoryUrls[slug] || '/listing-category/' + slug + '/';
+            window.open(url, '_blank');
+            return false;
+        };
+        
+        window.performSearch = function() {
+            console.log('performSearch OVERRIDE');
+            const searchInput = document.getElementById('mrb-service-search');
+            if (searchInput && searchInput.value) {
+                const slug = searchInput.value.toLowerCase()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+                
+                window.open('/contrata-el-servicio-de/' + slug + '/', '_blank');
+            }
+            return false;
+        };
+        
+        console.log('✅ Funciones globales override completado');
+    }
+    
+    // ========================================
+    // APLICAR FIXES MÚLTIPLES VECES
+    // ========================================
+    
+    // Aplicar inmediatamente si el DOM está listo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyAllFixes);
+    } else {
+        applyAllFixes();
+    }
+    
+    // Aplicar después de 500ms
+    setTimeout(applyAllFixes, 500);
+    
+    // Aplicar después de 1 segundo
+    setTimeout(applyAllFixes, 1000);
+    
+    // Aplicar después de 2 segundos
+    setTimeout(applyAllFixes, 2000);
+    
+    // Aplicar después de 3 segundos (último intento)
+    setTimeout(function() {
+        applyAllFixes();
+        console.log('🎯 FIXES FINALES APLICADOS - todos los intentos completados');
+    }, 3000);
+    
+    // Observer para detectar nuevas cards añadidas dinámicamente
+    if (typeof MutationObserver !== 'undefined') {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.addedNodes.length) {
+                    // Buscar nuevas cards
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) { // Element node
+                            if (node.classList && node.classList.contains('mrb-listing-card') && 
+                                !node.dataset.fixApplied) {
+                                setTimeout(applyAllFixes, 100);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        
+        // Observar el body para cambios
+        if (document.body) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        }
+    }
+    
+    console.log('🚀 MRB Force Fix iniciado - aplicándose múltiples veces');
+}
