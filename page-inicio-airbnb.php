@@ -15,7 +15,7 @@
     
     <!-- 🎯 CSS MASTER FINAL - SIN CONFLICTOS -->
     <link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/mrb-master-final.css?v=<?php echo time(); ?>">
-    <script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/mrb-fixes-final.js?v=<?php echo time(); ?>" defer></script>
+    <script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/mrb-simple-fix.js?v=<?php echo time(); ?>"></script>
 </head>
 <body <?php body_class('page-template-airbnb'); ?>>
 
