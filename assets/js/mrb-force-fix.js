@@ -190,57 +190,9 @@ if (document.body && !document.body.classList.contains('page-template-airbnb')) 
         console.log('✅ Categorías procesadas:', categories.length);
         
         // ========================================
-        // 3. FORZAR BÚSQUEDA - URL CORRECTA
+        // 3. NO TOCAR BÚSQUEDA - Ahora redirije al Cotizador
         // ========================================
-        const searchButton = document.querySelector('.mrb-search-button');
-        const searchInput = document.getElementById('mrb-service-search');
-        
-        if (searchButton && searchInput) {
-            // LIMPIAR TODO
-            searchButton.onclick = null;
-            searchButton.removeEventListener('click', null);
-            searchButton.removeAttribute('onclick');
-            
-            // Crear handler de búsqueda
-            function handleSearch(e) {
-                if (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-                
-                const searchTerm = searchInput.value.trim();
-                
-                if (searchTerm) {
-                    const slug = searchTerm.toLowerCase()
-                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remover acentos
-                        .replace(/[^a-z0-9\s-]/g, '')
-                        .replace(/\s+/g, '-')
-                        .replace(/-+/g, '-')
-                        .replace(/^-+|-+$/g, '');
-                    
-                    const searchUrl = '/contrata-el-servicio-de/' + slug + '/';
-                    
-                    console.log('BÚSQUEDA → URL:', searchUrl);
-                    
-                    // FORZAR NUEVA PESTAÑA
-                    window.open(searchUrl, '_blank', 'noopener,noreferrer');
-                }
-                
-                return false;
-            }
-            
-            // Añadir múltiples listeners
-            searchButton.addEventListener('click', handleSearch, true);
-            searchButton.onclick = handleSearch;
-            
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    handleSearch(e);
-                }
-            }, true);
-            
-            console.log('✅ Búsqueda configurada');
-        }
+        console.log('ℹ️ Búsqueda no modificada - usa script de redirección al Cotizador');
         
         // ========================================
         // 4. OVERRIDE FUNCIONES GLOBALES
@@ -252,21 +204,7 @@ if (document.body && !document.body.classList.contains('page-template-airbnb')) 
             return false;
         };
         
-        window.performSearch = function() {
-            console.log('performSearch OVERRIDE');
-            const searchInput = document.getElementById('mrb-service-search');
-            if (searchInput && searchInput.value) {
-                const slug = searchInput.value.toLowerCase()
-                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                    .replace(/[^a-z0-9\s-]/g, '')
-                    .replace(/\s+/g, '-')
-                    .replace(/-+/g, '-')
-                    .replace(/^-+|-+$/g, '');
-                
-                window.open('/contrata-el-servicio-de/' + slug + '/', '_blank');
-            }
-            return false;
-        };
+        // performSearch ya no se override - usa redirección al Cotizador
         
         console.log('✅ Funciones globales override completado');
     }

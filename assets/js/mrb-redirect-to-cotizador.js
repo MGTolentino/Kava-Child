@@ -54,45 +54,50 @@
             });
         });
         
-        // Función para construir URL del Cotizador
-        function buildCotizadorURL() {
-            const params = new URLSearchParams();
-            
-            // Añadir parámetros si tienen valor
+        // Función para guardar filtros en localStorage y redirigir
+        function saveFiltersAndRedirect() {
+            // Obtener valores actuales
             const searchTerm = searchInput?.value.trim();
             const location = locationSelect?.value;
             const date = dateInput?.value;
             
-            // Búsqueda por nombre
+            // Limpiar localStorage anterior de Airbnb (evitar datos viejos)
+            localStorage.removeItem('airbnb_search_service');
+            localStorage.removeItem('airbnb_search_category');
+            localStorage.removeItem('airbnb_search_location');
+            localStorage.removeItem('airbnb_search_date');
+            
+            // Guardar solo los valores que tienen contenido
             if (searchTerm) {
-                params.set('nombre', searchTerm);
+                localStorage.setItem('airbnb_search_service', searchTerm);
+                console.log('💾 Guardado servicio:', searchTerm);
             }
             
-            // Categoría (desde iconos)
             if (selectedCategory && selectedCategory !== 'all') {
-                params.set('categoria', selectedCategory);
+                localStorage.setItem('airbnb_search_category', selectedCategory);
+                console.log('💾 Guardado categoría:', selectedCategory);
             }
             
-            // Ciudad - obtener el texto del option seleccionado, no el value (slug)
             if (location && locationSelect) {
                 const selectedOption = locationSelect.options[locationSelect.selectedIndex];
                 if (selectedOption && selectedOption.value) {
                     // Obtener el texto limpio sin el contador de listings
                     const cityText = selectedOption.textContent.replace(/\s*\(\d+\s+listings?\)/, '').trim();
-                    params.set('ciudad', cityText);
+                    localStorage.setItem('airbnb_search_location', cityText);
+                    console.log('💾 Guardado ciudad:', cityText);
                 }
             }
             
-            // Fecha
             if (date) {
-                params.set('fecha', date);
+                localStorage.setItem('airbnb_search_date', date);
+                console.log('💾 Guardado fecha:', date);
             }
             
-            // Construir URL completa
-            const baseURL = '/cotizador-de-eventos/';
-            const queryString = params.toString();
+            // Añadir timestamp para saber que viene de Airbnb
+            localStorage.setItem('airbnb_search_timestamp', Date.now().toString());
             
-            return queryString ? `${baseURL}?${queryString}` : baseURL;
+            // Redirigir al cotizador (URL limpia)
+            return '/cotizador-de-eventos/';
         }
         
         // Manejar click en botón de búsqueda
@@ -101,7 +106,7 @@
                 e.preventDefault();
                 e.stopPropagation();
                 
-                const url = buildCotizadorURL();
+                const url = saveFiltersAndRedirect();
                 console.log('🚀 Redirigiendo a:', url);
                 
                 // Redirigir
@@ -114,7 +119,7 @@
             searchInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    const url = buildCotizadorURL();
+                    const url = saveFiltersAndRedirect();
                     console.log('🚀 Redirigiendo a:', url);
                     window.location.href = url;
                 }
