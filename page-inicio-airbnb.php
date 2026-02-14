@@ -704,33 +704,38 @@ console.log('Dropdown debugging functions loaded. Run debugDropdown() in console
 </script>
 
 <?php 
-// Cargar scripts antes de wp_footer
-function mrb_load_filter_scripts() {
-    // Cargar script de filtros combinados
-    wp_enqueue_script(
-        'mrb-airbnb-filters',
-        get_stylesheet_directory_uri() . '/assets/js/mrb-airbnb-filters.js',
-        array('jquery'),
-        '1.0.0',
-        true
-    );
-    
-    // Localizar script para AJAX
-    wp_localize_script('mrb-airbnb-filters', 'mrb_ajax_obj', array(
-        'ajax_url' => admin_url('admin-ajax.php'),
-        'nonce' => wp_create_nonce('mrb_nonce')
-    ));
-    
-    // Cargar script de fixes DESPUÉS
-    wp_enqueue_script(
-        'mrb-force-fix',
-        get_stylesheet_directory_uri() . '/assets/js/mrb-force-fix.js',
-        array('jquery', 'mrb-airbnb-filters'),
-        '1.0.0',
-        true
-    );
-}
-add_action('wp_enqueue_scripts', 'mrb_load_filter_scripts', 99);
+// Añadir configuración AJAX directamente antes de los scripts
+?>
+<script>
+// Configuración AJAX global
+var mrb_ajax_obj = {
+    ajax_url: '<?php echo admin_url('admin-ajax.php'); ?>',
+    nonce: '<?php echo wp_create_nonce('mrb_nonce'); ?>'
+};
+console.log('✅ Configuración AJAX cargada:', mrb_ajax_obj);
+</script>
+
+<?php
+// Cargar scripts
+wp_enqueue_script('jquery');
+
+// NUEVO: Script de redirección al Cotizador en lugar de filtros AJAX
+wp_enqueue_script(
+    'mrb-redirect-to-cotizador',
+    get_stylesheet_directory_uri() . '/assets/js/mrb-redirect-to-cotizador.js',
+    array('jquery'),
+    filemtime(get_stylesheet_directory() . '/assets/js/mrb-redirect-to-cotizador.js'),
+    true
+);
+
+// Script de fixes para favoritos y navegación
+wp_enqueue_script(
+    'mrb-force-fix',
+    get_stylesheet_directory_uri() . '/assets/js/mrb-force-fix.js',
+    array('jquery'),
+    filemtime(get_stylesheet_directory() . '/assets/js/mrb-force-fix.js'),
+    true
+);
 
 wp_footer(); 
 ?>

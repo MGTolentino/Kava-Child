@@ -36,18 +36,34 @@
      * Inicializar el sistema de filtros
      */
     function initFilters() {
-        // Cachear elementos DOM
+        // Cachear elementos DOM - USAR LOS IDs CORRECTOS
         elements.searchInput = document.getElementById('mrb-service-search');
-        elements.locationSelect = document.getElementById('mrb-location-select');
-        elements.dateInput = document.getElementById('mrb-event-date');
+        elements.locationSelect = document.getElementById('mrb-location-search'); // Corregido: era mrb-location-select
+        elements.dateInput = document.getElementById('mrb-date-search'); // Corregido: era mrb-event-date
         elements.searchButton = document.querySelector('.mrb-search-button');
         elements.categoryItems = document.querySelectorAll('.mrb-category-item');
         elements.listingsGrid = document.querySelector('.mrb-listings-grid');
         elements.listingsContainer = document.querySelector('.mrb-listings-container');
         
+        // Debug: mostrar qué elementos se encontraron
+        console.log('🔍 Elementos encontrados:', {
+            searchInput: !!elements.searchInput,
+            locationSelect: !!elements.locationSelect,
+            dateInput: !!elements.dateInput,
+            searchButton: !!elements.searchButton,
+            categoryItems: elements.categoryItems.length,
+            listingsGrid: !!elements.listingsGrid,
+            listingsContainer: !!elements.listingsContainer
+        });
+        
         if (!elements.listingsGrid) {
-            console.warn('⚠️ Grid de listings no encontrado');
-            return;
+            console.warn('⚠️ Grid de listings no encontrado - buscando alternativa');
+            // Intentar encontrar por ID
+            elements.listingsGrid = document.getElementById('listings-grid');
+            if (!elements.listingsGrid) {
+                console.error('❌ No se pudo encontrar el grid de listings');
+                return;
+            }
         }
         
         // Configurar event listeners
@@ -56,7 +72,7 @@
         // Leer parámetros URL iniciales
         loadFiltersFromURL();
         
-        console.log('✅ Sistema de filtros inicializado');
+        console.log('✅ Sistema de filtros inicializado con éxito');
     }
     
     /**
@@ -163,10 +179,18 @@
      * Obtener listings filtrados vía AJAX
      */
     function fetchFilteredListings() {
+        // Verificar que tenemos la configuración AJAX
+        if (typeof mrb_ajax_obj === 'undefined') {
+            console.error('❌ mrb_ajax_obj no está definido');
+            return;
+        }
+        
+        console.log('📡 Enviando petición AJAX con filtros:', currentFilters);
+        
         // Preparar datos para enviar
         const formData = new FormData();
         formData.append('action', 'mrb_filter_listings');
-        formData.append('nonce', mrb_ajax_obj?.nonce || '');
+        formData.append('nonce', mrb_ajax_obj.nonce);
         
         // Añadir filtros activos
         if (currentFilters.search) {
@@ -183,7 +207,7 @@
         }
         
         // URL del admin-ajax
-        const ajaxUrl = mrb_ajax_obj?.ajax_url || '/wp-admin/admin-ajax.php';
+        const ajaxUrl = mrb_ajax_obj.ajax_url;
         
         // Hacer petición
         fetch(ajaxUrl, {
@@ -196,7 +220,13 @@
             console.log('📦 Respuesta del servidor:', data);
             
             if (data.success && data.data) {
-                updateListingsGrid(data.data);
+                // La respuesta ahora tiene estructura: { html, count, filters }
+                if (data.data.html) {
+                    updateListingsGrid(data.data.html);
+                    console.log('✅ Listings actualizados. Total:', data.data.count);
+                } else {
+                    updateListingsGrid(data.data); // Por compatibilidad
+                }
             } else {
                 console.error('❌ Error en respuesta:', data);
                 showNoResults();

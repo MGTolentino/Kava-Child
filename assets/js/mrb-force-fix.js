@@ -18,13 +18,15 @@ window.toggleFavorite = function(event, listingId) {
     if (favorites.includes(listingId)) {
         // Quitar de favoritos
         favorites = favorites.filter(id => id !== listingId);
-        svg.style.fill = 'rgba(0, 0, 0, 0.5)';
+        // Cambiar el atributo style directamente
+        svg.setAttribute('style', 'display: block; fill: rgba(0, 0, 0, 0.5); height: 24px; width: 24px; stroke: white; stroke-width: 2; overflow: visible;');
         button.classList.remove('active');
         console.log('Removed from favorites:', listingId);
     } else {
         // Agregar a favoritos
         favorites.push(listingId);
-        svg.style.fill = '#FF385C';
+        // Cambiar el atributo style directamente con color rojo
+        svg.setAttribute('style', 'display: block; fill: #FF385C; height: 24px; width: 24px; stroke: white; stroke-width: 2; overflow: visible;');
         button.classList.add('active');
         console.log('Added to favorites:', listingId);
     }
@@ -54,7 +56,8 @@ if (document.body && !document.body.classList.contains('page-template-airbnb')) 
                     if (button) {
                         const svg = button.querySelector('svg');
                         if (svg) {
-                            svg.style.fill = '#FF385C';
+                            // Cambiar el atributo style directamente
+                            svg.setAttribute('style', 'display: block; fill: #FF385C; height: 24px; width: 24px; stroke: white; stroke-width: 2; overflow: visible;');
                             button.classList.add('active');
                         }
                     }
@@ -88,8 +91,12 @@ if (document.body && !document.body.classList.contains('page-template-airbnb')) 
                 e.preventDefault();
                 e.stopPropagation();
                 
-                // No abrir si es favorito
-                if (e.target.closest('.mrb-card-favorite')) {
+                // No abrir si es favorito o cualquier parte del botón
+                if (e.target.closest('.mrb-card-favorite') || 
+                    e.target.classList.contains('mrb-card-favorite') ||
+                    e.target.tagName === 'svg' || 
+                    e.target.tagName === 'path') {
+                    console.log('Click en favorito detectado, no abrir card');
                     return false;
                 }
                 

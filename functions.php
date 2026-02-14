@@ -1359,6 +1359,9 @@ function mrb_handle_filter_listings() {
     $location = isset($_POST['location']) ? sanitize_text_field($_POST['location']) : '';
     $date = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : '';
     
+    // Debug log
+    error_log('MRB Filtros recibidos - Search: ' . $search . ', Category: ' . $category . ', Location: ' . $location . ', Date: ' . $date);
+    
     // Construir query
     $args = array(
         'post_type' => 'hp_listing',
@@ -1368,27 +1371,10 @@ function mrb_handle_filter_listings() {
         'tax_query' => array('relation' => 'AND')
     );
     
-    // Filtro de búsqueda (busca en título Y categorías)
+    // Filtro de búsqueda - BUSCAR POR NOMBRE DEL SERVICIO (título)
     if (!empty($search)) {
-        // Primero buscar si coincide con una categoría
-        $category_search = get_terms(array(
-            'taxonomy' => 'hp_listing_category',
-            'name__like' => $search,
-            'hide_empty' => true,
-            'fields' => 'slugs'
-        ));
-        
-        if (!empty($category_search)) {
-            // Si coincide con categoría, filtrar por categoría
-            $args['tax_query'][] = array(
-                'taxonomy' => 'hp_listing_category',
-                'field' => 'slug',
-                'terms' => $category_search
-            );
-        } else {
-            // Si no, buscar en títulos
-            $args['s'] = $search;
-        }
+        // Buscar en títulos de los listings
+        $args['s'] = $search;
     }
     
     // Filtro de categoría específica (desde iconos)
@@ -1462,23 +1448,37 @@ function mrb_handle_filter_listings() {
     ob_start();
     
     if (!empty($filtered_listings)) {
+        global $post;
         foreach ($filtered_listings as $listing_id) {
-            // Usar el template part para cada card
-            set_query_var('listing_id', $listing_id);
-            get_template_part('template-parts/listing-card');
+            $post = get_post($listing_id);
+            setup_postdata($post);
+            
+            // Incluir el template part
+            include(get_stylesheet_directory() . '/template-parts/listing-card.php');
         }
+        wp_reset_postdata();
     } else {
         // No hay resultados
-        echo '<div class="mrb-no-results">
-                <div class="mrb-no-results-icon">🔍</div>
-                <h3>No se encontraron servicios</h3>
-                <p>Intenta ajustar los filtros o buscar algo diferente</p>
+        echo '<div class="mrb-no-results" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+                <div class="mrb-no-results-icon" style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+                <h3 style="font-size: 22px; margin-bottom: 8px;">No se encontraron servicios</h3>
+                <p style="color: #717171; font-size: 14px;">Intenta ajustar los filtros o buscar algo diferente</p>
               </div>';
     }
     
     $html = ob_get_clean();
     
-    wp_send_json_success($html);
+    // Devolver respuesta JSON con estructura correcta
+    wp_send_json_success(array(
+        'html' => $html,
+        'count' => count($filtered_listings),
+        'filters' => array(
+            'search' => $search,
+            'category' => $category,
+            'location' => $location,
+            'date' => $date
+        )
+    ));
 }
 
 /**
