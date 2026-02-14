@@ -466,7 +466,7 @@ $current_user = wp_get_current_user();
 
     <!-- SECCIÓN: Todos los Servicios (Grid Completo) -->
     <section class="mrb-listings">
-        <div class="mrb-container">
+        <div class="mrb-container mrb-listings-container">
             <div class="mrb-section-header">
                 <h2 class="mrb-section-title">Todos los Servicios</h2>
                 <p class="mrb-section-subtitle">Explora nuestra colección completa de proveedores para eventos</p>
@@ -703,6 +703,36 @@ window.debugDropdown = debugDropdown;
 console.log('Dropdown debugging functions loaded. Run debugDropdown() in console for info.');
 </script>
 
-<?php wp_footer(); ?>
+<?php 
+// Cargar scripts antes de wp_footer
+function mrb_load_filter_scripts() {
+    // Cargar script de filtros combinados
+    wp_enqueue_script(
+        'mrb-airbnb-filters',
+        get_stylesheet_directory_uri() . '/assets/js/mrb-airbnb-filters.js',
+        array('jquery'),
+        '1.0.0',
+        true
+    );
+    
+    // Localizar script para AJAX
+    wp_localize_script('mrb-airbnb-filters', 'mrb_ajax_obj', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('mrb_nonce')
+    ));
+    
+    // Cargar script de fixes DESPUÉS
+    wp_enqueue_script(
+        'mrb-force-fix',
+        get_stylesheet_directory_uri() . '/assets/js/mrb-force-fix.js',
+        array('jquery', 'mrb-airbnb-filters'),
+        '1.0.0',
+        true
+    );
+}
+add_action('wp_enqueue_scripts', 'mrb_load_filter_scripts', 99);
+
+wp_footer(); 
+?>
 </body>
 </html>

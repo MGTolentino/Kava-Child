@@ -1344,6 +1344,144 @@ function mrb_handle_get_user_leads() {
 }
 
 /**
+ * MRB AJAX Handler para filtros combinados
+ */
+add_action('wp_ajax_mrb_filter_listings', 'mrb_handle_filter_listings');
+add_action('wp_ajax_nopriv_mrb_filter_listings', 'mrb_handle_filter_listings');
+
+function mrb_handle_filter_listings() {
+    // Verificar nonce
+    check_ajax_referer('mrb_nonce', 'nonce');
+    
+    // Obtener parámetros de filtro
+    $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+    $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '';
+    $location = isset($_POST['location']) ? sanitize_text_field($_POST['location']) : '';
+    $date = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : '';
+    
+    // Construir query
+    $args = array(
+        'post_type' => 'hp_listing',
+        'post_status' => 'publish',
+        'posts_per_page' => -1,
+        'meta_query' => array('relation' => 'AND'),
+        'tax_query' => array('relation' => 'AND')
+    );
+    
+    // Filtro de búsqueda (busca en título Y categorías)
+    if (!empty($search)) {
+        // Primero buscar si coincide con una categoría
+        $category_search = get_terms(array(
+            'taxonomy' => 'hp_listing_category',
+            'name__like' => $search,
+            'hide_empty' => true,
+            'fields' => 'slugs'
+        ));
+        
+        if (!empty($category_search)) {
+            // Si coincide con categoría, filtrar por categoría
+            $args['tax_query'][] = array(
+                'taxonomy' => 'hp_listing_category',
+                'field' => 'slug',
+                'terms' => $category_search
+            );
+        } else {
+            // Si no, buscar en títulos
+            $args['s'] = $search;
+        }
+    }
+    
+    // Filtro de categoría específica (desde iconos)
+    if (!empty($category) && $category !== 'all') {
+        $args['tax_query'][] = array(
+            'taxonomy' => 'hp_listing_category',
+            'field' => 'slug',
+            'terms' => $category
+        );
+    }
+    
+    // Filtro de ubicación
+    if (!empty($location)) {
+        $args['tax_query'][] = array(
+            'taxonomy' => 'hp_listing_ubicacion',
+            'field' => 'slug',
+            'terms' => $location
+        );
+    }
+    
+    // Ejecutar query
+    $query = new WP_Query($args);
+    $filtered_listings = array();
+    
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            $listing_id = get_the_ID();
+            
+            // Si hay filtro de fecha, verificar disponibilidad
+            if (!empty($date)) {
+                // Convertir fecha a timestamps
+                $date_start = strtotime($date . ' 00:00:00');
+                $date_end = strtotime($date . ' 23:59:59');
+                
+                // Verificar reservas existentes
+                $bookings = get_posts(array(
+                    'post_type' => 'hp_booking',
+                    'post_status' => array('publish', 'draft', 'private'),
+                    'post_parent' => $listing_id,
+                    'meta_query' => array(
+                        'relation' => 'AND',
+                        array(
+                            'key' => 'hp_start_time',
+                            'value' => $date_end,
+                            'compare' => '<=',
+                            'type' => 'NUMERIC'
+                        ),
+                        array(
+                            'key' => 'hp_end_time',
+                            'value' => $date_start,
+                            'compare' => '>=',
+                            'type' => 'NUMERIC'
+                        )
+                    )
+                ));
+                
+                // Si hay reserva en esa fecha, saltar
+                if (!empty($bookings)) {
+                    continue;
+                }
+            }
+            
+            // Añadir a resultados filtrados
+            $filtered_listings[] = $listing_id;
+        }
+        wp_reset_postdata();
+    }
+    
+    // Generar HTML de las cards
+    ob_start();
+    
+    if (!empty($filtered_listings)) {
+        foreach ($filtered_listings as $listing_id) {
+            // Usar el template part para cada card
+            set_query_var('listing_id', $listing_id);
+            get_template_part('template-parts/listing-card');
+        }
+    } else {
+        // No hay resultados
+        echo '<div class="mrb-no-results">
+                <div class="mrb-no-results-icon">🔍</div>
+                <h3>No se encontraron servicios</h3>
+                <p>Intenta ajustar los filtros o buscar algo diferente</p>
+              </div>';
+    }
+    
+    $html = ob_get_clean();
+    
+    wp_send_json_success($html);
+}
+
+/**
  * MRB AJAX Handler para sugerencias de búsqueda
  */
 add_action('wp_ajax_mrb_search_suggestions', 'mrb_handle_search_suggestions');

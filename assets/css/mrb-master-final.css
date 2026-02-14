@@ -35,10 +35,10 @@ Este archivo reemplaza TODOS los anteriores para evitar conflictos
     .mrb-container { padding: 0 16px !important; }
 }
 
-/* Search container específico - MÁS COMPACTO */
+/* Search container específico - BALANCEADO */
 .mrb-search-container {
-    max-width: 700px !important; /* Más pequeño */
-    margin: 12px auto !important; /* Mucho menos margen */
+    max-width: 780px !important; /* Tamaño óptimo */
+    margin: 20px auto !important; /* Margen balanceado */
     padding: 0 !important;
 }
 
@@ -266,7 +266,7 @@ Este archivo reemplaza TODOS los anteriores para evitar conflictos
 }
 
 /* ========================================
-   HEADER - COMPACTO
+   HEADER - ÓPTIMO
    ======================================== */
 .mrb-custom-header {
     position: fixed !important;
@@ -276,7 +276,7 @@ Este archivo reemplaza TODOS los anteriores para evitar conflictos
     background: white !important;
     border-bottom: 1px solid var(--mrb-border) !important;
     z-index: 1000 !important;
-    height: 70px !important; /* Reducido de 80px */
+    height: 75px !important; /* Balance perfecto */
 }
 
 .mrb-header-content {
@@ -290,7 +290,7 @@ Este archivo reemplaza TODOS los anteriores para evitar conflictos
 }
 
 .mrb-wrapper {
-    padding-top: 70px !important; /* Ajustado */
+    padding-top: 75px !important; /* Ajustado al header */
 }
 
 /* ========================================
@@ -298,7 +298,7 @@ Este archivo reemplaza TODOS los anteriores para evitar conflictos
    ======================================== */
 .mrb-hero {
     background: white !important;
-    padding: 16px 0 12px 0 !important; /* Balanceado: más arriba, menos abajo */
+    padding: 20px 0 !important; /* Espaciado equilibrado */
 }
 
 /* ========================================
